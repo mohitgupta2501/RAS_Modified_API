@@ -1,0 +1,56 @@
+<nav class="navbar">
+  <div class="navbar-left">
+    <button class="mobile-menu-btn" (click)="toggleMobileSidebar()" aria-label="Toggle menu">
+      <span class="material-icons">menu</span>
+    </button>
+    <a class="logo-box client-box" href="#">
+      <img src="assets/images/logo.png" alt="Jindal Logo" class="logo-img">
+    </a>
+  </div>
+
+  <div class="navbar-center">
+    <span class="material-icons title-icon">{{ pageIcon }}</span>
+    <h1 class="app-title">
+      <span class="app-page">{{ pageTitle }}</span>
+    </h1>
+  </div>
+
+  <div class="navbar-right">
+    <div class="shift-card">
+      <!-- <span class="shift-badge">A</span> -->
+      <div class="shift-text">
+        <span class="shift-label">{{ shiftLabel }}</span>
+        <span class="shift-time">{{ shiftTime }}</span>
+      </div>
+    </div>
+
+    <div class="navbar-divider"></div>
+
+    <a class="icon-btn notification-btn" [routerLink]="['/app/notifications']" aria-label="Notifications">
+      <span class="material-icons">notifications</span>
+      <span class="badge" *ngIf="unreadCount > 0"></span>
+    </a>
+
+    <div class="user-menu-wrapper">
+      <button class="user-menu-trigger" (click)="toggleUserMenu()" type="button" aria-label="User menu">
+        <div class="avatar" [title]="currentUser?.name ?? 'User'">
+          <span>{{ (currentUser?.name ?? 'AD').slice(0, 2).toUpperCase() }}</span>
+        </div>
+      </button>
+      <div class="user-dropdown" *ngIf="userMenuOpen">
+        <div class="user-dropdown-header">
+          <span class="user-name">{{ currentUser?.name ?? 'User' }}</span>
+          <span class="user-email">{{ currentUser?.email }}</span>
+        </div>
+        <button type="button" class="user-dropdown-item" (click)="logout()">
+          <span class="material-icons">logout</span>
+          Logout
+        </button>
+      </div>
+    </div>
+
+    <a class="logo-box hitachi-box" href="#">
+      <img src="assets/images/Hitachi_Logo.jpeg" alt="Hitachi Logo" class="logo-img">
+    </a>
+  </div>
+</nav>

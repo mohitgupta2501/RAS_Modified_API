@@ -1,0 +1,641 @@
+<div class="inventory-page">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <span class="breadcrumb-item muted">Home</span>
+    <span class="material-icons breadcrumb-sep">chevron_right</span>
+    <span class="breadcrumb-item active">Inventory</span>
+  </div>
+
+  <!-- Segment Toggle -->
+  <div class="segment-wrap">
+    <div class="segment-control">
+      <button
+        [class.seg-active]="activeType === 'rolls'"
+        (click)="setType('rolls')">
+        <span class="material-icons">settings</span>
+        Rolls
+      </button>
+      <button
+        [class.seg-active]="activeType === 'choke'"
+        (click)="setType('choke')">
+        <span class="material-icons">radio_button_checked</span>
+        Chock
+      </button>
+    </div>
+  </div>
+
+  <!-- SECTION 2 - KPI CARDS (ROLLS) -->
+  <div class="kpi-grid">
+    <ng-container *ngFor="let k of kpiCards">
+      <div
+        class="kpi-card"
+        *ngIf="k.id === 'r1'"
+        [style.border-top-color]="k.accent">
+        <div class="kpi-card-top">
+          <div class="kpi-card-top-left">
+            <div
+              class="kpi-icon-box"
+              [style.background]="k.accentBg">
+              <span class="material-icons" [style.color]="k.accent">settings_input_component</span>
+            </div>
+            <div class="kpi-card-text">
+              <div class="kpi-card-title" [style.color]="k.accent">{{ k.label }}</div>
+              <div class="kpi-card-subtitle">{{ k.subLabel }}</div>
+            </div>
+          </div>
+          <div class="kpi-card-top-right">
+            <div class="kpi-card-total" [style.color]="k.accent">{{ k.ready }}</div>
+            <span class="kpi-card-subtitle">Ready</span>
+          </div>
+        </div>
+        <div class="kpi-card-divider" [style.background]="k.barGradient"></div>
+        <div class="kpi-card-bottom">
+          <div class="kpi-card-half">
+            <div class="kpi-half-label">WR</div>
+            <div class="kpi-half-value">{{ k.wrCount }}</div>
+            
+          </div>
+          <!-- <div class="kpi-card-half">
+            <div class="kpi-half-label">BUR</div>
+            <div class="kpi-half-value">{{ k.burCount }}</div>
+          </div> -->
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngFor="let k of kpiCards">
+      <div
+        class="kpi-card"
+        *ngIf="k.id === 'r2'"
+        [style.border-top-color]="k.accent">
+        <div class="kpi-card-top">
+          <div class="kpi-card-top-left">
+            <div
+              class="kpi-icon-box"
+              [style.background]="k.accentBg">
+              <span class="material-icons" [style.color]="k.accent">settings_input_component</span>
+            </div>
+            <div class="kpi-card-text">
+              <div class="kpi-card-title" [style.color]="k.accent">{{ k.label }}</div>
+              <div class="kpi-card-subtitle">{{ k.subLabel }}</div>
+            </div>
+          </div>
+          <div class="kpi-card-top-right">
+            <div class="kpi-card-total" [style.color]="k.accent">{{ k.ready }}</div>
+            <span class="kpi-card-subtitle">Ready</span>
+          </div>
+        </div>
+        <div class="kpi-card-divider" [style.background]="k.barGradient"></div>
+        <div class="kpi-card-bottom">
+          <div class="kpi-card-half">
+            <div class="kpi-half-label">WR</div>
+            <div class="kpi-half-value">{{ k.wrCount }}</div>
+          </div>
+          <div class="kpi-card-half">
+            <div class="kpi-half-label">BUR</div>
+            <div class="kpi-half-value">{{ k.burCount }}</div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngFor="let k of kpiCards">
+      <div
+        class="kpi-card"
+        *ngIf="k.id === 'f1f4'"
+        [style.border-top-color]="k.accent">
+        <div class="kpi-card-top">
+          <div class="kpi-card-top-left">
+            <div
+              class="kpi-icon-box"
+              [style.background]="k.accentBg">
+              <span class="material-icons" [style.color]="k.accent">settings_input_component</span>
+            </div>
+            <div class="kpi-card-text">
+              <div class="kpi-card-title" [style.color]="k.accent">{{ k.label }}</div>
+              <div class="kpi-card-subtitle">{{ k.subLabel }}</div>
+            </div>
+          </div>
+          <div class="kpi-card-top-right">
+            <div class="kpi-card-total" [style.color]="k.accent">16</div>
+            <span class="kpi-card-subtitle">Ready</span>
+          </div>
+        </div>
+        <div class="kpi-card-divider" [style.background]="k.barGradient"></div>
+        <div class="kpi-card-bottom">
+          <div class="kpi-card-half">
+            <div class="kpi-half-label">WR</div>
+            <div class="kpi-half-value">{{ k.wrCount }}</div>
+          </div>
+          <div class="kpi-card-half">
+            <div class="kpi-half-label">BUR</div>
+            <div class="kpi-half-value">{{ k.burCount }}</div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngFor="let k of kpiCards">
+      <div
+        class="kpi-card"
+        *ngIf="k.id === 'f5f7'"
+        [style.border-top-color]="k.accent">
+        <div class="kpi-card-top">
+          <div class="kpi-card-top-left">
+            <div
+              class="kpi-icon-box"
+              [style.background]="k.accentBg">
+              <span class="material-icons" [style.color]="k.accent">settings_input_component</span>
+            </div>
+            <div class="kpi-card-text">
+              <div class="kpi-card-title" [style.color]="k.accent">{{ k.label }}</div>
+              <div class="kpi-card-subtitle">{{ k.subLabel }}</div>
+            </div>
+          </div>
+          <div class="kpi-card-top-right">
+            <div class="kpi-card-total" [style.color]="k.accent">{{ k.ready }}</div>
+            <span class="kpi-card-subtitle">Ready</span>
+          </div>
+        </div>
+        <div class="kpi-card-divider" [style.background]="k.barGradient"></div>
+        <div class="kpi-card-bottom">
+          <div class="kpi-card-half">
+            <div class="kpi-half-label">WR</div>
+            <div class="kpi-half-value">{{ k.wrCount }}</div>
+          </div>
+          <div class="kpi-card-half">
+            <div class="kpi-half-label">BUR</div>
+            <div class="kpi-half-value">{{ k.burCount }}</div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <div class="kpi-col-stack">
+      <ng-container *ngFor="let k of kpiCards">
+        <div
+          class="kpi-card"
+          *ngIf="k.id === 'ed'"
+          [style.border-top-color]="k.accent">
+          <div class="kpi-card-top kpi-card-top-only">
+            <div class="kpi-card-top-left">
+              <div class="kpi-icon-box" [style.background]="k.accentBg">
+                <span class="material-icons" [style.color]="k.accent">settings_input_component</span>
+              </div>
+              <div class="kpi-card-text">
+                <div class="kpi-card-title" [style.color]="k.accent">{{ k.label }}</div>
+                <div class="kpi-card-subtitle">{{ k.subLabel }}</div>
+              </div>
+            </div>
+            <div class="kpi-card-top-right">
+              <div class="kpi-card-total" [style.color]="k.accent">{{ k.ready }}</div>
+              <span class="kpi-card-subtitle">Ready</span>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngFor="let k of kpiCards">
+        <div
+          class="kpi-card"
+          *ngIf="k.id === 'pinch'"
+          [style.border-top-color]="k.accent">
+          <div class="kpi-card-top kpi-card-top-only">
+            <div class="kpi-card-top-left">
+              <div class="kpi-icon-box" [style.background]="k.accentBg">
+                <span class="material-icons" [style.color]="k.accent">settings_input_component</span>
+              </div>
+              <div class="kpi-card-text">
+                <div class="kpi-card-title" [style.color]="k.accent">{{ k.label }}</div>
+                <div class="kpi-card-subtitle">{{ k.subLabel }}</div>
+              </div>
+            </div>
+            <div class="kpi-card-top-right">
+              <div class="kpi-card-total" [style.color]="k.accent">{{ k.ready }}</div>
+              <span class="kpi-card-subtitle">Ready</span>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- SECTION 3 - ROLLS TABLE -->
+  <div *ngIf="activeType === 'rolls'">
+    <div class="table-card">
+      <div class="table-header" style="height: 52px;">
+        <div class="header-left">
+          <span class="material-icons table-icon">view_list</span>
+          <span class="table-title">Roll Inventory</span>
+        </div>
+        <button
+          type="button"
+          class="manual-entry-btn"
+          (click)="openManualEntry()">
+          <span class="material-icons">add</span>
+          Add
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <ag-grid-angular
+          class="ag-theme-custom-dark roll-inventory-grid"
+          [rowData]="rollPaginatedData"
+          [columnDefs]="rollInventoryColDefs"
+          [defaultColDef]="rollInventoryDefaultColDef"
+          [domLayout]="'autoHeight'"
+          [rowHeight]="52"
+          [headerHeight]="40"
+          [groupHeaderHeight]="36"
+          [suppressCellFocus]="true"
+          [suppressHorizontalScroll]="false"
+          [suppressRowTransform]="false"
+          style="width:100%">
+        </ag-grid-angular>
+      </div>
+
+      <div class="pagination-bar">
+        <span style="color:#7B90B8;font-size:13px;white-space:nowrap;flex-shrink:0">
+          Showing
+          <strong style="color:#E8F0FE">
+            {{ (rollCurrentPage-1)*rollPageSize + 1 }}–{{ min(rollCurrentPage*rollPageSize, rollTotalRows) }}
+          </strong>
+          of <strong style="color:#E8F0FE">{{ rollTotalRows }}</strong> rolls
+        </span>
+
+        <div style="display:flex;align-items:center;gap:6px">
+          <button
+            class="page-btn"
+            (click)="rollGoToPage(rollCurrentPage - 1)"
+            [disabled]="rollCurrentPage === 1">
+            <span class="material-icons" style="font-size:18px">chevron_left</span>
+          </button>
+
+          <button
+            *ngFor="let p of rollGetPageNumbers()"
+            class="page-btn"
+            [class.active]="rollCurrentPage === p"
+            (click)="rollGoToPage(p)">
+            {{ p }}
+          </button>
+
+          <button
+            class="page-btn"
+            (click)="rollGoToPage(rollCurrentPage + 1)"
+            [disabled]="rollCurrentPage === rollTotalPages">
+            <span class="material-icons" style="font-size:18px">chevron_right</span>
+          </button>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="color:#7B90B8;font-size:12px;white-space:nowrap">
+              Rows per page
+            </span>
+            <select
+              [(ngModel)]="rollPageSize"
+              (change)="rollCurrentPage=1; rollTotalRows=rollInventoryRowData.length"
+              style="
+                background:#0D1628;
+                border:1px solid rgba(0,212,255,0.15);
+                border-radius:6px;
+                color:#E8F0FE;
+                font-size:12px;
+                padding:6px 10px;
+                cursor:pointer;
+                outline:none;
+              ">
+              <option [value]="5">5</option>
+              <option [value]="10">10</option>
+              <option [value]="15">15</option>
+              <option [value]="20">20</option>
+            </select>
+          </div>
+
+          <button
+            class="export-btn"
+            (click)="onExportRollInventory()"
+            (mouseenter)="$any($event.currentTarget).style.background='rgba(0,212,255,0.08)';
+                          $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.5)'"
+            (mouseleave)="$any($event.currentTarget).style.background='transparent';
+                          $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.25)'">
+            <span class="material-icons" style="font-size:16px">download</span>
+            Export
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 - CHOKE KPI CARDS + TABLE -->
+  <div *ngIf="activeType === 'choke'">
+    <div class="table-card">
+      <div class="table-header">
+        <div class="header-left">
+          <span class="material-icons table-icon">view_list</span>
+          <span class="table-title">Chock Inventory</span>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <ag-grid-angular
+          class="ag-theme-custom-dark"
+          [rowData]="chokePaginatedData"
+          [columnDefs]="chokeColDefs"
+          [defaultColDef]="chokeDefaultColDef"
+          [domLayout]="'autoHeight'"
+          [rowHeight]="52"
+          [headerHeight]="44"
+          [suppressCellFocus]="true"
+          style="width:100%">
+        </ag-grid-angular>
+      </div>
+
+      <div class="pagination-bar">
+        <span style="color:#7B90B8;font-size:13px;white-space:nowrap;flex-shrink:0">
+          Showing
+          <strong style="color:#E8F0FE">
+            {{ (chokeCurrentPage-1)*chokePageSize + 1 }}–{{ min(chokeCurrentPage*chokePageSize, chokeTotalRows) }}
+          </strong>
+          of <strong style="color:#E8F0FE">{{ chokeTotalRows }}</strong> chokes
+        </span>
+
+        <div style="display:flex;align-items:center;gap:6px">
+          <button
+            class="page-btn"
+            (click)="chokeGoToPage(chokeCurrentPage - 1)"
+            [disabled]="chokeCurrentPage === 1">
+            <span class="material-icons" style="font-size:18px">chevron_left</span>
+          </button>
+
+          <button
+            *ngFor="let p of chokeGetPageNumbers()"
+            class="page-btn"
+            [class.active]="chokeCurrentPage === p"
+            (click)="chokeGoToPage(p)">
+            {{ p }}
+          </button>
+
+          <button
+            class="page-btn"
+            (click)="chokeGoToPage(chokeCurrentPage + 1)"
+            [disabled]="chokeCurrentPage === chokeTotalPages">
+            <span class="material-icons" style="font-size:18px">chevron_right</span>
+          </button>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="color:#7B90B8;font-size:12px;white-space:nowrap">
+              Rows per page
+            </span>
+            <select
+              [(ngModel)]="chokePageSize"
+              (change)="chokeCurrentPage=1; chokeTotalRows=chokeRowData.length"
+              style="
+                background:#0D1628;
+                border:1px solid rgba(0,212,255,0.15);
+                border-radius:6px;
+                color:#E8F0FE;
+                font-size:12px;
+                padding:6px 10px;
+                cursor:pointer;
+                outline:none;
+              ">
+              <option [value]="5">5</option>
+              <option [value]="10">10</option>
+              <option [value]="15">15</option>
+              <option [value]="20">20</option>
+            </select>
+          </div>
+
+          <button
+            class="export-btn"
+            (click)="onExportChokeInventory()"
+            (mouseenter)="$any($event.currentTarget).style.background='rgba(0,212,255,0.08)';
+                          $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.5)'"
+            (mouseleave)="$any($event.currentTarget).style.background='transparent';
+                          $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.25)'">
+            <span class="material-icons" style="font-size:16px">download</span>
+            Export
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5 - MANUAL ENTRY MODAL -->
+  <div
+    class="entry-modal-overlay"
+    *ngIf="openEntryModal"
+    (click)="closeManualEntry()">
+    <div
+      class="entry-modal-card"
+      (click)="$event.stopPropagation()">
+      <div class="entry-modal-header">
+        <div class="entry-header-left">
+          <span class="material-icons">edit</span>
+          <span>Manual Entry</span>
+        </div>
+        <button
+          type="button"
+          class="entry-close-btn"
+          (click)="closeManualEntry()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="entry-modal-body">
+        <div class="form-field">
+          <label>Stand</label>
+          <input
+            type="text"
+            [(ngModel)]="entryForm.stand" />
+        </div>
+        <div class="form-field">
+          <label>POS</label>
+          <select [(ngModel)]="entryForm.pos">
+            <option value="">Select</option>
+            <option value="T">T</option>
+            <option value="B">B</option>
+            <option value="OP">OP</option>
+            <option value="DR">DR</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Roll No.</label>
+          <input
+            type="text"
+            [(ngModel)]="entryForm.rollNo" />
+        </div>
+        <div class="form-field">
+          <label>Roll Type</label>
+          <div
+            class="custom-select"
+            [class.open]="openDropdown === 'rollType'"
+            (click)="$event.stopPropagation()">
+            <div
+              class="select-trigger"
+              (click)="toggleDropdown('rollType')">
+              <span class="select-value">
+                {{ entryForm.rollType || 'Select...' }}
+              </span>
+              <span class="material-icons select-arrow">expand_more</span>
+            </div>
+            <div class="select-options">
+              <div
+                class="select-option"
+                *ngFor="let o of rollTypeOptions"
+                [class.selected]="entryForm.rollType === o"
+                (click)="entryForm.rollType = o; openDropdown = null">
+                <span
+                  class="option-check material-icons"
+                  *ngIf="entryForm.rollType === o">
+                  check
+                </span>
+                {{ o }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Diameter [mm]</label>
+          <input
+            type="number"
+            [(ngModel)]="entryForm.diameter" />
+        </div>
+        <div class="form-field">
+          <label>Material Code</label>
+          <select [(ngModel)]="entryForm.matCode">
+            <option value="">Select</option>
+            <option value="SS">SS</option>
+            <option value="FS">FS</option>
+            <option value="HSS">HSS</option>
+            <option value="HICHR">HICHR</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Init Crown Max [mm]</label>
+          <input
+            type="number"
+            [(ngModel)]="entryForm.initCrownMax" />
+        </div>
+        <div class="form-field">
+          <label>Init Crown Min [mm]</label>
+          <input
+            type="number"
+            [(ngModel)]="entryForm.initCrownMin" />
+        </div>
+        <div class="form-field">
+          <label>Equi Crown Max [mm]</label>
+          <input
+            type="number"
+            [(ngModel)]="entryForm.equiCrownMax" />
+        </div>
+        <div class="form-field">
+          <label>Equi Crown Min [mm]</label>
+          <input
+            type="number"
+            [(ngModel)]="entryForm.equiCrownMin" />
+        </div>
+        <div class="form-field">
+          <label>Grind Type</label>
+          <div
+            class="custom-select"
+            [class.open]="openDropdown === 'grindType'"
+            (click)="$event.stopPropagation()">
+            <div
+              class="select-trigger"
+              (click)="toggleDropdown('grindType')">
+              <span class="select-value">
+                {{ entryForm.grindType || 'Select...' }}
+              </span>
+              <span class="material-icons select-arrow">expand_more</span>
+            </div>
+            <div class="select-options">
+              <div
+                class="select-option"
+                *ngFor="let g of grindTypeOptions"
+                [class.selected]="entryForm.grindType === g"
+                (click)="entryForm.grindType = g; openDropdown = null">
+                <span
+                  class="option-check material-icons"
+                  *ngIf="entryForm.grindType === g">
+                  check
+                </span>
+                {{ g }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Grind Index</label>
+          <input
+            type="number"
+            [(ngModel)]="entryForm.grindIndex" />
+        </div>
+        <div class="form-field">
+          <label>Shim [mm]</label>
+          <input
+            type="number"
+            [(ngModel)]="entryForm.shim" />
+        </div>
+        <div class="form-field">
+          <label>Total Accumulation Weight</label>
+          <input
+            type="number"
+            [(ngModel)]="entryForm.accumWeight" />
+        </div>
+        <div class="form-field">
+          <label>Total Accumulation Slabs</label>
+          <input
+            type="number"
+            [(ngModel)]="entryForm.accumSlabs" />
+        </div>
+        <div class="form-field">
+          <label>Total Accumulation Length</label>
+          <input
+            type="number"
+            [(ngModel)]="entryForm.accumLength" />
+        </div>
+        <div class="form-field">
+          <label>Supplier</label>
+          <select [(ngModel)]="entryForm.supplier">
+            <option value="">Select</option>
+            <option *ngFor="let s of ['Supplier1','Supplier2','Supplier3','Supplier4','Supplier5','Supplier6','Supplier7','Supplier8','Supplier9']" [value]="s">
+              {{ s }}
+            </option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Roll Change Time</label>
+          <input
+            type="datetime-local"
+            [(ngModel)]="entryForm.rollChangeTime" />
+        </div>
+      </div>
+
+      <div class="entry-modal-footer">
+        <button
+          type="button"
+          class="entry-cancel-btn"
+          (click)="closeManualEntry()">
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="entry-submit-btn"
+          (click)="submitEntry()">
+          Save Entry
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  <div class="success-toast" [class.visible]="showToast">
+    <span class="material-icons">check_circle</span>
+    <span>Entry saved successfully!</span>
+  </div>
+</div>
+

@@ -1,0 +1,263 @@
+<div class="dashboard-page">
+  <!-- Filter bar: single row -->
+  <div class="filter-bar">
+    <div class="filter-left">
+      <span class="stats-label">Stats for: WR (ID: </span>
+      <a class="stats-link" href="javascript:void(0)" (click)="$event.preventDefault()">WR123</a>
+      <span class="stats-label"> )</span>
+    </div>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search Roll / Coil ID"
+      [(ngModel)]="searchQuery"
+    />
+    <div class="filter-right">
+      <!-- <div class="filter-group">
+        <label class="filter-label">SELECT ITEM</label>
+        <div class="custom-select" [class.open]="openDropdown === 'item'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('item')">
+            <span class="select-value">{{ selectedItem }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let opt of itemOptions" [class.selected]="selectedItem === opt" (click)="selectItem(opt)">
+              <span class="option-check material-icons" *ngIf="selectedItem === opt">check</span>
+              {{ opt }}
+            </div>
+          </div>
+        </div>
+      </div> -->
+
+      <div class="filter-group">
+        <label class="filter-label">SELECT STAND</label>
+        <div class="custom-select" [class.open]="openDropdown === 'location'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('location')">
+            <span class="select-value">{{ selectedLocation }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let opt of locationOptions" [class.selected]="selectedLocation === opt" (click)="selectLocation(opt)">
+              <span class="option-check material-icons" *ngIf="selectedLocation === opt">check</span>
+              {{ opt }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">SELECT ROLL</label>
+        <div class="custom-select" [class.open]="openDropdown === 'roll'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('roll')">
+            <span class="select-value">{{ selectedRoll }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let opt of rollOptions" [class.selected]="selectedRoll === opt" (click)="selectRoll(opt)">
+              <span class="option-check material-icons" *ngIf="selectedRoll === opt">check</span>
+              {{ opt }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">SELECT POSITION</label>
+        <div class="custom-select" [class.open]="openDropdown === 'position'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('position')">
+            <span class="select-value">{{ selectedPosition }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let opt of positionOptions" [class.selected]="selectedPosition === opt" (click)="selectPosition(opt)">
+              <span class="option-check material-icons" *ngIf="selectedPosition === opt">check</span>
+              {{ opt }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 KPI stat cards -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-card-header">WR ROLLED LENGTH</div>
+      <div class="stat-card-body two-col">
+        <div class="stat-half">
+          <div class="stat-label">Best Achieved</div>
+          <div class="stat-value green">8.85 Km</div>
+          <div class="stat-meta cyan">Supplier1</div>
+        </div>
+        <div class="stat-half">
+          <div class="stat-label">Curr. Vendor: Supplier3</div>
+          <div class="stat-value orange">7 Km</div>
+          <div class="stat-meta">Best: 7.87 Km</div>
+        </div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-header">WR BEST PRICE</div>
+      <div class="stat-card-body single-col">
+        <div class="stat-label">Vendor</div>
+        <div class="stat-value cyan">Supplier1</div>
+        <div class="stat-divider"></div>
+        <div class="stat-label">Price</div>
+        <div class="stat-value green">11.76 MINR</div>
+        <div class="stat-label">PO Date</div>
+        <div class="stat-meta">11/24/2024</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-header">WR EOL</div>
+      <div class="stat-card-body two-col">
+        <div class="stat-half">
+          <div class="stat-label">Best Achieved</div>
+          <div class="stat-value green">9.85 Km</div>
+          <div class="stat-meta cyan">Supplier1</div>
+        </div>
+        <div class="stat-half">
+          <div class="stat-label">Curr. Vendor Supplier3</div>
+          <div class="stat-value orange">Best: 7.37 Km</div>
+          <div class="stat-value red">Remain: 0.65 Km</div>
+        </div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-header">WR CAPACITY UTILIZATION</div>
+      <div class="stat-card-body single-col">
+        <div class="stat-label">Best Achieved</div>
+        <div class="stat-value green big">95.96 %</div>
+        <div class="stat-divider"></div>
+        <div class="stat-meta cyan">Vendor: Supplier4</div>
+        <div class="stat-value orange">Curr. Vendor: 73.25 %</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab row -->
+  <div class="tabs-row">
+    <button type="button" class="tab-btn" [class.active]="activeTab === 'diameter'" (click)="switchTab('diameter')">
+      Diameter Utilization
+    </button>
+    <button type="button" class="tab-btn" [class.active]="activeTab === 'cost'" (click)="switchTab('cost')">
+      WR Cost
+    </button>
+    <button type="button" class="tab-btn" [class.active]="activeTab === 'supplier'" (click)="switchTab('supplier')">
+      Roll Supplier
+    </button>
+  </div>
+
+  <!-- Chart/table area -->
+  <div class="chart-card" *ngIf="activeTab === 'diameter'">
+    <div class="chart-container">
+      <div echarts [options]="diameterChartOptions" [autoResize]="true" class="chart"></div>
+    </div>
+  </div>
+
+  <div class="chart-card" *ngIf="activeTab === 'cost'">
+    <div class="chart-container">
+      <div echarts [options]="costChartOptions" [autoResize]="true" class="chart"></div>
+    </div>
+  </div>
+
+  <div class="supplier-card" *ngIf="activeTab === 'supplier'">
+    <div class="supplier-header">
+      <div class="supplier-title-wrap">
+        <span class="supplier-title-label">Roll Supplier History:</span>
+        <span class="supplier-title-value">{{ selectedSupplier }}</span>
+      </div>
+      <div class="custom-select supplier-dropdown" [class.open]="openDropdown === 'supplier'" (click)="$event.stopPropagation()">
+        <div class="select-trigger" (click)="toggleDropdown('supplier')">
+          <span class="select-value">{{ selectedSupplier }}</span>
+          <span class="material-icons select-arrow">expand_more</span>
+        </div>
+        <div class="select-options">
+          <div class="select-option" *ngFor="let s of supplierOptions" [class.selected]="selectedSupplier === s" (click)="selectSupplier(s)">
+            <span class="option-check material-icons" *ngIf="selectedSupplier === s">check</span>
+            {{ s }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table class="supplier-table">
+        <thead>
+          <tr>
+            <th>Roll ID</th>
+            <th>Roll Type</th>
+            <th>PO Delivery Date</th>
+            <th>Actual Delivery Date</th>
+            <th>Price(MINR)</th>
+            <th>Remarks</th>
+            <th>Strip Breakage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of rollSupplierData; let i = index" [class.even]="i % 2 === 1">
+            <td class="col-roll-id">{{ row.rollId }}</td>
+            <td class="col-roll-type">{{ row.rollType }}</td>
+            <td class="col-po-delivery">{{ row.poDelivery }}</td>
+            <td class="col-actual-delivery" [class.late]="isDeliveryLate(row)" [class.ontime]="!isDeliveryLate(row)">
+              {{ row.actualDelivery }}
+            </td>
+            <td class="col-price">{{ row.price }}</td>
+            <td class="col-remarks">{{ row.remarks }}</td>
+            <td class="col-breakage">
+              <button type="button" class="view-breakage-btn" (click)="openBreakageModal(row.rollId)">View</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination-wrap">
+      <button type="button" class="page-btn" (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+      <button type="button" class="page-btn active">{{ currentPage }}</button>
+      <button type="button" class="page-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages">Next</button>
+    </div>
+  </div>
+
+  <!-- Strip Breakage Modal -->
+  <div class="modal-backdrop" *ngIf="showBreakageModal" (click)="showBreakageModal = false"></div>
+  <div class="breakage-modal" *ngIf="showBreakageModal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <span class="material-icons" style="color: #FF8C42">warning</span>
+        Strip Breakage Analysis
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="info-row">
+        <span class="info-label">Roll ID:</span>
+        <span class="info-value cyan">{{ selectedRollId }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Breakage Count:</span>
+        <span class="info-value">2 Breakages</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Failure Location:</span>
+        <span class="info-value">High Tension Zone</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Failure Mode:</span>
+        <span class="info-value">Strip snap at Stand-3</span>
+      </div>
+      <div class="section-title">Probable Cause:</div>
+      <ul class="cause-list">
+        <li>Sudden tensile overload</li>
+        <li>Improper roll crown / profile</li>
+        <li>High inter-stand tension</li>
+        <li>Strip camber / steering issue</li>
+        <li>Material grade variation</li>
+      </ul>
+      <div class="section-title">History / Observation:</div>
+      <p class="observation">
+        Repeated strip instability observed during last rolling cycle. Operator intervention required.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="close-btn" (click)="showBreakageModal = false">Close</button>
+    </div>
+  </div>
+</div>

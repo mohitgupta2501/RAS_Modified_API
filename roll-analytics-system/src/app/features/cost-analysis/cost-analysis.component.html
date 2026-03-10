@@ -1,0 +1,373 @@
+<div class="cost-analysis-page">
+  <div class="breadcrumb">
+    <span class="breadcrumb-item muted">Home</span>
+    <span class="material-icons breadcrumb-sep">chevron_right</span>
+    <span class="breadcrumb-item active">Cost Analysis</span>
+  </div>
+
+  <!-- SECTION 1 - Filter bar -->
+  <div class="filter-bar">
+    <div class="custom-select" [class.open]="openDropdown === 'mill'" (click)="$event.stopPropagation()">
+      <div class="select-trigger" (click)="toggleDropdown('mill')">
+        <span class="select-value">{{ selectedMill }}</span>
+        <span class="material-icons select-arrow">expand_more</span>
+      </div>
+      <div class="select-options">
+        <div class="select-option" *ngFor="let o of millOptions" [class.selected]="selectedMill === o" (click)="selectMill(o)">
+          <span class="option-check material-icons" *ngIf="selectedMill === o">check</span>
+          {{ o }}
+        </div>
+      </div>
+    </div>
+    <div class="custom-select" [class.open]="openDropdown === 'rollType'" (click)="$event.stopPropagation()">
+      <div class="select-trigger" (click)="toggleDropdown('rollType')">
+        <span class="select-value">{{ selectedRollType }}</span>
+        <span class="material-icons select-arrow">expand_more</span>
+      </div>
+      <div class="select-options">
+        <div class="select-option" *ngFor="let o of rollTypeOptions" [class.selected]="selectedRollType === o" (click)="selectRollType(o)">
+          <span class="option-check material-icons" *ngIf="selectedRollType === o">check</span>
+          {{ o }}
+        </div>
+      </div>
+    </div>
+    <div class="custom-select" [class.open]="openDropdown === 'supplier'" (click)="$event.stopPropagation()">
+      <div class="select-trigger" (click)="toggleDropdown('supplier')">
+        <span class="select-value">{{ selectedSupplier }}</span>
+        <span class="material-icons select-arrow">expand_more</span>
+      </div>
+      <div class="select-options">
+        <div class="select-option" *ngFor="let o of supplierOptions" [class.selected]="selectedSupplier === o" (click)="selectSupplier(o)">
+          <span class="option-check material-icons" *ngIf="selectedSupplier === o">check</span>
+          {{ o }}
+        </div>
+      </div>
+    </div>
+    <div class="custom-select" [class.open]="openDropdown === 'period'" (click)="$event.stopPropagation()">
+      <div class="select-trigger" (click)="toggleDropdown('period')">
+        <span class="select-value">{{ selectedPeriod }}</span>
+        <span class="material-icons select-arrow">expand_more</span>
+      </div>
+      <div class="select-options">
+        <div class="select-option" *ngFor="let o of periodOptions" [class.selected]="selectedPeriod === o" (click)="selectPeriod(o)">
+          <span class="option-check material-icons" *ngIf="selectedPeriod === o">check</span>
+          {{ o }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 - 3 KPI cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-card-header">COST PER KM ROLLED</div>
+      <div class="kpi-card-body">
+        <span class="material-icons kpi-icon cyan">straighten</span>
+        <div class="kpi-main cyan">{{ kpiCostPerKm.current }} MINR/Km</div>
+        <div class="kpi-divider"></div>
+        <div class="kpi-row"><span class="kpi-label">Best</span><span class="kpi-val green">{{ kpiCostPerKm.best }} MINR/Km</span></div>
+        <div class="kpi-row"><span class="kpi-label">Avg</span><span class="kpi-val orange">{{ kpiCostPerKm.avg }} MINR/Km</span></div>
+        <div class="trend-badge" [class.below]="kpi1BelowAvg" [class.above]="!kpi1BelowAvg">
+          <span class="material-icons">{{ kpi1BelowAvg ? 'trending_down' : 'trending_up' }}</span>
+          {{ kpi1BelowAvg ? 'Below Average — Efficient' : 'Above Average' }}
+        </div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-header">COST PER TON PROCESSED</div>
+      <div class="kpi-card-body">
+        <span class="material-icons kpi-icon purple">scale</span>
+        <div class="kpi-main purple">{{ kpiCostPerTon.current }} MINR/Ton</div>
+        <div class="kpi-divider"></div>
+        <div class="kpi-row"><span class="kpi-label">Best</span><span class="kpi-val green">{{ kpiCostPerTon.best }} MINR/Ton</span></div>
+        <div class="kpi-row"><span class="kpi-label">Avg</span><span class="kpi-val orange">{{ kpiCostPerTon.avg }} MINR/Ton</span></div>
+        <div class="trend-badge" [class.below]="kpi2BelowAvg" [class.above]="!kpi2BelowAvg">
+          <span class="material-icons">{{ kpi2BelowAvg ? 'trending_down' : 'trending_up' }}</span>
+          {{ kpi2BelowAvg ? 'Below Average — Efficient' : 'Above Average' }}
+        </div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-card-header">COST PER CAMPAIGN</div>
+      <div class="kpi-card-body">
+        <span class="material-icons kpi-icon orange">campaign</span>
+        <div class="kpi-main orange">{{ kpiCostPerCampaign.current }} MINR</div>
+        <div class="kpi-divider"></div>
+        <div class="kpi-row"><span class="kpi-label">Best</span><span class="kpi-val green">{{ kpiCostPerCampaign.best }} MINR</span></div>
+        <div class="kpi-row"><span class="kpi-label">Avg</span><span class="kpi-val orange">{{ kpiCostPerCampaign.avg }} MINR</span></div>
+        <div class="trend-badge" [class.below]="kpi3BelowAvg" [class.above]="!kpi3BelowAvg">
+          <span class="material-icons">{{ kpi3BelowAvg ? 'trending_down' : 'trending_up' }}</span>
+          {{ kpi3BelowAvg ? 'Below Average — Efficient' : 'Above Average' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3 - Two charts side by side -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">
+        <span class="material-icons chart-icon cyan">attach_money</span>
+        Supplier Cost Comparison
+      </div>
+      <div class="chart-wrap" style="height: 340px;">
+        <div echarts [options]="supplierChartOptions" [autoResize]="true" class="chart"></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">
+        <span class="material-icons chart-icon purple">timeline</span>
+        Lifecycle Cost Trend (Monthly)
+      </div>
+      <div class="chart-wrap" style="height: 340px;">
+        <div echarts [options]="trendChartOptions" [autoResize]="true" class="chart"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 - Manual Indirect Cost Entry -->
+  <div class="indirect-card">
+    <div class="indirect-header">
+      <div class="indirect-title-wrap">
+        <span class="material-icons indirect-icon">build</span>
+        Manual Indirect Cost Entry
+      </div>
+      <button type="button" class="add-entry-btn" (click)="openEntryForm = !openEntryForm">
+        <span class="material-icons">add</span>
+        Add Entry
+      </button>
+    </div>
+    <div class="entry-form-wrap" *ngIf="openEntryForm">
+      <div class="entry-form">
+        <div class="form-field">
+          <label>Roll ID</label>
+          <input type="text" [(ngModel)]="newEntry.rollId" placeholder="Roll ID" />
+        </div>
+        <div class="form-field">
+          <label>Activity Type</label>
+          <div class="custom-select" [class.open]="openDropdown === 'activity'" (click)="$event.stopPropagation()">
+            <div class="select-trigger" (click)="toggleDropdown('activity')">
+              <span class="select-value">{{ newEntry.activity || 'Grinding' }}</span>
+              <span class="material-icons select-arrow">expand_more</span>
+            </div>
+            <div class="select-options">
+              <div class="select-option" *ngFor="let o of activityTypeOptions" [class.selected]="newEntry.activity === o" (click)="newEntry.activity = o; openDropdown = null">
+                <span class="option-check material-icons" *ngIf="newEntry.activity === o">check</span>
+                {{ o }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Cost (MINR)</label>
+          <input type="number" step="0.01" [(ngModel)]="newEntry.cost" placeholder="0" />
+        </div>
+        <div class="form-field">
+          <label>Date</label>
+          <app-datetime-picker [(value)]="newEntry.date" label=""></app-datetime-picker>
+        </div>
+        <div class="form-field">
+          <label>Duration (Hrs)</label>
+          <input type="number" step="0.1" [(ngModel)]="newEntry.duration" placeholder="0" />
+        </div>
+        <div class="form-field full-width">
+          <label>Remarks</label>
+          <input type="text" [(ngModel)]="newEntry.remarks" placeholder="Remarks" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" (click)="openEntryForm = false">Cancel</button>
+        <button type="button" class="save-btn" (click)="addEntry()">Save Entry</button>
+      </div>
+    </div>
+    <div class="entries-table-wrap">
+      <table class="entries-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Roll ID</th>
+            <th>Activity Type</th>
+            <th>Duration (Hrs)</th>
+            <th>Cost (MINR)</th>
+            <th>Remarks</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of entriesData; let i = index" [class.even]="i % 2 === 1">
+            <td class="col-date">{{ e.date }}</td>
+            <td class="col-roll-id">{{ e.rollId }}</td>
+            <td class="col-activity">{{ e.activity }}</td>
+            <td class="col-duration">{{ e.duration }}</td>
+            <td class="col-cost">{{ e.cost }}</td>
+            <td class="col-remarks">{{ e.remarks }}</td>
+            <td class="col-action">
+              <span class="material-icons action-delete" (click)="deleteEntry(i)" title="Delete">delete_outline</span>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="4">TOTAL INDIRECT COST</td>
+            <td class="total-cost">{{ totalIndirectCost | number:'1.2-2' }}</td>
+            <td colspan="2"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 5 - Roll Condition Monitoring -->
+  <div class="condition-card">
+    <div class="condition-header">
+      <div class="condition-title-wrap">
+        <span class="material-icons condition-icon">health_and_safety</span>
+        Roll Condition Monitoring
+      </div>
+      <button type="button" class="log-condition-btn" (click)="showConditionForm = !showConditionForm">
+        Log Condition
+      </button>
+    </div>
+    <div class="condition-form-wrap" *ngIf="showConditionForm">
+      <div class="condition-form">
+        <div class="form-field">
+          <label>Roll ID</label>
+          <input type="text" [(ngModel)]="conditionForm.rollId" placeholder="Roll ID" />
+        </div>
+        <div class="form-field">
+          <label>Stand</label>
+          <div class="custom-select" [class.open]="openDropdown === 'stand'" (click)="$event.stopPropagation()">
+            <div class="select-trigger" (click)="toggleDropdown('stand')">
+              <span class="select-value">{{ conditionForm.stand }}</span>
+              <span class="material-icons select-arrow">expand_more</span>
+            </div>
+            <div class="select-options">
+              <div class="select-option" *ngFor="let s of stands" [class.selected]="conditionForm.stand === s" (click)="conditionForm.stand = s; openDropdown = null">
+                <span class="option-check material-icons" *ngIf="conditionForm.stand === s">check</span>
+                {{ s }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Date &amp; Time</label>
+          <app-datetime-picker [(value)]="conditionForm.date" label=""></app-datetime-picker>
+        </div>
+        <div class="form-field">
+          <label>Spall</label>
+          <div class="custom-select" [class.open]="openDropdown === 'spall'" (click)="$event.stopPropagation()">
+            <div class="select-trigger" (click)="toggleDropdown('spall')">
+              <span class="select-value">{{ conditionForm.spall }}</span>
+              <span class="material-icons select-arrow">expand_more</span>
+            </div>
+            <div class="select-options">
+              <div class="select-option" *ngFor="let o of spallOptions" [class.selected]="conditionForm.spall === o" (click)="conditionForm.spall = o; openDropdown = null">
+                <span class="option-check material-icons" *ngIf="conditionForm.spall === o">check</span>
+                {{ o }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Crack</label>
+          <div class="custom-select" [class.open]="openDropdown === 'crack'" (click)="$event.stopPropagation()">
+            <div class="select-trigger" (click)="toggleDropdown('crack')">
+              <span class="select-value">{{ conditionForm.crack }}</span>
+              <span class="material-icons select-arrow">expand_more</span>
+            </div>
+            <div class="select-options">
+              <div class="select-option" *ngFor="let o of crackOptions" [class.selected]="conditionForm.crack === o" (click)="conditionForm.crack = o; openDropdown = null">
+                <span class="option-check material-icons" *ngIf="conditionForm.crack === o">check</span>
+                {{ o }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Circulation / Fit for Use</label>
+          <div class="custom-select" [class.open]="openDropdown === 'circulation'" (click)="$event.stopPropagation()">
+            <div class="select-trigger" (click)="toggleDropdown('circulation')">
+              <span class="select-value">{{ conditionForm.circulation }}</span>
+              <span class="material-icons select-arrow">expand_more</span>
+            </div>
+            <div class="select-options">
+              <div class="select-option" *ngFor="let o of circulationOptions" [class.selected]="conditionForm.circulation === o" (click)="conditionForm.circulation = o; openDropdown = null">
+                <span class="option-check material-icons" *ngIf="conditionForm.circulation === o">check</span>
+                {{ o }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Surface Condition</label>
+          <div class="custom-select" [class.open]="openDropdown === 'surface'" (click)="$event.stopPropagation()">
+            <div class="select-trigger" (click)="toggleDropdown('surface')">
+              <span class="select-value">{{ conditionForm.surface }}</span>
+              <span class="material-icons select-arrow">expand_more</span>
+            </div>
+            <div class="select-options">
+              <div class="select-option" *ngFor="let o of surfaceOptions" [class.selected]="conditionForm.surface === o" (click)="conditionForm.surface = o; openDropdown = null">
+                <span class="option-check material-icons" *ngIf="conditionForm.surface === o">check</span>
+                {{ o }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-field full-width">
+          <label>Remarks</label>
+          <textarea rows="2" [(ngModel)]="conditionForm.remarks" placeholder="Remarks"></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="cancel-btn" (click)="showConditionForm = false">Cancel</button>
+        <button type="button" class="save-btn" (click)="saveCondition()">Save Condition</button>
+      </div>
+    </div>
+    <div class="condition-table-wrap">
+      <table class="condition-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Roll ID</th>
+            <th>Stand</th>
+            <th>Spall</th>
+            <th>Crack</th>
+            <th>Circulation</th>
+            <th>Surface</th>
+            <th>Overall Status</th>
+            <th>Remarks</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of conditionData; let i = index" [class.even]="i % 2 === 1">
+            <td class="col-date">{{ row.date }}</td>
+            <td class="col-roll-id">{{ row.rollId }}</td>
+            <td class="col-stand">{{ row.stand }}</td>
+            <td class="col-spall">{{ row.spall }}</td>
+            <td class="col-crack">{{ row.crack }}</td>
+            <td class="col-circulation">{{ row.circulation }}</td>
+            <td class="col-surface">{{ row.surface }}</td>
+            <td class="col-status">
+              <span class="status-badge" [class.critical]="getOverallStatus(row) === 'CRITICAL'" [class.warning]="getOverallStatus(row) === 'WARNING'" [class.good]="getOverallStatus(row) === 'GOOD'">
+                {{ getOverallStatus(row) }}
+              </span>
+            </td>
+            <td class="col-remarks">{{ row.remarks }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECTION 6 - Cost vs Performance Correlation -->
+  <div class="correlation-card">
+    <div class="chart-title">
+      <span class="material-icons chart-icon cyan">insights</span>
+      Cost vs Performance Correlation (Supplier View)
+    </div>
+    <div class="chart-wrap correlation-chart" style="height: 380px;">
+      <div echarts [options]="correlationChartOptions" [autoResize]="true" class="chart"></div>
+    </div>
+  </div>
+
+

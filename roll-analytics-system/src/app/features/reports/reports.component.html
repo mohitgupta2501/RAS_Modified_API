@@ -1,0 +1,125 @@
+<div class="reports-page">
+  <div class="breadcrumb">
+    <span class="breadcrumb-item muted">Home</span>
+    <span class="material-icons breadcrumb-sep">chevron_right</span>
+    <span class="breadcrumb-item active">Reports</span>
+  </div>
+
+  <div class="main-card">
+    <div class="card-header">
+      <span class="material-icons header-icon">summarize</span>
+      <span class="header-title">Generate Reports</span>
+    </div>
+
+    <div class="card-body">
+      <form class="report-form">
+        <!-- FIELD 1 - SELECT DATE RANGE -->
+        <div class="form-field">
+          <label class="field-label">Select Date Range</label>
+          <div class="date-range-row">
+            <app-datetime-picker [(value)]="fromDate" label="From Date"></app-datetime-picker>
+            <span class="date-separator">—</span>
+            <app-datetime-picker [(value)]="toDate" label="To Date"></app-datetime-picker>
+          </div>
+        </div>
+
+        <!-- FIELD 2 - SELECT FEATURE -->
+        <div class="form-field">
+          <label class="field-label">Select Feature</label>
+          <div class="custom-select" [class.open]="openDropdown === 'feature'" (click)="$event.stopPropagation()">
+            <div class="select-trigger" (click)="toggleDropdown('feature')">
+              <span class="select-value">{{ selectedFeature }}</span>
+              <span class="material-icons select-arrow">expand_more</span>
+            </div>
+            <div class="select-options">
+              <div
+                class="select-option"
+                *ngFor="let opt of featureOptions"
+                [class.selected]="selectedFeature === opt"
+                (click)="selectedFeature = opt; onFeatureChange(); openDropdown = null">
+                <span class="option-check material-icons" *ngIf="selectedFeature === opt">check</span>
+                {{ opt }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FIELD 3 - SELECT PARAMETERS
+        <div class="form-field">
+          <label class="field-label">Select Parameters</label>
+          <div class="select-actions">
+            <span class="select-link" (click)="selectAll()">Select All</span>
+            <span class="select-link deselect" (click)="deselectAll()">Deselect All</span>
+          </div>
+          <div class="params-grid">
+            <label
+              class="param-checkbox"
+              *ngFor="let param of availableParams"
+              [class.checked]="isParamSelected(param)">
+              <input
+                type="checkbox"
+                [checked]="isParamSelected(param)"
+                (change)="toggleParam(param)"
+                hidden />
+              <span class="checkbox-box"></span>
+              <span class="checkbox-label">{{ param }}</span>
+            </label>
+          </div>
+        </div> -->
+
+        <!-- FIELD 4 - REPORT FORMAT -->
+        <div class="form-field">
+          <label class="field-label">Report Format</label>
+          <div class="format-buttons">
+            <button
+              type="button"
+              class="format-btn"
+              [class.active]="selectedFormat === 'CSV'"
+              (click)="selectedFormat = 'CSV'">
+              CSV
+            </button>
+            <button
+              type="button"
+              class="format-btn"
+              [class.active]="selectedFormat === 'EXCEL'"
+              (click)="selectedFormat = 'EXCEL'">
+              EXCEL
+            </button>
+          </div>
+        </div>
+
+        <!-- PREVIEW SECTION
+        <div class="preview-section" *ngIf="selectedParams.length > 0">
+          <div class="preview-card">
+            <span class="material-icons preview-icon">info</span>
+            <div class="preview-content">
+              <div class="preview-title">Report Preview</div>
+              <div class="preview-row">Feature: {{ selectedFeature }}</div>
+              <div class="preview-row">Parameters: {{ selectedParams.length }} selected</div>
+              <div class="preview-row">Date Range: {{ fromDate || 'Not set' }} — {{ toDate || 'Not set' }}</div>
+              <div class="preview-row format-row">Format: {{ selectedFormat }}</div>
+            </div>
+          </div>
+        </div> -->
+
+        <!-- DOWNLOAD BUTTON ROW -->
+        <div class="download-row">
+          <button
+            type="button"
+            class="download-btn"
+            [disabled]="selectedParams.length === 0"
+            (click)="downloadReport()">
+            <span class="material-icons">download</span>
+            Download Report
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  <div class="success-toast" [class.visible]="showDownloadToast">
+    <span class="material-icons">check_circle</span>
+    <span>Report generated successfully!</span>
+  </div>
+</div>

@@ -1,0 +1,78 @@
+<div class="popup-backdrop" *ngIf="popupOpen" (click)="popupOpen = false"></div>
+<div class="alarm-popup" [class.open]="popupOpen">
+  <div class="popup-header">
+    <div class="popup-title">
+      <span class="material-icons">notifications_active</span>
+      <span class="footer-text">Active Alarms</span>
+      <span class="total-badge">{{ alarms.length }}</span>
+    </div>
+    <div class="popup-chips">
+      <span class="chip high">
+        <span class="material-icons">error</span>
+        HIGH {{ highCount }}
+      </span>
+      <span class="chip medium">
+        <span class="material-icons">warning</span>
+        MEDIUM {{ medCount }}
+      </span>
+      <span class="chip low">
+        <span class="material-icons">check_circle</span>
+        LOW {{ lowCount }}
+      </span>
+    </div>
+    <button class="close-popup" (click)="togglePopup(); $event.stopPropagation()">
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+
+  <div class="popup-table-wrap">
+    <table class="popup-table">
+      <thead>
+        <tr>
+          <th>DATE & TIME</th>
+          <th>DESCRIPTION</th>
+          <th>PARAMETER</th>
+          <th>SEVERITY</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of alarms">
+          <td>
+            <span class="material-icons cal-icon">calendar_today</span>
+            {{ a.date }} | {{ a.time }}
+          </td>
+          <td>{{ a.description }}</td>
+          <td><span class="param-chip">{{ a.parameter }}</span></td>
+          <td>
+            <span class="severity-badge" [class]="a.severity.toLowerCase()">
+              {{ a.severity }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="popup-footer-bar">
+    <button class="view-all-btn" routerLink="/app/alarms" (click)="popupOpen = false">
+      <span class="material-icons">open_in_new</span>
+      View Full Alarms Page
+    </button>
+  </div>
+</div>
+
+<div class="alarm-footer-bar" (click)="togglePopup()">
+  <div class="footer-left">
+    <span class="material-icons footer-alarm-icon">alarm</span>
+    <span class="footer-text">
+      {{ latestAlarmText || 'No active alarms' }}
+    </span>
+  </div>
+
+  <div class="footer-right">
+    <span class="footer-clock">{{ currentTime }}</span>
+    <span class="material-icons expand-icon" [class.rotated]="popupOpen">
+      expand_less
+    </span>
+  </div>
+</div>

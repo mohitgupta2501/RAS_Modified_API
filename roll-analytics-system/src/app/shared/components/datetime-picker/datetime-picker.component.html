@@ -1,0 +1,74 @@
+<div class="dt-picker-wrap" (click)="$event.stopPropagation()">
+  <label class="dt-label" *ngIf="label">{{ label }}</label>
+  <div class="dt-input-row" (click)="togglePicker()">
+    <span class="material-icons dt-icon">calendar_today</span>
+    <span class="dt-value">{{ displayValue || 'Select date & time' }}</span>
+    <span class="material-icons dt-arrow">expand_more</span>
+  </div>
+
+  <div class="dt-panel" *ngIf="isOpen">
+    <div class="dt-header">
+      <button type="button" (click)="prevMonth()">
+        <span class="material-icons">chevron_left</span>
+      </button>
+      <span class="dt-month-year" (click)="toggleMonthView()">
+        {{ monthNames[currentMonth] }} {{ currentYear }}
+        <span class="material-icons">arrow_drop_down</span>
+      </span>
+      <button type="button" (click)="nextMonth()">
+        <span class="material-icons">chevron_right</span>
+      </button>
+    </div>
+
+    <div class="dt-calendar">
+      <div class="day-names">
+        <span *ngFor="let d of dayNames">{{ d }}</span>
+      </div>
+      <div class="day-grid">
+        <span
+          *ngFor="let day of calendarDays"
+          class="day-cell"
+          [class.empty]="!day"
+          [class.today]="isToday(day)"
+          [class.selected]="isSelected(day)"
+          (click)="selectDay(day)">
+          {{ day ?? '' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="dt-time-row">
+      <div class="time-group">
+        <label>HH</label>
+        <div class="time-scroll">
+          <div
+            *ngFor="let h of hours"
+            class="time-item"
+            [class.selected]="selectedHour === h"
+            (click)="selectedHour = h; updateValue()">
+            {{ h | number:'2.0-0' }}
+          </div>
+        </div>
+      </div>
+      <span class="time-sep">:</span>
+      <div class="time-group">
+        <label>MM</label>
+        <div class="time-scroll">
+          <div
+            *ngFor="let m of minutes"
+            class="time-item"
+            [class.selected]="selectedMinute === m"
+            (click)="selectedMinute = m; updateValue()">
+            {{ m | number:'2.0-0' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dt-actions">
+      <button type="button" class="dt-clear" (click)="clearValue()">Clear</button>
+      <button type="button" class="dt-today" (click)="setToday()">Today</button>
+      <button type="button" class="dt-apply" (click)="applyValue()">Apply</button>
+    </div>
+  </div>
+</div>

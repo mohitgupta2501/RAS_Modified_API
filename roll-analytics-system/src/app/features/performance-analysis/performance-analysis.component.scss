@@ -1,0 +1,510 @@
+.perf-analysis-page {
+  min-height: 100%;
+  // padding: 24px;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.breadcrumb-item {
+  color: #7b90b8;
+
+  &.muted {
+    color: #3d5175;
+  }
+
+  &.active {
+    color: #00d4ff;
+    font-weight: 500;
+  }
+}
+
+.breadcrumb-sep {
+  font-size: 16px;
+  color: #3d5175;
+}
+
+
+.pa-filter-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  // padding: 0px 24px;
+  background: linear-gradient(145deg, #0f1a2e, #0a1020);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  border-radius: 14px;
+}
+
+.pa-filter-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .title {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: #e8f0fe;
+    text-transform: uppercase;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    color: #7b90b8;
+  }
+}
+
+.pa-filter-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 160px;
+}
+
+.filter-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #3d5175;
+  margin-bottom: 2px;
+}
+
+/* Prevent any global flex-column from overriding */
+.filter-field-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  flex-shrink: 0 !important;
+}
+
+.filter-field-label {
+  color: #3D5175;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  margin-left: 10px;
+  margin-bottom: -8px;
+  
+  display: inline-block;
+  width: fit-content;
+  z-index: 999;
+  background: #0F1A2E;
+}
+
+.card {
+  background: linear-gradient(145deg, #0f1a2e, #0a1020);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: rgba(0, 212, 255, 0.03);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.08);
+}
+
+.card-header .left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 0 0, rgba(0, 212, 255, 0.35), transparent);
+  color: #60a5fa;
+  font-size: 20px;
+
+  &.cyan {
+    color: #00d4ff;
+    background: radial-gradient(circle at 0 0, rgba(0, 212, 255, 0.35), transparent);
+  }
+
+  &.purple {
+    color: #a78bfa;
+    background: radial-gradient(circle at 0 0, rgba(167, 139, 250, 0.35), transparent);
+  }
+}
+
+.card-header .texts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-header .title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e8f0fe;
+}
+
+.card-header .subtitle {
+  font-size: 11px;
+  color: #7b90b8;
+}
+
+.card-body {
+  padding: 16px 20px 18px;
+}
+
+.grid-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.matrix-card {
+  margin-top: 4px;
+}
+
+.matrix-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Supplier performance grid overrides */
+::ng-deep .supplier-perf-grid.ag-theme-custom-dark {
+  --ag-background-color: transparent;
+  --ag-header-background-color: #0a1428;
+  --ag-odd-row-background-color: rgba(0, 0, 0, 0.12);
+  --ag-even-row-background-color: transparent;
+  --ag-row-hover-color: rgba(37, 99, 235, 0.07);
+  --ag-border-color: rgba(255, 255, 255, 0.05);
+  --ag-row-border-color: rgba(255, 255, 255, 0.05);
+  --ag-foreground-color: #e8f0fe;
+
+  border: none !important;
+
+  .ag-root-wrapper {
+    border: none !important;
+    border-radius: 0 0 14px 14px;
+    overflow: hidden;
+  }
+
+  .ag-header {
+    border-bottom: 1px solid rgba(0, 212, 255, 0.15) !important;
+    min-height: 56px !important;
+  }
+
+  .ag-header-cell {
+    padding: 8px 8px !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .ag-header-cell-label {
+    justify-content: center !important;
+    text-align: center !important;
+    white-space: normal !important;
+    line-height: 1.3 !important;
+  }
+
+  .ag-header-cell-text {
+    color: #3d5175 !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.8px !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    line-height: 1.4 !important;
+  }
+
+  .ag-cell {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 8px !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.03) !important;
+  }
+
+  .ag-pinned-left-cols-container .ag-cell {
+    justify-content: flex-start !important;
+    padding: 0 16px !important;
+    border-right: 1px solid rgba(0, 212, 255, 0.1) !important;
+  }
+
+  .ag-row {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  }
+
+  .ag-row:last-child {
+    border-bottom: none !important;
+  }
+
+  .ag-sort-indicator-icon,
+  .ag-header-icon { display: none !important; }
+}
+
+/* Matrix AG Grid overrides (fitness + thinker) */
+::ng-deep .matrix-ag-grid.ag-theme-custom-dark {
+  --ag-background-color: transparent;
+  --ag-header-background-color: rgba(10,20,40,0.5);
+  --ag-odd-row-background-color: transparent;
+  --ag-even-row-background-color: transparent;
+  --ag-row-hover-color: rgba(37,99,235,0.04);
+  --ag-border-color: transparent;
+  --ag-row-border-color: rgba(255,255,255,0.05);
+  --ag-cell-horizontal-padding: 0px;
+
+  border: none !important;
+
+  .ag-root-wrapper {
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .ag-header {
+    background: rgba(10,20,40,0.5) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+  }
+
+  .ag-header-cell {
+    border: none !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Supplier column header — left aligned muted */
+  .supplier-col-header .ag-header-cell-label {
+    justify-content: flex-start !important;
+    padding-left: 20px !important;
+  }
+  .supplier-col-header .ag-header-cell-text {
+    color: #3D5175 !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+  }
+
+  /* Country/Rolls headers — centered muted */
+  .center-col-header .ag-header-cell-label {
+    justify-content: center !important;
+  }
+  .center-col-header .ag-header-cell-text {
+    color: #3D5175 !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+  }
+
+  /* Grade columns — GradeHeaderComponent fills full cell */
+  .ag-header-cell-comp-wrapper {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .ag-cell {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  .ag-pinned-left-cols-container .ag-cell {
+    justify-content: flex-start !important;
+    padding: 0 20px !important;
+    border-right: 1px solid rgba(255,255,255,0.06) !important;
+  }
+
+  .ag-pinned-left-header {
+    border-right: 1px solid rgba(255,255,255,0.06) !important;
+    background: rgba(10,20,40,0.5) !important;
+  }
+
+  .ag-row {
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    background: transparent !important;
+  }
+
+  .ag-row:last-child {
+    border-bottom: none !important;
+  }
+
+  .ag-sort-indicator-icon,
+  .ag-header-icon { display: none !important; }
+}
+
+/* ── Supplier Performance table headers ── */
+::ng-deep .supplier-perf-grid.ag-theme-custom-dark {
+
+  .perf-white-header .ag-header-cell-text,
+  .ag-header-cell-text {
+    color: #E8F0FE !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.8px !important;
+    white-space: normal !important;
+    text-align: center !important;
+    line-height: 1.4 !important;
+  }
+
+  .ag-header-cell-label {
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 4px 8px !important;
+  }
+
+  .ag-header-cell {
+    padding: 4px 4px !important;
+    border-right: 1px solid rgba(255,255,255,0.04) !important;
+  }
+
+  .ag-header {
+    background: #0A1428 !important;
+    border-bottom: 1px solid rgba(0,212,255,0.12) !important;
+  }
+
+  .ag-cell {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+    border-right: 1px solid rgba(255,255,255,0.03) !important;
+  }
+
+  .ag-pinned-left-cols-container .ag-cell {
+    justify-content: flex-start !important;
+    padding: 0 16px !important;
+    border-right: 1px solid rgba(0,212,255,0.1) !important;
+  }
+
+  .ag-pinned-left-header {
+    border-right: 1px solid rgba(0,212,255,0.1) !important;
+  }
+
+  .ag-row {
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+  }
+
+  .ag-sort-indicator-icon,
+  .ag-header-icon { display: none !important; }
+}
+
+/* ── Matrix grids (both fitness and thinker) ── */
+::ng-deep .matrix-ag-grid.ag-theme-custom-dark {
+
+  /* SUPPLIER header — left muted */
+  .perf-matrix-left-header .ag-header-cell-label {
+    justify-content: flex-start !important;
+    padding-left: 20px !important;
+  }
+  .perf-matrix-left-header .ag-header-cell-text {
+    color: #3D5175 !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+  }
+
+  /* COUNTRY / ROLLS headers — centered white */
+  .perf-matrix-center-header .ag-header-cell-label {
+    justify-content: center !important;
+  }
+  .perf-matrix-center-header .ag-header-cell-text {
+    color: #E8F0FE !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    text-align: center !important;
+  }
+
+  .ag-header {
+    background: rgba(10,20,40,0.5) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+  }
+
+  .ag-header-cell {
+    border: none !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Grade columns — GradeHeaderComponent fills full cell */
+  .ag-header-cell-comp-wrapper {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .ag-cell {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  .ag-pinned-left-cols-container .ag-cell {
+    justify-content: flex-start !important;
+    padding: 0 20px !important;
+    border-right: 1px solid rgba(255,255,255,0.06) !important;
+  }
+
+  .ag-pinned-left-header {
+    border-right: 1px solid rgba(255,255,255,0.06) !important;
+    background: rgba(10,20,40,0.5) !important;
+  }
+
+  .ag-row {
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+  }
+
+  .ag-row:last-child { border-bottom: none !important; }
+
+  .ag-sort-indicator-icon,
+  .ag-header-icon { display: none !important; }
+}
+
+@media (max-width: 768px) {
+  .pa-filter-card {
+    align-items: flex-start;
+  }
+
+  .pa-filter-heading {
+    width: 100%;
+  }
+
+  .card-body {
+    padding-inline: 12px;
+  }
+}
+

@@ -1,0 +1,634 @@
+<div class="advance-analysis-page">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <span class="breadcrumb-item muted">Home</span>
+    <span class="material-icons breadcrumb-sep">chevron_right</span>
+    <span class="breadcrumb-item active">Advance Analysis</span>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="aa-filter-card filter-card filter-bar-wrapper">
+    <div style="
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 24px;
+      padding: 16px 24px;
+      width: 100%;
+      box-sizing: border-box;
+    ">
+
+      <!-- FIELD 1: STAND CATEGORY -->
+      <div class="filter-field-wrapper">
+        <span class="filter-field-label">STAND CATEGORY</span>
+
+        <div
+          class="custom-select"
+          (click)="$event.stopPropagation()"
+          style="position: relative;">
+          <div
+            (click)="$event.stopPropagation(); toggleDropdown('stand')"
+            style="
+              width: 160px;
+              background: #0D1628;
+              border: 1px solid rgba(0,212,255,0.15);
+              border-radius: 8px;
+              padding: 9px 14px;
+              color: #E8F0FE;
+              font-size: 13px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              cursor: pointer;
+              user-select: none;
+              box-sizing: border-box;
+            "
+            [style.border-color]="openDropdown === 'stand'
+              ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.15)'">
+            <span>{{ selectedStand }}</span>
+            <span
+              class="material-icons"
+              [style.transform]="openDropdown === 'stand' ? 'rotate(180deg)' : 'rotate(0deg)'"
+              style="
+                color:#7B90B8; font-size:18px;
+                transition: transform 0.2s ease;
+              ">expand_more</span>
+          </div>
+
+          <div *ngIf="openDropdown === 'stand'"
+               (click)="$event.stopPropagation()"
+               style="
+                 position: absolute;
+                 top: calc(100% + 4px);
+                 left: 0;
+                 width: 160px;
+                 background: #0D1628;
+                 border: 1px solid rgba(0,212,255,0.2);
+                 border-radius: 8px;
+                 z-index: 9999;
+                 box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+                 overflow: hidden;
+               ">
+            <div *ngFor="let opt of standOptions"
+                 (click)="selectStand(opt)"
+                 [style.color]="selectedStand === opt ? '#00D4FF' : '#7B90B8'"
+                 [style.background]="selectedStand === opt
+                   ? 'rgba(0,212,255,0.06)' : 'transparent'"
+                 style="
+                   padding: 9px 14px;
+                   font-size: 13px;
+                   cursor: pointer;
+                   display: flex;
+                   align-items: center;
+                   justify-content: space-between;
+                 ">
+              {{ opt }}
+              <span *ngIf="selectedStand === opt"
+                    class="material-icons"
+                    style="font-size:14px;color:#00D4FF">check</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FIELD 2: ROLL TYPE -->
+      <div class="filter-field-wrapper">
+        <span class="filter-field-label">ROLL TYPE</span>
+
+        <div
+          class="custom-select"
+          (click)="$event.stopPropagation()"
+          style="position: relative;">
+          <div
+            (click)="$event.stopPropagation(); toggleDropdown('position')"
+            style="
+              width: 140px;
+              background: #0D1628;
+              border: 1px solid rgba(0,212,255,0.15);
+              border-radius: 8px;
+              padding: 9px 14px;
+              color: #E8F0FE;
+              font-size: 13px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              cursor: pointer;
+              user-select: none;
+              box-sizing: border-box;
+            "
+            [style.border-color]="openDropdown === 'position'
+              ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.15)'">
+            <span>{{ selectedPosition }}</span>
+            <span class="material-icons"
+                  style="color:#7B90B8;font-size:18px">expand_more</span>
+          </div>
+
+          <div *ngIf="openDropdown === 'position'"
+               (click)="$event.stopPropagation()"
+               style="
+                 position: absolute;
+                 top: calc(100% + 4px); left: 0;
+                 width: 140px;
+                 background: #0D1628;
+                 border: 1px solid rgba(0,212,255,0.2);
+                 border-radius: 8px;
+                 z-index: 9999;
+                 box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+                 overflow: hidden;
+               ">
+            <div *ngFor="let opt of positionOptions"
+                 (click)="selectPosition(opt)"
+                 [style.color]="selectedPosition === opt ? '#00D4FF' : '#7B90B8'"
+                 [style.background]="selectedPosition === opt
+                   ? 'rgba(0,212,255,0.06)' : 'transparent'"
+                 style="
+                   padding: 9px 14px; font-size: 13px;
+                   cursor: pointer; display: flex;
+                   align-items: center; justify-content: space-between;
+                 ">
+              {{ opt }}
+              <span *ngIf="selectedPosition === opt"
+                    class="material-icons"
+                    style="font-size:14px;color:#00D4FF">check</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FIELD 3: ROLL ID + Search button -->
+      <div class="filter-field-wrapper">
+        <span class="filter-field-label">ROLL ID</span>
+
+        <div
+          class="custom-select"
+          (click)="$event.stopPropagation()"
+          style="position: relative;">
+          <div
+            (click)="$event.stopPropagation(); toggleFilterDropdown('rollId')"
+            style="
+              width: 160px;
+              background: #0D1628;
+              border: 1px solid rgba(0,212,255,0.15);
+              border-radius: 8px;
+              padding: 9px 14px;
+              color: #E8F0FE;
+              font-size: 13px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              cursor: pointer;
+              user-select: none;
+              box-sizing: border-box;
+            "
+            [style.border-color]="openDropdown === 'rollId'
+              ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.15)'">
+            <span>{{ filters.rollId }}</span>
+            <span class="material-icons"
+                  style="color:#7B90B8;font-size:18px">expand_more</span>
+          </div>
+
+          <div *ngIf="openDropdown === 'rollId'"
+               (click)="$event.stopPropagation()"
+               style="
+                 position: absolute;
+                 top: calc(100% + 4px); left: 0;
+                 width: 200px;
+                 background: #0D1628;
+                 border: 1px solid rgba(0,212,255,0.2);
+                 border-radius: 8px;
+                 z-index: 9999;
+                 box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+                 overflow: hidden;
+               ">
+
+            <div style="
+              padding: 8px 10px;
+              border-bottom: 1px solid rgba(0,212,255,0.1);
+              background: #0D1628;
+            ">
+              <div style="
+                display: flex; align-items: center; gap: 8px;
+                background: rgba(0,0,0,0.25);
+                border: 1px solid rgba(0,212,255,0.12);
+                border-radius: 6px;
+                padding: 6px 10px;
+              ">
+                <span class="material-icons"
+                      style="color:#3D5175;font-size:14px;flex-shrink:0">
+                  search
+                </span>
+                <input
+                  type="text"
+                  [value]="rollIdSearchQuery"
+                  (input)="onRollIdSearch($event)"
+                  (click)="$event.stopPropagation()"
+                  placeholder="Search..."
+                  style="
+                    background: transparent; border: none; outline: none;
+                    color: #E8F0FE; font-size: 12px; width: 100%;
+                    font-family: inherit; caret-color: #00D4FF;
+                  "
+                  autocomplete="off"/>
+              </div>
+            </div>
+
+            <div *ngFor="let opt of filteredRollIds"
+                 (click)="selectFilterOption('rollId', opt, $event)"
+                 [style.color]="filters.rollId === opt ? '#00D4FF' : '#7B90B8'"
+                 [style.background]="filters.rollId === opt
+                   ? 'rgba(0,212,255,0.06)' : 'transparent'"
+                 style="
+                   padding: 9px 14px; font-size: 13px;
+                   cursor: pointer; display: flex;
+                   align-items: center; justify-content: space-between;
+                 ">
+              {{ opt }}
+              <span *ngIf="filters.rollId === opt"
+                    class="material-icons"
+                    style="font-size:14px;color:#00D4FF">check</span>
+            </div>
+
+            <div *ngIf="filteredRollIds.length === 0"
+                 style="padding:12px;text-align:center;
+                        color:#3D5175;font-size:12px">
+              No results
+            </div>
+          </div>
+        </div>
+<!-- 
+        <button
+          (click)="onSearch()"
+          style="
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #2563EB, #1d4ed8);
+            color: white; border: none; border-radius: 10px;
+            padding: 9px 18px; font-size: 13px; font-weight: 600;
+            display: flex; align-items: center; gap: 6px;
+            cursor: pointer; white-space: nowrap;
+            height: 38px;
+          ">
+          <span class="material-icons" style="font-size:16px">search</span>
+          Search
+        </button> -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SECTION 1: WEAR ANALYSIS -->
+  <div class="aa-section">
+    <!-- <div class="aa-section-label">WEAR ANALYSIS</div> -->
+
+    <div class="aa-card">
+      <div class="aa-card-header">
+        <div class="aa-card-icon-wrap">
+          <span class="material-icons">show_chart</span>
+        </div>
+        <div class="aa-card-header-texts">
+          <div class="aa-card-title">Wear Analysis</div>
+        </div>
+      </div>
+
+      <div class="aa-card-body aa-split">
+        <!-- LEFT PANEL: KPI STACK -->
+        <div class="aa-left-panel">
+          <div class="aa-kpi-card aa-kpi-overall">
+            <div class="aa-kpi-label">OVERALL UTILIZATION</div>
+            <div class="aa-kpi-value">73.5%</div>
+            <div class="aa-kpi-sub">Campaign average</div>
+          </div>
+
+          <div class="aa-kpi-card aa-kpi-tonnage">
+            <div class="aa-kpi-label">RECENT TONNAGE</div>
+            <div class="aa-kpi-value">1,251 TON</div>
+            <div class="aa-kpi-sub">Last cycle</div>
+          </div>
+
+          <div class="aa-kpi-card aa-kpi-cycle">
+            <div class="aa-kpi-label">CYCLE PREDICTION</div>
+            <div class="aa-kpi-value">3 Cycles</div>
+            <div class="aa-kpi-sub">Remaining estimated</div>
+          </div>
+
+          <div class="aa-kpi-card aa-kpi-status">
+            <div class="aa-kpi-label">ROLL STATUS</div>
+            <div class="aa-kpi-value">READY</div>
+            <div class="aa-kpi-sub">Current assignment</div>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL: AG GRID -->
+        <div class="aa-right-panel">
+          <ag-grid-angular
+            class="ag-theme-custom-dark advance-grid"
+            [rowData]="wearGridPaginatedData"
+            [columnDefs]="wearColumnDefs"
+            [rowHeight]="52"
+            [headerHeight]="40"
+            [groupHeaderHeight]="36"
+            [domLayout]="'autoHeight'"
+            [suppressCellFocus]="true"
+            [suppressHorizontalScroll]="false"
+            style="width:100%">
+          </ag-grid-angular>
+
+          <div style="
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:nowrap;gap:16px;padding:12px 20px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  background:rgba(10,20,40,0.4);
+  border-radius:0 0 12px 12px;
+ ">
+            <span style="color:#7B90B8;font-size:13px;
+               white-space:nowrap;flex-shrink:0">
+              Showing
+              <strong style="color:#E8F0FE">
+                {{ (wearGridCurrentPage-1)*wearGridPageSize + 1 }}–{{
+                  wearGridCurrentPage*wearGridPageSize > wearGridTotalRows
+                    ? wearGridTotalRows
+                    : wearGridCurrentPage*wearGridPageSize
+                }}
+              </strong>
+              of
+              <strong style="color:#E8F0FE">{{ wearGridTotalRows }}</strong>
+              cycles
+            </span>
+
+            <div style="display:flex;align-items:center;gap:6px">
+              <button
+                (click)="wearGridGoToPage(wearGridCurrentPage - 1)"
+                [disabled]="wearGridCurrentPage === 1"
+                [style.opacity]="wearGridCurrentPage === 1 ? '0.4' : '1'"
+                style="width:34px;height:34px;border-radius:8px;
+             background:transparent;
+             border:1px solid rgba(255,255,255,0.1);
+             color:#7B90B8;cursor:pointer;
+             display:flex;align-items:center;justify-content:center;
+             transition:all 0.2s ease">
+                <span class="material-icons" style="font-size:18px">
+                  chevron_left
+                </span>
+              </button>
+
+              <ng-container *ngFor="let p of wearGridGetPageNumbers()">
+                <span *ngIf="p === -1"
+                      style="color:#3D5175;font-size:13px;padding:0 4px">
+                  ...
+                </span>
+                <button *ngIf="p !== -1"
+                        (click)="wearGridGoToPage(p)"
+                        [style.background]="wearGridCurrentPage === p
+              ? 'linear-gradient(135deg,#2563EB,#1d4ed8)' : 'transparent'"
+                        [style.color]="wearGridCurrentPage === p
+              ? '#fff' : '#7B90B8'"
+                        [style.border]="wearGridCurrentPage === p
+              ? 'none' : '1px solid rgba(255,255,255,0.1)'"
+                        style="width:34px;height:34px;border-radius:8px;
+                   cursor:pointer;font-size:13px;font-weight:600;
+                   display:flex;align-items:center;justify-content:center;
+                   transition:all 0.2s ease">
+                  {{ p }}
+                </button>
+              </ng-container>
+
+              <button
+                (click)="wearGridGoToPage(wearGridCurrentPage + 1)"
+                [disabled]="wearGridCurrentPage === wearGridTotalPages"
+                [style.opacity]="wearGridCurrentPage === wearGridTotalPages
+        ? '0.4' : '1'"
+                style="width:34px;height:34px;border-radius:8px;
+             background:transparent;
+             border:1px solid rgba(255,255,255,0.1);
+             color:#7B90B8;cursor:pointer;
+             display:flex;align-items:center;justify-content:center;
+             transition:all 0.2s ease">
+                <span class="material-icons" style="font-size:18px">
+                  chevron_right
+                </span>
+              </button>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="color:#7B90B8;font-size:12px;white-space:nowrap">
+                  Rows per page
+                </span>
+                <select
+                  [(ngModel)]="wearGridPageSize"
+                  (change)="wearGridCurrentPage = 1"
+                  style="background:#0D1628;
+               border:1px solid rgba(0,212,255,0.15);
+               border-radius:6px;color:#E8F0FE;
+               font-size:12px;padding:6px 10px;
+               cursor:pointer;outline:none">
+                  <option [value]="5">5</option>
+                  <option [value]="10">10</option>
+                  <option [value]="15">15</option>
+                  <option [value]="20">20</option>
+                </select>
+              </div>
+
+              <button
+                (click)="onExportWearGrid()"
+                style="display:flex;align-items:center;gap:8px;
+             background:transparent;
+             border:1px solid rgba(0,212,255,0.25);
+             border-radius:10px;padding:8px 18px;
+             color:#00D4FF;font-size:13px;font-weight:600;
+             cursor:pointer;white-space:nowrap;
+             transition:all 0.2s ease"
+                (mouseenter)="$any($event.currentTarget).style.background=
+        'rgba(0,212,255,0.08)';
+        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.5)'"
+                (mouseleave)="$any($event.currentTarget).style.background='transparent';
+        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.25)'">
+                <span class="material-icons" style="font-size:16px">download</span>
+                Export
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: COST ANALYSIS -->
+  <div class="aa-section aa-section-cost">
+    <!-- <div class="aa-section-label">COST ANALYSIS</div> -->
+
+    <div class="aa-card">
+      <div class="aa-card-header">
+        <div class="aa-card-icon-wrap">
+          <span class="material-icons">attach_money</span>
+        </div>
+        <div class="aa-card-header-texts">
+          <div class="aa-card-title">Cost Analysis</div>
+        </div>
+      </div>
+
+      <div class="aa-card-body aa-split">
+        <!-- LEFT PANEL: KPI STACK -->
+        <div class="aa-left-panel">
+          <div class="aa-kpi-card aa-kpi-cost-ton">
+            <div class="aa-kpi-label">COST PER TON</div>
+            <div class="aa-kpi-value">₹ 0.85 MINR</div>
+            <div class="aa-kpi-sub">Per metric ton</div>
+          </div>
+
+          <div class="aa-kpi-card aa-kpi-cost-length">
+            <div class="aa-kpi-label">COST PER LENGTH</div>
+            <div class="aa-kpi-value">₹ 1.20 MINR</div>
+            <div class="aa-kpi-sub">Per km rolled</div>
+          </div>
+
+          <div class="aa-kpi-card aa-kpi-cost-cycle">
+            <div class="aa-kpi-label">COST PER CYCLE</div>
+            <div class="aa-kpi-value">₹ 8.40 MINR</div>
+            <div class="aa-kpi-sub">Average per cycle</div>
+          </div>
+
+          <div class="aa-kpi-card aa-kpi-cost-total">
+            <div class="aa-kpi-label">TOTAL COST</div>
+            <div class="aa-kpi-value">₹ 400.3 MINR</div>
+            <div class="aa-kpi-sub">All cycles combined</div>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL: COST GRID -->
+        <div class="aa-right-panel" style="overflow:hidden; width:100%">
+          <ag-grid-angular
+            class="ag-theme-custom-dark advance-grid"
+            [rowData]="costGridPaginatedData"
+            [columnDefs]="costColumnDefs"
+            [gridOptions]="costGridOptions"
+            [rowHeight]="52"
+            [headerHeight]="44"
+            [domLayout]="'autoHeight'"
+            [suppressCellFocus]="true"
+            [suppressRowTransform]="true"
+            [suppressHorizontalScroll]="true"
+            style="width:100%">
+          </ag-grid-angular>
+
+          <div style="
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:nowrap;gap:16px;padding:12px 20px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  background:rgba(10,20,40,0.4);
+  border-radius:0 0 12px 12px;
+ ">
+            <span style="color:#7B90B8;font-size:13px;
+               white-space:nowrap;flex-shrink:0">
+              Showing
+              <strong style="color:#E8F0FE">
+                {{ (costGridCurrentPage-1)*costGridPageSize + 1 }}–{{
+                  costGridCurrentPage*costGridPageSize > costGridTotalRows
+                    ? costGridTotalRows
+                    : costGridCurrentPage*costGridPageSize
+                }}
+              </strong>
+              of
+              <strong style="color:#E8F0FE">{{ costGridTotalRows }}</strong>
+              cycles
+            </span>
+
+            <div style="display:flex;align-items:center;gap:6px">
+              <button
+                (click)="costGridGoToPage(costGridCurrentPage - 1)"
+                [disabled]="costGridCurrentPage === 1"
+                [style.opacity]="costGridCurrentPage === 1 ? '0.4' : '1'"
+                style="width:34px;height:34px;border-radius:8px;
+             background:transparent;
+             border:1px solid rgba(255,255,255,0.1);
+             color:#7B90B8;cursor:pointer;
+             display:flex;align-items:center;justify-content:center;
+             transition:all 0.2s ease">
+                <span class="material-icons" style="font-size:18px">
+                  chevron_left
+                </span>
+              </button>
+
+              <ng-container *ngFor="let p of costGridGetPageNumbers()">
+                <span *ngIf="p === -1"
+                      style="color:#3D5175;font-size:13px;padding:0 4px">
+                  ...
+                </span>
+                <button *ngIf="p !== -1"
+                        (click)="costGridGoToPage(p)"
+                        [style.background]="costGridCurrentPage === p
+              ? 'linear-gradient(135deg,#2563EB,#1d4ed8)' : 'transparent'"
+                        [style.color]="costGridCurrentPage === p
+              ? '#fff' : '#7B90B8'"
+                        [style.border]="costGridCurrentPage === p
+              ? 'none' : '1px solid rgba(255,255,255,0.1)'"
+                        style="width:34px;height:34px;border-radius:8px;
+                   cursor:pointer;font-size:13px;font-weight:600;
+                   display:flex;align-items:center;justify-content:center;
+                   transition:all 0.2s ease">
+                  {{ p }}
+                </button>
+              </ng-container>
+
+              <button
+                (click)="costGridGoToPage(costGridCurrentPage + 1)"
+                [disabled]="costGridCurrentPage === costGridTotalPages"
+                [style.opacity]="costGridCurrentPage === costGridTotalPages
+        ? '0.4' : '1'"
+                style="width:34px;height:34px;border-radius:8px;
+             background:transparent;
+             border:1px solid rgba(255,255,255,0.1);
+             color:#7B90B8;cursor:pointer;
+             display:flex;align-items:center;justify-content:center;
+             transition:all 0.2s ease">
+                <span class="material-icons" style="font-size:18px">
+                  chevron_right
+                </span>
+              </button>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="color:#7B90B8;font-size:12px;white-space:nowrap">
+                  Rows per page
+                </span>
+                <select
+                  [(ngModel)]="costGridPageSize"
+                  (change)="costGridCurrentPage = 1"
+                  style="background:#0D1628;
+               border:1px solid rgba(0,212,255,0.15);
+               border-radius:6px;color:#E8F0FE;
+               font-size:12px;padding:6px 10px;
+               cursor:pointer;outline:none">
+                  <option [value]="5">5</option>
+                  <option [value]="10">10</option>
+                  <option [value]="15">15</option>
+                  <option [value]="20">20</option>
+                </select>
+              </div>
+
+              <button
+                (click)="onExportCostGrid()"
+                style="display:flex;align-items:center;gap:8px;
+             background:transparent;
+             border:1px solid rgba(0,212,255,0.25);
+             border-radius:10px;padding:8px 18px;
+             color:#00D4FF;font-size:13px;font-weight:600;
+             cursor:pointer;white-space:nowrap;
+             transition:all 0.2s ease"
+                (mouseenter)="$any($event.currentTarget).style.background=
+        'rgba(0,212,255,0.08)';
+        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.5)'"
+                (mouseleave)="$any($event.currentTarget).style.background='transparent';
+        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.25)'">
+                <span class="material-icons" style="font-size:16px">download</span>
+                Export
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

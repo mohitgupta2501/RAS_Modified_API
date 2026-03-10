@@ -1,0 +1,116 @@
+<div class="auth-wrapper">
+  <!-- Left panel -->
+  <div class="auth-left">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="auth-left-content">
+      <div class="logo-box">
+        <span class="material-icons">bar_chart</span>
+      </div>
+      <h1 class="auth-title">
+        Roll Analytics<br />
+        <span class="shimmer">System</span>
+      </h1>
+      <p class="auth-tagline">Intelligent Roll Management</p>
+      <!-- <div class="stats-row">
+        <div class="stat">
+          <span class="stat-num">15</span>
+          <span class="stat-label">Stands</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">3</span>
+          <span class="stat-label">Shifts</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">24/7</span>
+          <span class="stat-label">Monitor</span>
+        </div>
+      </div> -->
+    </div>
+    <div class="auth-footer">Powered by Hitachi India Pvt Ltd</div>
+  </div>
+
+  <!-- Right panel - form -->
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="form-card">
+        <h2 class="form-title">Welcome Back</h2>
+        <p class="form-subtitle">Sign in to your account</p>
+
+        <form (ngSubmit)="login()">
+          <div class="auth-field">
+            <label class="field-label">EMAIL ADDRESS</label>
+            <div class="input-wrapper" [class.error]="errorMessage && !email">
+              <span class="material-icons field-icon">email</span>
+              <input
+                type="email"
+                [(ngModel)]="email"
+                name="email"
+                placeholder="Enter your email"
+                autocomplete="email"
+              />
+            </div>
+          </div>
+
+          <div class="auth-field">
+            <label class="field-label">PASSWORD</label>
+            <div class="input-wrapper" [class.error]="errorMessage && !password">
+              <span class="material-icons field-icon">lock</span>
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                [(ngModel)]="password"
+                name="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+              />
+              <span
+                class="material-icons toggle-icon"
+                (click)="showPassword = !showPassword"
+              >
+                {{ showPassword ? 'visibility' : 'visibility_off' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="remember-row">
+            <label class="remember-checkbox" [class.checked]="rememberMe">
+              <input
+                type="checkbox"
+                [(ngModel)]="rememberMe"
+                name="rememberMe"
+                hidden
+              />
+              <span class="checkbox-box"></span>
+              <span class="checkbox-label">Remember me</span>
+            </label>
+            <a routerLink="/auth/forgot-password" class="forgot-link">Forgot Password?</a>
+          </div>
+
+          <button type="submit" class="submit-btn" [disabled]="isLoading">
+            <span class="spinner" *ngIf="isLoading"></span>
+            {{ isLoading ? 'Signing in...' : 'Sign In' }}
+          </button>
+
+          <div class="error-alert" *ngIf="errorMessage">
+            <span class="material-icons">error</span>
+            {{ errorMessage }}
+          </div>
+        </form>
+
+        <div class="demo-divider">
+          <span class="divider-line"></span>
+          <span class="divider-text">Demo Credentials</span>
+          <span class="divider-line"></span>
+        </div>
+        <div class="demo-card">
+          <div class="demo-line">Email: admin&#64;jindal.com</div>
+          <div class="demo-line">Password: Admin&#64;123</div>
+          <button type="button" class="demo-fill" (click)="useDemoCredentials()">
+            Use demo credentials
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
