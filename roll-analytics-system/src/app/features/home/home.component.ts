@@ -723,13 +723,26 @@ import type {
   ColDef,
   ColGroupDef,
   CellClickedEvent,
+  GetRowIdParams,
   GridApi,
   GridReadyEvent,
   ICellRendererParams
 } from 'ag-grid-community';
-import { RollService, RollRow, StandSection } from '../../../app/core/services/roll.service';
+import {
+  RollCounts,
+  RollService,
+  RollRow,
+  StandSection
+} from '../../../app/core/services/roll.service';
 
 type TabKey = 'all' | 'fm' | 'dc' | 'eg' | 'rm';
+
+interface HomeTab {
+  id: TabKey;
+  label: string;
+  count: number;
+  icon: string;
+}
 
 @Component({
   selector: 'app-home',
@@ -774,12 +787,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     rm:  'RM'
   };
 
-  tabs = [
+  tabs: HomeTab[] = [
     { id: 'all', label: 'All', count: 0, icon: 'grid_view' },
+    { id: 'rm',  label: 'RM',  count: 0, icon: 'compress' },
     { id: 'fm',  label: 'FM',  count: 0, icon: 'settings' },
-    { id: 'dc',  label: 'DC',  count: 0, icon: 'construction' },
     { id: 'eg',  label: 'EG',  count: 0, icon: 'straighten' },
-    { id: 'rm',  label: 'RM',  count: 0, icon: 'compress' }
+    { id: 'dc',  label: 'DC',  count: 0, icon: 'construction' }
   ];
 
   // ─── Pagination getters (server-side — driven by API count) ───────────────
@@ -812,6 +825,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     return this.rowData; // API already filters by section
   }
 
+  readonly getRowId = (params: GetRowIdParams<RollRow>): string =>
+    params.data.rollId;
+
   onImgError(event: any): void {
     if (event?.target) {
       (event.target as HTMLElement).style.display = 'none';
@@ -820,31 +836,77 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // ─── API Call ─────────────────────────────────────────────────────────────
 
-  loadData(): void {
-    this.isLoading = true;
+  loadData(options: { showLoading?: boolean; seamless?: boolean } = {}): void {
+    const { showLoading = true, seamless = false } = options;
+
+    if (showLoading) {
+      this.isLoading = true;
+    }
     this.error = null;
     const section = this.sectionMap[this.activeTab];
 
     this.rollService.getRolls(section, this.currentPage, this.pageSize).subscribe({
       next: ({ count, rows }) => {
         this.apiTotalCount = count;
-        this.rowData = rows;
         this.lastUpdated = new Date();
+        this.syncGridData(rows, seamless);
 
-        // Update the count badge on the active tab
-        this.tabs = this.tabs.map((t) =>
-          t.id === this.activeTab ? { ...t, count } : t
-        );
-
-        this.gridApi?.setRowData(this.rowData);
-        this.isLoading = false;
+        if (showLoading) {
+          this.isLoading = false;
+        }
       },
       error: (err) => {
         console.error('API error:', err);
         this.error = 'Failed to load data. Will retry on next refresh.';
-        this.isLoading = false;
+        if (showLoading) {
+          this.isLoading = false;
+        }
       }
     });
+  }
+
+  private syncGridData(rows: RollRow[], seamless: boolean): void {
+    const previousRows = this.rowData;
+    this.rowData = rows;
+
+    if (!this.gridApi) {
+      return;
+    }
+
+    if (!seamless || previousRows.length === 0) {
+      this.gridApi.setRowData(rows);
+      return;
+    }
+
+    const previousById = new Map(previousRows.map((row) => [row.rollId, row]));
+    const nextById = new Map(rows.map((row) => [row.rollId, row]));
+
+    const remove = previousRows.filter((row) => !nextById.has(row.rollId));
+    const add = rows.filter((row) => !previousById.has(row.rollId));
+    const update = rows.filter((row) => {
+      const previous = previousById.get(row.rollId);
+      return previous !== undefined && previous !== row;
+    });
+
+    this.gridApi.applyTransactionAsync({ remove, update, add });
+  }
+
+  private loadTabCounts(): void {
+    this.rollService.getRollCounts().subscribe({
+      next: (rollCounts) => {
+        this.updateTabCounts(rollCounts);
+      },
+      error: (err) => {
+        console.error('Roll counts API error:', err);
+      }
+    });
+  }
+
+  private updateTabCounts(rollCounts: RollCounts): void {
+    this.tabs = this.tabs.map((tab) => ({
+      ...tab,
+      count: rollCounts[this.sectionMap[tab.id]] ?? 0
+    }));
   }
 
   // ─── Progress Bar Cell Renderer ───────────────────────────────────────────
@@ -1131,6 +1193,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadData();
+    this.loadTabCounts();
     this.startAutoRefresh();
   }
 
@@ -1149,6 +1212,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.activeTab = id as TabKey;
     this.currentPage = 1;
     this.loadData();
+    this.loadTabCounts();
   }
 
   // ─── Auto Refresh ─────────────────────────────────────────────────────────
@@ -1171,7 +1235,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   updateLiveData(): void {
-    this.loadData(); // Real API refresh instead of random mutation
+    this.loadData({ showLoading: false, seamless: true });
   }
 
   // ─── Modal ────────────────────────────────────────────────────────────────

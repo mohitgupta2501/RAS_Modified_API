@@ -1,6 +1,6 @@
 <div class="telegram-page">
   <div class="breadcrumb">
-    <span class="breadcrumb-item muted">Home</span>
+    <!-- <span class="breadcrumb-item muted">Home</span> -->
     <span class="material-icons breadcrumb-sep">chevron_right</span>
     <span class="breadcrumb-item active">Telegram Logs</span>
   </div>
@@ -16,182 +16,183 @@
     <div class="search-container">
       <div class="search-box">
         <span class="material-icons search-icon">search</span>
-        <input 
-          type="text" 
-          [(ngModel)]="searchTerm" 
-          (ngModelChange)="telegramCurrentPage = 1"
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="currentPage = 1"
           placeholder="Search telegram logs..."
           class="search-input"
         >
       </div>
     </div>
 
+    <!-- OLD TABLE START
     <div class="table-wrap">
       <table class="logs-table">
         <thead>
           <tr>
-            <th (click)="sort('date')">Date & Time <span class="material-icons sort-icon">unfold_more</span></th>
-            <th (click)="sort('teleNo')">Tele.No <span class="material-icons sort-icon">unfold_more</span></th>
-            <th (click)="sort('teleDescription')">Tele.Description <span class="material-icons sort-icon">unfold_more</span></th>
-            <th (click)="sort('outerSystem')">Outer System <span class="material-icons sort-icon">unfold_more</span></th>
-            <th (click)="sort('cmmMode')">Cmm Mode <span class="material-icons sort-icon">unfold_more</span></th>
-            <th (click)="sort('length')">Length <span class="material-icons sort-icon">unfold_more</span></th>
-            <th (click)="sort('status')">Status <span class="material-icons sort-icon">unfold_more</span></th>
-            <th (click)="sort('user')">User <span class="material-icons sort-icon">unfold_more</span></th>
+            <th (click)="sort('id')">ID</th>
+            <th (click)="sort('created_at')">Created At</th>
+            <th (click)="sort('chat_id')">Chat ID</th>
+            <th (click)="sort('message')">Message</th>
+            <th (click)="sort('status')">Status</th>
+            <th (click)="sort('response_message')">Response Message</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let row of sorted; let i = index" [class.even]="i % 2 === 1">
-            <td class="col-datetime">{{ row.date }} | {{ row.time }}</td>
-            <td class="col-tele-no">{{ row.teleNo }}</td>
-            <td class="col-desc">{{ row.teleDescription }}</td>
-            <td class="col-outer"><span class="outer-chip">{{ row.outerSystem }}</span></td>
-            <td class="col-cmm">{{ row.cmmMode }}</td>
-            <td class="col-length">{{ row.length }}</td>
-            <td class="col-status">
-              <span class="status-badge" [class.sent]="row.status === 'Sent'" [class.received]="row.status === 'Received'">{{ row.status }}</span>
-            </td>
-            <td class="col-user">{{ row.user }}</td>
+          <tr *ngIf="isLoading">
+            <td colspan="6" style="text-align:center">Loading...</td>
+          </tr>
+          <tr *ngIf="!isLoading && errorMessage">
+            <td colspan="6" style="color:red; text-align:center">{{ errorMessage }}</td>
+          </tr>
+          <tr *ngIf="!isLoading && !errorMessage && totalRows === 0">
+            <td colspan="6" style="text-align:center">No records found.</td>
+          </tr>
+          <tr *ngFor="let log of tlPaginatedData">
+            <td>{{ log.id }}</td>
+            <td>{{ log.created_at | date:'medium' }}</td>
+            <td>{{ log.chat_id }}</td>
+            <td>{{ log.message }}</td>
+            <td>{{ log.status }}</td>
+            <td>{{ log.response_message }}</td>
           </tr>
         </tbody>
       </table>
     </div>
+    OLD TABLE END -->
 
-    <div style="
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:nowrap;gap:16px;padding:12px 20px;
-  border-top:1px solid rgba(255,255,255,0.06);
-  background:rgba(10,20,40,0.4);
-  border-radius:0 0 12px 12px;
- ">
-      <span style="color:#7B90B8;font-size:13px;
-               white-space:nowrap;flex-shrink:0">
-        Showing
-        <strong style="color:#E8F0FE">
-          {{ (telegramCurrentPage-1)*telegramPageSize + 1 }}–{{
-            telegramCurrentPage*telegramPageSize > telegramTotalRows
-              ? telegramTotalRows
-              : telegramCurrentPage*telegramPageSize
-          }}
-        </strong>
-        of
-        <strong style="color:#E8F0FE">{{ telegramTotalRows }}</strong>
-        messages
+    <!-- ✅ LOADING STATE -->
+    <div *ngIf="isLoading" style="
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      color: #7B90B8;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 500;
+    ">
+      <span class="material-icons" style="animation: spin 1s linear infinite; font-size: 20px;">
+        refresh
       </span>
+      Loading data...
+    </div>
 
-      <div style="display:flex;align-items:center;gap:6px">
-        <button
-          (click)="telegramGoToPage(telegramCurrentPage - 1)"
-          [disabled]="telegramCurrentPage === 1"
-          [style.opacity]="telegramCurrentPage === 1 ? '0.4' : '1'"
-          style="width:34px;height:34px;border-radius:8px;
-             background:transparent;
-             border:1px solid rgba(255,255,255,0.1);
-             color:#7B90B8;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;
-             transition:all 0.2s ease">
-          <span class="material-icons" style="font-size:18px">
-            chevron_left
-          </span>
-        </button>
+    <!-- ✅ ERROR STATE -->
+    <div *ngIf="errorMessage && !isLoading" style="
+      text-align: center;
+      padding: 10px;
+      color: #FF6B6B;
+      font-size: 13px;
+      font-weight: 500;
+      background: rgba(255, 107, 107, 0.05);
+      border: 1px solid rgba(255, 107, 107, 0.1);
+      margin: 0 24px 10px;
+      border-radius: 8px;
+    ">
+      <span class="material-icons" style="vertical-align: middle; margin-right: 6px; font-size: 16px;">
+        error_outline
+      </span>
+      {{ errorMessage }}
+    </div>
 
-        <ng-container *ngFor="let p of telegramGetPageNumbers()">
-          <span *ngIf="p === -1"
-                style="color:#3D5175;font-size:13px;padding:0 4px">
-            ...
-          </span>
-          <button *ngIf="p !== -1"
-                  (click)="telegramGoToPage(p)"
-                  [style.background]="telegramCurrentPage === p
-              ? 'linear-gradient(135deg,#2563EB,#1d4ed8)' : 'transparent'"
-                  [style.color]="telegramCurrentPage === p
-              ? '#fff' : '#7B90B8'"
-                  [style.border]="telegramCurrentPage === p
-              ? 'none' : '1px solid rgba(255,255,255,0.1)'"
-                  style="width:34px;height:34px;border-radius:8px;
-                   cursor:pointer;font-size:13px;font-weight:600;
-                   display:flex;align-items:center;justify-content:center;
-                   transition:all 0.2s ease">
-            {{ p }}
-          </button>
-        </ng-container>
+    <!-- AG GRID TABLE -->
+    <ag-grid-angular
+      class="ag-theme-custom-dark home-table-grid"
+      [rowData]="tlPaginatedData"
+      [columnDefs]="telegramColDefs"
+      [defaultColDef]="defaultColDef"
+      [animateRows]="true"
+      [pagination]="false"
+      [suppressCellFocus]="false"
+      [rowHeight]="52"
+      [headerHeight]="40"
+      [groupHeaderHeight]="36"
+      [loadingOverlayComponent]="null"
+      style="width: 100%; height: calc(100vh - 420px); min-height: 360px"
+      (gridReady)="onGridReady($event)"></ag-grid-angular>
 
-        <button
-          (click)="telegramGoToPage(telegramCurrentPage + 1)"
-          [disabled]="telegramCurrentPage === telegramTotalPages"
-          [style.opacity]="telegramCurrentPage === telegramTotalPages
-        ? '0.4' : '1'"
-          style="width:34px;height:34px;border-radius:8px;
-             background:transparent;
-             border:1px solid rgba(255,255,255,0.1);
-             color:#7B90B8;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;
-             transition:all 0.2s ease">
-          <span class="material-icons" style="font-size:18px">
-            chevron_right
-          </span>
-        </button>
+    <!-- CUSTOM PAGINATION -->
+    <div class="pagination-bar" *ngIf="!isLoading">
+      <div class="pagination-left">
+        <span class="pagination-info">
+          Showing
+          <span class="pagination-highlight">{{ startRow }}</span>
+          to
+          <span class="pagination-highlight">{{ endRow }}</span>
+          of
+          <span class="pagination-highlight">{{ totalRows }}</span>
+          entries
+        </span>
       </div>
 
-      <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="color:#7B90B8;font-size:12px;white-space:nowrap">
-            Rows per page
-          </span>
-          <select
-            [(ngModel)]="telegramPageSize"
-            (change)="telegramCurrentPage = 1"
-            style="background:#0D1628;
-               border:1px solid rgba(0,212,255,0.15);
-               border-radius:6px;color:#E8F0FE;
-               font-size:12px;padding:6px 10px;
-               cursor:pointer;outline:none">
-            <option [value]="5">5</option>
-            <option [value]="10">10</option>
-            <option [value]="15">15</option>
-            <option [value]="20">20</option>
-          </select>
+      <div class="pagination-center">
+        <div class="pagination-nav" *ngIf="totalRows > 0">
+          <!-- Left arrow -->
+          <button class="pagination-btn"
+            [disabled]="currentPage === 1"
+            (click)="goToPage(currentPage - 1)">
+            <span class="material-icons">chevron_left</span>
+          </button>
+
+          <!-- Always show page 1 + ellipsis if window is far from start -->
+          <button *ngIf="windowPages[0] > 1"
+            class="pagination-page"
+            (click)="goToPage(1)">1</button>
+
+          <span *ngIf="windowPages[0] > 2"
+            class="pagination-ellipsis">...</span>
+
+          <!-- 3-page sliding window -->
+          <button *ngFor="let page of windowPages"
+            class="pagination-page"
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)">
+            {{ page }}
+          </button>
+
+          <!-- Ellipsis + last page if window is far from end -->
+          <span *ngIf="windowPages[windowPages.length - 1] < totalPages - 1"
+            class="pagination-ellipsis">...</span>
+
+          <button *ngIf="windowPages[windowPages.length - 1] < totalPages"
+            class="pagination-page"
+            (click)="goToPage(totalPages)">
+            {{ totalPages }}
+          </button>
+
+          <!-- Right arrow -->
+          <button class="pagination-btn"
+            [disabled]="currentPage === totalPages"
+            (click)="goToPage(currentPage + 1)">
+            <span class="material-icons">chevron_right</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pagination-right">
+        <div class="pagination-size-wrapper"> 
+          <span class="rows-label">Rows per page</span> 
+          <div class="pagination-size-select"> 
+            <select class="pagination-size-trigger" 
+              [(ngModel)]="pageSize" 
+              (ngModelChange)="changePageSize($event)"> 
+              <option *ngFor="let size of [10, 25, 50, 100]" [value]="size">{{ size }}</option> 
+            </select> 
+          </div> 
         </div>
 
-        <button
-          (click)="onExportTelegram()"
-          style="display:flex;align-items:center;gap:8px;
-             background:transparent;
-             border:1px solid rgba(0,212,255,0.25);
-             border-radius:10px;padding:8px 18px;
-             color:#00D4FF;font-size:13px;font-weight:600;
-             cursor:pointer;white-space:nowrap;
-             transition:all 0.2s ease"
-          (mouseenter)="$any($event.currentTarget).style.background=
-        'rgba(0,212,255,0.08)';
-        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.5)'"
-          (mouseleave)="$any($event.currentTarget).style.background='transparent';
-        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.25)'">
-          <span class="material-icons" style="font-size:16px">download</span>
+        <button class="export-btn" (click)="onExport()">
+          <span class="material-icons">download</span>
           Export
         </button>
       </div>
     </div>
 
-    <!-- <div class="action-bar">
-      <div class="action-left">
-        <button type="button" class="action-btn resend-btn">
-          <span class="material-icons">play_arrow</span>
-          <span>Resend</span>
-        </button>
-        <button type="button" class="action-btn rereceive-btn">
-          <span class="material-icons">replay</span>
-          <span>Re-Receive</span>
-        </button>
-      </div>
-      <button type="button" class="download-btn" (click)="downloadCsv()">
-        <span class="material-icons">download</span>
-        <span>Download</span>
-      </button>
-    </div> -->
   </div>
 
-    <div class="accordion-body" *ngIf="!accordionCollapsed">
-      <p class="accordion-text">No alarm data to display.</p>
-    </div>
+  <div class="accordion-body" *ngIf="!accordionCollapsed">
+    <p class="accordion-text">No alarm data to display.</p>
+  </div>
 </div>

@@ -1,14 +1,13 @@
 <div class="perf-analysis-page" (click)="openDropdown = null">
   <!-- Breadcrumb -->
   <div class="breadcrumb">
-    <span class="breadcrumb-item muted">Home</span>
+    <!-- <span class="breadcrumb-item muted">Home</span> -->
     <span class="material-icons breadcrumb-sep">chevron_right</span>
     <span class="breadcrumb-item active">Supplier Analysis</span>
   </div>
 
   <!-- Filter bar -->
   <div class="pa-filter-card">
-
     <div style="
       display: flex;
       flex-direction: row;
@@ -20,13 +19,12 @@
       box-sizing: border-box;
     ">
 
-      <!-- STAND CATOGERY -->
+      <!-- STAND CATEGORY -->
       <div class="filter-field-wrapper">
-        <span class="filter-field-label">STAND CATOGERY</span>
-
+        <span class="filter-field-label">STAND CATEGORY</span>
         <div style="position: relative;">
           <div
-            (click)="toggleDropdown('mill', $event)"
+            (click)="toggleDropdown('stand', $event)"
             style="
               width: 160px;
               background: #0D1628;
@@ -43,20 +41,15 @@
               box-sizing: border-box;
               height: 40px;
             "
-            [style.border-color]="openDropdown === 'mill'
-              ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.15)'">
-            <span>{{ selectedMill }}</span>
-            <span class="material-icons" style="
-              color: #7B90B8; font-size: 18px;
-              transition: transform 0.2s ease;
-            "
-            [style.transform]="openDropdown === 'mill'
-              ? 'rotate(180deg)' : 'rotate(0deg)'">
+            [style.border-color]="openDropdown === 'stand' ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.15)'">
+            <span>{{ selectedStand }}</span>
+            <span class="material-icons" style="color: #7B90B8; font-size: 18px; transition: transform 0.2s ease;"
+              [style.transform]="openDropdown === 'stand' ? 'rotate(180deg)' : 'rotate(0deg)'">
               expand_more
             </span>
           </div>
 
-          <div *ngIf="openDropdown === 'mill'"
+          <div *ngIf="openDropdown === 'stand'"
                (click)="$event.stopPropagation()"
                style="
                  position: absolute;
@@ -69,11 +62,10 @@
                  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
                  overflow: hidden;
                ">
-            <div *ngFor="let opt of millOptions"
-                 (click)="selectMill(opt)"
-                 [style.color]="selectedMill === opt ? '#00D4FF' : '#7B90B8'"
-                 [style.background]="selectedMill === opt
-                   ? 'rgba(0,212,255,0.06)' : 'transparent'"
+            <div *ngFor="let opt of standOptions"
+                 (click)="selectStand(opt)"
+                 [style.color]="selectedStand === opt ? '#00D4FF' : '#7B90B8'"
+                 [style.background]="selectedStand === opt ? 'rgba(0,212,255,0.06)' : 'transparent'"
                  style="
                    padding: 9px 14px;
                    font-size: 13px;
@@ -84,8 +76,7 @@
                    transition: background 0.15s ease;
                  ">
               {{ opt }}
-              <span *ngIf="selectedMill === opt"
-                    class="material-icons"
+              <span *ngIf="selectedStand === opt" class="material-icons"
                     style="font-size:14px;color:#00D4FF">check</span>
             </div>
           </div>
@@ -95,10 +86,9 @@
       <!-- ROLL TYPE -->
       <div class="filter-field-wrapper">
         <span class="filter-field-label">ROLL TYPE</span>
-
         <div style="position: relative;">
           <div
-            (click)="toggleDropdown('roll', $event)"
+            (click)="toggleDropdown('rollType', $event)"
             style="
               width: 160px;
               background: #0D1628;
@@ -115,20 +105,19 @@
               box-sizing: border-box;
               height: 40px;
             "
-            [style.border-color]="openDropdown === 'roll'
-              ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.15)'">
-            <span>{{ selectedRoll }}</span>
-            <span class="material-icons" style="
-              color: #7B90B8; font-size: 18px;
-              transition: transform 0.2s ease;
-            "
-            [style.transform]="openDropdown === 'roll'
-              ? 'rotate(180deg)' : 'rotate(0deg)'">
+            [style.border-color]="openDropdown === 'rollType' ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.15)'"
+            [style.pointer-events]="selectedRollType === '-' ? 'none' : 'auto'"
+            [style.opacity]="selectedRollType === '-' ? '0.4' : '1'">
+            <span>{{ selectedRollType }}</span>
+            <span class="material-icons"
+              style="color: #7B90B8; font-size: 18px; transition: transform 0.2s ease;"
+              [style.transform]="openDropdown === 'rollType' ? 'rotate(180deg)' : 'rotate(0deg)'"
+              *ngIf="selectedRollType !== '-'">
               expand_more
             </span>
           </div>
 
-          <div *ngIf="openDropdown === 'roll'"
+          <div *ngIf="openDropdown === 'rollType'"
                (click)="$event.stopPropagation()"
                style="
                  position: absolute;
@@ -141,11 +130,10 @@
                  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
                  overflow: hidden;
                ">
-            <div *ngFor="let opt of rollOptions"
-                 (click)="selectRoll(opt)"
-                 [style.color]="selectedRoll === opt ? '#00D4FF' : '#7B90B8'"
-                 [style.background]="selectedRoll === opt
-                   ? 'rgba(0,212,255,0.06)' : 'transparent'"
+            <div *ngFor="let opt of rollTypeOptions"
+                 (click)="selectRollType(opt)"
+                 [style.color]="selectedRollType === opt ? '#00D4FF' : '#7B90B8'"
+                 [style.background]="selectedRollType === opt ? 'rgba(0,212,255,0.06)' : 'transparent'"
                  style="
                    padding: 9px 14px;
                    font-size: 13px;
@@ -156,8 +144,7 @@
                    transition: background 0.15s ease;
                  ">
               {{ opt }}
-              <span *ngIf="selectedRoll === opt"
-                    class="material-icons"
+              <span *ngIf="selectedRollType === opt" class="material-icons"
                     style="font-size:14px;color:#00D4FF">check</span>
             </div>
           </div>
@@ -167,25 +154,33 @@
     </div>
   </div>
 
-  <!-- Supplier Performance Comparison (AG Grid) -->
+  <!-- ── Supplier Performance Comparison ─────────────────────────────────── -->
   <div class="card">
     <div class="card-header">
       <div class="left">
         <span class="material-icons header-icon">table_chart</span>
         <div class="texts">
           <div class="title">Supplier Performance Comparison</div>
-          <!-- <div class="subtitle">
-            Transposed KPI view with color-coded best and worst values
-          </div> -->
         </div>
       </div>
     </div>
+
     <div class="card-body-ng">
-      <div class="grid-wrapper">
+      <!-- Loading -->
+      <div *ngIf="isPerfLoading" style="padding:32px;text-align:center;color:#7B90B8;font-size:13px;">
+        Loading...
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="!isPerfLoading && errorMessage" style="padding:32px;text-align:center;color:#FF4560;font-size:13px;">
+        {{ errorMessage }}
+      </div>
+
+      <div class="grid-wrapper" *ngIf="!isPerfLoading">
         <ag-grid-angular
           class="ag-theme-custom-dark supplier-perf-grid"
           style="width:100%"
-          [rowData]="supplierPerfPaginatedData"
+          [rowData]="saPerfPaginatedData"
           [columnDefs]="columnDefs"
           [defaultColDef]="defaultColDef"
           [rowHeight]="56"
@@ -195,117 +190,64 @@
           [suppressCellFocus]="true">
         </ag-grid-angular>
 
-        <div style="
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:nowrap;gap:16px;padding:12px 20px;
-  border-top:1px solid rgba(255,255,255,0.06);
-  background:rgba(10,20,40,0.4);
-  border-radius:0 0 12px 12px;
- ">
-          <span style="color:#7B90B8;font-size:13px;
-               white-space:nowrap;flex-shrink:0">
-            Showing
-            <strong style="color:#E8F0FE">
-              {{ (supplierPerfCurrentPage-1)*supplierPerfPageSize + 1 }}–{{
-                supplierPerfCurrentPage*supplierPerfPageSize > supplierPerfTotalRows
-                  ? supplierPerfTotalRows
-                  : supplierPerfCurrentPage*supplierPerfPageSize
-              }}
-            </strong>
-            of
-            <strong style="color:#E8F0FE">{{ supplierPerfTotalRows }}</strong>
-            suppliers
-          </span>
-
-          <div style="display:flex;align-items:center;gap:6px">
-            <button
-              (click)="supplierPerfGoToPage(supplierPerfCurrentPage - 1)"
-              [disabled]="supplierPerfCurrentPage === 1"
-              [style.opacity]="supplierPerfCurrentPage === 1 ? '0.4' : '1'"
-              style="width:34px;height:34px;border-radius:8px;
-             background:transparent;
-             border:1px solid rgba(255,255,255,0.1);
-             color:#7B90B8;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;
-             transition:all 0.2s ease">
-              <span class="material-icons" style="font-size:18px">
-                chevron_left
-              </span>
-            </button>
-
-            <ng-container *ngFor="let p of supplierPerfGetPageNumbers()">
-              <span *ngIf="p === -1"
-                    style="color:#3D5175;font-size:13px;padding:0 4px">
-                ...
-              </span>
-              <button *ngIf="p !== -1"
-                      (click)="supplierPerfGoToPage(p)"
-                      [style.background]="supplierPerfCurrentPage === p
-              ? 'linear-gradient(135deg,#2563EB,#1d4ed8)' : 'transparent'"
-                      [style.color]="supplierPerfCurrentPage === p
-              ? '#fff' : '#7B90B8'"
-                      [style.border]="supplierPerfCurrentPage === p
-              ? 'none' : '1px solid rgba(255,255,255,0.1)'"
-                      style="width:34px;height:34px;border-radius:8px;
-                   cursor:pointer;font-size:13px;font-weight:600;
-                   display:flex;align-items:center;justify-content:center;
-                   transition:all 0.2s ease">
-                {{ p }}
-              </button>
-            </ng-container>
-
-            <button
-              (click)="supplierPerfGoToPage(supplierPerfCurrentPage + 1)"
-              [disabled]="supplierPerfCurrentPage === supplierPerfTotalPages"
-              [style.opacity]="supplierPerfCurrentPage === supplierPerfTotalPages
-        ? '0.4' : '1'"
-              style="width:34px;height:34px;border-radius:8px;
-             background:transparent;
-             border:1px solid rgba(255,255,255,0.1);
-             color:#7B90B8;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;
-             transition:all 0.2s ease">
-              <span class="material-icons" style="font-size:18px">
-                chevron_right
-              </span>
-            </button>
+        <!-- Pagination -->
+        <div class="pagination-bar" *ngIf="saPerfTotalRows > 0">
+          <div class="pagination-left">
+            <span class="pagination-info">
+              Showing
+              <span class="pagination-highlight">{{ saPerfStartRow }}</span>
+              to
+              <span class="pagination-highlight">{{ saPerfEndRow }}</span>
+              of
+              <span class="pagination-highlight">{{ saPerfTotalRows }}</span>
+              entries
+            </span>
           </div>
 
-          <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
-            <div style="display:flex;align-items:center;gap:8px">
-              <span style="color:#7B90B8;font-size:12px;white-space:nowrap">
-                Rows per page
-              </span>
-              <select
-                [(ngModel)]="supplierPerfPageSize"
-                (change)="supplierPerfCurrentPage = 1"
-                style="background:#0D1628;
-               border:1px solid rgba(0,212,255,0.15);
-               border-radius:6px;color:#E8F0FE;
-               font-size:12px;padding:6px 10px;
-               cursor:pointer;outline:none">
-                <option [value]="5">5</option>
-                <option [value]="10">10</option>
-                <option [value]="15">15</option>
-                <option [value]="20">20</option>
-              </select>
-            </div>
+          <div class="pagination-center">
+            <div class="pagination-nav">
+              <button class="pagination-btn"
+                [disabled]="saPerfCurrentPage === 1"
+                (click)="saPerfGoToPage(saPerfCurrentPage - 1)">
+                <span class="material-icons">chevron_left</span>
+              </button>
 
-            <button
-              (click)="onExportSupplierPerf()"
-              style="display:flex;align-items:center;gap:8px;
-             background:transparent;
-             border:1px solid rgba(0,212,255,0.25);
-             border-radius:10px;padding:8px 18px;
-             color:#00D4FF;font-size:13px;font-weight:600;
-             cursor:pointer;white-space:nowrap;
-             transition:all 0.2s ease"
-              (mouseenter)="$any($event.currentTarget).style.background=
-        'rgba(0,212,255,0.08)';
-        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.5)'"
-              (mouseleave)="$any($event.currentTarget).style.background='transparent';
-        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.25)'">
-              <span class="material-icons" style="font-size:16px">download</span>
+              <button *ngIf="saPerfWindowPages[0] > 1"
+                class="pagination-page" (click)="saPerfGoToPage(1)">1</button>
+              <span *ngIf="saPerfWindowPages[0] > 2" class="pagination-ellipsis">...</span>
+
+              <button *ngFor="let page of saPerfWindowPages"
+                class="pagination-page"
+                [class.active]="page === saPerfCurrentPage"
+                (click)="saPerfGoToPage(page)">{{ page }}</button>
+
+              <span *ngIf="saPerfWindowPages[saPerfWindowPages.length-1] < saPerfTotalPages - 1"
+                class="pagination-ellipsis">...</span>
+              <button *ngIf="saPerfWindowPages[saPerfWindowPages.length-1] < saPerfTotalPages"
+                class="pagination-page"
+                (click)="saPerfGoToPage(saPerfTotalPages)">{{ saPerfTotalPages }}</button>
+
+              <button class="pagination-btn"
+                [disabled]="saPerfCurrentPage === saPerfTotalPages"
+                (click)="saPerfGoToPage(saPerfCurrentPage + 1)">
+                <span class="material-icons">chevron_right</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="pagination-right">
+            <div class="pagination-size-wrapper">
+              <span class="rows-label">Rows per page</span>
+              <div class="pagination-size-select">
+                <select class="pagination-size-trigger"
+                  [(ngModel)]="saPerfPageSize"
+                  (ngModelChange)="saPerfChangePageSize($event)">
+                  <option *ngFor="let size of [10, 25, 50, 100]" [value]="size">{{ size }}</option>
+                </select>
+              </div>
+            </div>
+            <button class="export-btn" (click)="saPerfOnExport()">
+              <span class="material-icons">download</span>
               Export
             </button>
           </div>
@@ -314,13 +256,13 @@
     </div>
   </div>
 
-  <!-- Supplier-Grade Fitness Matrix -->
+  <!-- ── Supplier-Grade Fitness Matrix ───────────────────────────────────── -->
   <div style="
-    background:linear-gradient(145deg,#0F1A2E,#0A1020);
-    border:1px solid rgba(0,212,255,0.1);
-    border-radius:14px;
-    margin-top:24px;
-    overflow:hidden;
+    background: linear-gradient(145deg, #0F1A2E, #0A1020);
+    border: 1px solid rgba(0,212,255,0.1);
+    border-radius: 14px;
+    margin-top: 24px;
+    overflow: hidden;
   ">
     <!-- Header -->
     <div style="
@@ -330,9 +272,9 @@
       border-bottom:1px solid rgba(0,212,255,0.08);
     ">
       <div style="
-        width:36px;height:36px;border-radius:10px;
+        width:36px; height:36px; border-radius:10px;
         background:rgba(0,212,255,0.12);
-        display:flex;align-items:center;justify-content:center;
+        display:flex; align-items:center; justify-content:center;
       ">
         <span class="material-icons" style="color:#00D4FF;font-size:20px">people</span>
       </div>
@@ -340,16 +282,19 @@
         <div style="color:#E8F0FE;font-size:15px;font-weight:700">
           Supplier-Grade Fitness Matrix
         </div>
-        <!-- <div style="color:#3D5175;font-size:11px;margin-top:2px">
-          Rating 1.0–5.0 | Color coded by suitability
-        </div> -->
       </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isFitnessLoading" style="padding:32px;text-align:center;color:#7B90B8;font-size:13px;">
+      Loading...
     </div>
 
     <!-- AG Grid -->
     <ag-grid-angular
+      *ngIf="!isFitnessLoading"
       class="ag-theme-custom-dark matrix-ag-grid"
-      [rowData]="fitnessMatrixPaginatedData"
+      [rowData]="saFitnessPaginatedData"
       [columnDefs]="fitnessColDefs"
       [defaultColDef]="matrixDefaultColDef"
       [domLayout]="'autoHeight'"
@@ -360,117 +305,64 @@
       style="width:100%">
     </ag-grid-angular>
 
-    <div style="
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:nowrap;gap:16px;padding:12px 20px;
-  border-top:1px solid rgba(255,255,255,0.06);
-  background:rgba(10,20,40,0.4);
-  border-radius:0 0 12px 12px;
- ">
-      <span style="color:#7B90B8;font-size:13px;
-               white-space:nowrap;flex-shrink:0">
-        Showing
-        <strong style="color:#E8F0FE">
-          {{ (fitnessMatrixCurrentPage-1)*fitnessMatrixPageSize + 1 }}–{{
-            fitnessMatrixCurrentPage*fitnessMatrixPageSize > fitnessMatrixTotalRows
-              ? fitnessMatrixTotalRows
-              : fitnessMatrixCurrentPage*fitnessMatrixPageSize
-          }}
-        </strong>
-        of
-        <strong style="color:#E8F0FE">{{ fitnessMatrixTotalRows }}</strong>
-        suppliers
-      </span>
-
-      <div style="display:flex;align-items:center;gap:6px">
-        <button
-          (click)="fitnessMatrixGoToPage(fitnessMatrixCurrentPage - 1)"
-          [disabled]="fitnessMatrixCurrentPage === 1"
-          [style.opacity]="fitnessMatrixCurrentPage === 1 ? '0.4' : '1'"
-          style="width:34px;height:34px;border-radius:8px;
-             background:transparent;
-             border:1px solid rgba(255,255,255,0.1);
-             color:#7B90B8;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;
-             transition:all 0.2s ease">
-          <span class="material-icons" style="font-size:18px">
-            chevron_left
-          </span>
-        </button>
-
-        <ng-container *ngFor="let p of fitnessMatrixGetPageNumbers()">
-          <span *ngIf="p === -1"
-                style="color:#3D5175;font-size:13px;padding:0 4px">
-            ...
-          </span>
-          <button *ngIf="p !== -1"
-                  (click)="fitnessMatrixGoToPage(p)"
-                  [style.background]="fitnessMatrixCurrentPage === p
-              ? 'linear-gradient(135deg,#2563EB,#1d4ed8)' : 'transparent'"
-                  [style.color]="fitnessMatrixCurrentPage === p
-              ? '#fff' : '#7B90B8'"
-                  [style.border]="fitnessMatrixCurrentPage === p
-              ? 'none' : '1px solid rgba(255,255,255,0.1)'"
-                  style="width:34px;height:34px;border-radius:8px;
-                   cursor:pointer;font-size:13px;font-weight:600;
-                   display:flex;align-items:center;justify-content:center;
-                   transition:all 0.2s ease">
-            {{ p }}
-          </button>
-        </ng-container>
-
-        <button
-          (click)="fitnessMatrixGoToPage(fitnessMatrixCurrentPage + 1)"
-          [disabled]="fitnessMatrixCurrentPage === fitnessMatrixTotalPages"
-          [style.opacity]="fitnessMatrixCurrentPage === fitnessMatrixTotalPages
-        ? '0.4' : '1'"
-          style="width:34px;height:34px;border-radius:8px;
-             background:transparent;
-             border:1px solid rgba(255,255,255,0.1);
-             color:#7B90B8;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;
-             transition:all 0.2s ease">
-          <span class="material-icons" style="font-size:18px">
-            chevron_right
-          </span>
-        </button>
+    <!-- Pagination -->
+    <div class="pagination-bar" *ngIf="saFitnessTotalRows > 0 && !isFitnessLoading">
+      <div class="pagination-left">
+        <span class="pagination-info">
+          Showing
+          <span class="pagination-highlight">{{ saFitnessStartRow }}</span>
+          to
+          <span class="pagination-highlight">{{ saFitnessEndRow }}</span>
+          of
+          <span class="pagination-highlight">{{ saFitnessTotalRows }}</span>
+          entries
+        </span>
       </div>
 
-      <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="color:#7B90B8;font-size:12px;white-space:nowrap">
-            Rows per page
-          </span>
-          <select
-            [(ngModel)]="fitnessMatrixPageSize"
-            (change)="fitnessMatrixCurrentPage = 1"
-            style="background:#0D1628;
-               border:1px solid rgba(0,212,255,0.15);
-               border-radius:6px;color:#E8F0FE;
-               font-size:12px;padding:6px 10px;
-               cursor:pointer;outline:none">
-            <option [value]="5">5</option>
-            <option [value]="10">10</option>
-            <option [value]="15">15</option>
-            <option [value]="20">20</option>
-          </select>
-        </div>
+      <div class="pagination-center">
+        <div class="pagination-nav">
+          <button class="pagination-btn"
+            [disabled]="saFitnessCurrentPage === 1"
+            (click)="saFitnessGoToPage(saFitnessCurrentPage - 1)">
+            <span class="material-icons">chevron_left</span>
+          </button>
 
-        <button
-          (click)="onExportFitnessMatrix()"
-          style="display:flex;align-items:center;gap:8px;
-             background:transparent;
-             border:1px solid rgba(0,212,255,0.25);
-             border-radius:10px;padding:8px 18px;
-             color:#00D4FF;font-size:13px;font-weight:600;
-             cursor:pointer;white-space:nowrap;
-             transition:all 0.2s ease"
-          (mouseenter)="$any($event.currentTarget).style.background=
-        'rgba(0,212,255,0.08)';
-        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.5)'"
-          (mouseleave)="$any($event.currentTarget).style.background='transparent';
-        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.25)'">
-          <span class="material-icons" style="font-size:16px">download</span>
+          <button *ngIf="saFitnessWindowPages[0] > 1"
+            class="pagination-page" (click)="saFitnessGoToPage(1)">1</button>
+          <span *ngIf="saFitnessWindowPages[0] > 2" class="pagination-ellipsis">...</span>
+
+          <button *ngFor="let page of saFitnessWindowPages"
+            class="pagination-page"
+            [class.active]="page === saFitnessCurrentPage"
+            (click)="saFitnessGoToPage(page)">{{ page }}</button>
+
+          <span *ngIf="saFitnessWindowPages[saFitnessWindowPages.length-1] < saFitnessTotalPages - 1"
+            class="pagination-ellipsis">...</span>
+          <button *ngIf="saFitnessWindowPages[saFitnessWindowPages.length-1] < saFitnessTotalPages"
+            class="pagination-page"
+            (click)="saFitnessGoToPage(saFitnessTotalPages)">{{ saFitnessTotalPages }}</button>
+
+          <button class="pagination-btn"
+            [disabled]="saFitnessCurrentPage === saFitnessTotalPages"
+            (click)="saFitnessGoToPage(saFitnessCurrentPage + 1)">
+            <span class="material-icons">chevron_right</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pagination-right">
+        <div class="pagination-size-wrapper">
+          <span class="rows-label">Rows per page</span>
+          <div class="pagination-size-select">
+            <select class="pagination-size-trigger"
+              [(ngModel)]="saFitnessPageSize"
+              (ngModelChange)="saFitnessChangePageSize($event)">
+              <option *ngFor="let size of [10, 25, 50, 100]" [value]="size">{{ size }}</option>
+            </select>
+          </div>
+        </div>
+        <button class="export-btn" (click)="saFitnessOnExport()">
+          <span class="material-icons">download</span>
           Export
         </button>
       </div>
@@ -478,52 +370,48 @@
 
     <!-- Legend -->
     <div style="
-      display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+      display:flex; align-items:center; gap:20px; flex-wrap:wrap;
       padding:12px 20px;
       border-top:1px solid rgba(255,255,255,0.05);
     ">
       <span style="display:flex;align-items:center;gap:6px">
-        <span style="width:8px;height:8px;border-radius:50%;
-                     background:#00E5A0;display:inline-block"></span>
-        <span style="color:#7B90B8;font-size:11px">Best ≥4.6</span>
+        <span style="width:8px;height:8px;border-radius:50%;background:#00E5A0;display:inline-block"></span>
+        <span style="color:#7B90B8;font-size:11px">Best ≥80</span>
       </span>
       <span style="display:flex;align-items:center;gap:6px">
-        <span style="width:8px;height:8px;border-radius:50%;
-                     background:#60A5FA;display:inline-block"></span>
-        <span style="color:#7B90B8;font-size:11px">Good 4.3–4.5</span>
+        <span style="width:8px;height:8px;border-radius:50%;background:#60A5FA;display:inline-block"></span>
+        <span style="color:#7B90B8;font-size:11px">Good 65–79</span>
       </span>
       <span style="display:flex;align-items:center;gap:6px">
-        <span style="width:8px;height:8px;border-radius:50%;
-                     background:#FF8C42;display:inline-block"></span>
-        <span style="color:#7B90B8;font-size:11px">Fair 4.0–4.2</span>
+        <span style="width:8px;height:8px;border-radius:50%;background:#FF8C42;display:inline-block"></span>
+        <span style="color:#7B90B8;font-size:11px">Fair 50–64</span>
       </span>
       <span style="display:flex;align-items:center;gap:6px">
-        <span style="width:8px;height:8px;border-radius:50%;
-                     background:#FF4560;display:inline-block"></span>
-        <span style="color:#7B90B8;font-size:11px">Poor &lt;4.0</span>
+        <span style="width:8px;height:8px;border-radius:50%;background:#FF4560;display:inline-block"></span>
+        <span style="color:#7B90B8;font-size:11px">Poor &lt;50</span>
       </span>
     </div>
   </div>
 
-  <!-- Thinker Gauge Matrix -->
+  <!-- ── Thinker Gauge Matrix ─────────────────────────────────────────────── -->
   <div style="
-    background:linear-gradient(145deg,#0F1A2E,#0A1020);
-    border:1px solid rgba(167,139,250,0.1);
-    border-radius:14px;
-    margin-top:24px;
-    overflow:hidden;
+    background: linear-gradient(145deg, #0F1A2E, #0A1020);
+    border: 1px solid rgba(167,139,250,0.1);
+    border-radius: 14px;
+    margin-top: 24px;
+    overflow: hidden;
   ">
     <!-- Header -->
     <div style="
-      display:flex;align-items:center;gap:12px;
+      display:flex; align-items:center; gap:12px;
       padding:14px 20px;
       background:rgba(167,139,250,0.03);
       border-bottom:1px solid rgba(167,139,250,0.08);
     ">
       <div style="
-        width:36px;height:36px;border-radius:10px;
+        width:36px; height:36px; border-radius:10px;
         background:rgba(167,139,250,0.12);
-        display:flex;align-items:center;justify-content:center;
+        display:flex; align-items:center; justify-content:center;
       ">
         <span class="material-icons" style="color:#A78BFA;font-size:20px">analytics</span>
       </div>
@@ -531,16 +419,19 @@
         <div style="color:#E8F0FE;font-size:15px;font-weight:700">
           Thinker Gauge Matrix
         </div>
-        <!-- <div style="color:#3D5175;font-size:11px;margin-top:2px">
-          Performance gauge across thickness categories
-        </div> -->
       </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="isThinkerLoading" style="padding:32px;text-align:center;color:#7B90B8;font-size:13px;">
+      Loading...
     </div>
 
     <!-- AG Grid -->
     <ag-grid-angular
+      *ngIf="!isThinkerLoading"
       class="ag-theme-custom-dark matrix-ag-grid"
-      [rowData]="thinkerMatrixPaginatedData"
+      [rowData]="saThinkerPaginatedData"
       [columnDefs]="thinkerColDefs"
       [defaultColDef]="matrixDefaultColDef"
       [domLayout]="'autoHeight'"
@@ -551,149 +442,92 @@
       style="width:100%">
     </ag-grid-angular>
 
-    <div style="
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:nowrap;gap:16px;padding:12px 20px;
-  border-top:1px solid rgba(255,255,255,0.06);
-  background:rgba(10,20,40,0.4);
-  border-radius:0 0 12px 12px;
- ">
-      <span style="color:#7B90B8;font-size:13px;
-               white-space:nowrap;flex-shrink:0">
-        Showing
-        <strong style="color:#E8F0FE">
-          {{ (thinkerMatrixCurrentPage-1)*thinkerMatrixPageSize + 1 }}–{{
-            thinkerMatrixCurrentPage*thinkerMatrixPageSize > thinkerMatrixTotalRows
-              ? thinkerMatrixTotalRows
-              : thinkerMatrixCurrentPage*thinkerMatrixPageSize
-          }}
-        </strong>
-        of
-        <strong style="color:#E8F0FE">{{ thinkerMatrixTotalRows }}</strong>
-        suppliers
-      </span>
-
-      <div style="display:flex;align-items:center;gap:6px">
-        <button
-          (click)="thinkerMatrixGoToPage(thinkerMatrixCurrentPage - 1)"
-          [disabled]="thinkerMatrixCurrentPage === 1"
-          [style.opacity]="thinkerMatrixCurrentPage === 1 ? '0.4' : '1'"
-          style="width:34px;height:34px;border-radius:8px;
-             background:transparent;
-             border:1px solid rgba(255,255,255,0.1);
-             color:#7B90B8;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;
-             transition:all 0.2s ease">
-          <span class="material-icons" style="font-size:18px">
-            chevron_left
-          </span>
-        </button>
-
-        <ng-container *ngFor="let p of thinkerMatrixGetPageNumbers()">
-          <span *ngIf="p === -1"
-                style="color:#3D5175;font-size:13px;padding:0 4px">
-            ...
-          </span>
-          <button *ngIf="p !== -1"
-                  (click)="thinkerMatrixGoToPage(p)"
-                  [style.background]="thinkerMatrixCurrentPage === p
-              ? 'linear-gradient(135deg,#2563EB,#1d4ed8)' : 'transparent'"
-                  [style.color]="thinkerMatrixCurrentPage === p
-              ? '#fff' : '#7B90B8'"
-                  [style.border]="thinkerMatrixCurrentPage === p
-              ? 'none' : '1px solid rgba(255,255,255,0.1)'"
-                  style="width:34px;height:34px;border-radius:8px;
-                   cursor:pointer;font-size:13px;font-weight:600;
-                   display:flex;align-items:center;justify-content:center;
-                   transition:all 0.2s ease">
-            {{ p }}
-          </button>
-        </ng-container>
-
-        <button
-          (click)="thinkerMatrixGoToPage(thinkerMatrixCurrentPage + 1)"
-          [disabled]="thinkerMatrixCurrentPage === thinkerMatrixTotalPages"
-          [style.opacity]="thinkerMatrixCurrentPage === thinkerMatrixTotalPages
-        ? '0.4' : '1'"
-          style="width:34px;height:34px;border-radius:8px;
-             background:transparent;
-             border:1px solid rgba(255,255,255,0.1);
-             color:#7B90B8;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;
-             transition:all 0.2s ease">
-          <span class="material-icons" style="font-size:18px">
-            chevron_right
-          </span>
-        </button>
+    <!-- Pagination -->
+    <div class="pagination-bar" *ngIf="saThinkerTotalRows > 0 && !isThinkerLoading">
+      <div class="pagination-left">
+        <span class="pagination-info">
+          Showing
+          <span class="pagination-highlight">{{ saThinkerStartRow }}</span>
+          to
+          <span class="pagination-highlight">{{ saThinkerEndRow }}</span>
+          of
+          <span class="pagination-highlight">{{ saThinkerTotalRows }}</span>
+          entries
+        </span>
       </div>
 
-      <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="color:#7B90B8;font-size:12px;white-space:nowrap">
-            Rows per page
-          </span>
-          <select
-            [(ngModel)]="thinkerMatrixPageSize"
-            (change)="thinkerMatrixCurrentPage = 1"
-            style="background:#0D1628;
-               border:1px solid rgba(0,212,255,0.15);
-               border-radius:6px;color:#E8F0FE;
-               font-size:12px;padding:6px 10px;
-               cursor:pointer;outline:none">
-            <option [value]="5">5</option>
-            <option [value]="10">10</option>
-            <option [value]="15">15</option>
-            <option [value]="20">20</option>
-          </select>
-        </div>
+      <div class="pagination-center">
+        <div class="pagination-nav">
+          <button class="pagination-btn"
+            [disabled]="saThinkerCurrentPage === 1"
+            (click)="saThinkerGoToPage(saThinkerCurrentPage - 1)">
+            <span class="material-icons">chevron_left</span>
+          </button>
 
-        <button
-          (click)="onExportThinkerMatrix()"
-          style="display:flex;align-items:center;gap:8px;
-             background:transparent;
-             border:1px solid rgba(0,212,255,0.25);
-             border-radius:10px;padding:8px 18px;
-             color:#00D4FF;font-size:13px;font-weight:600;
-             cursor:pointer;white-space:nowrap;
-             transition:all 0.2s ease"
-          (mouseenter)="$any($event.currentTarget).style.background=
-        'rgba(0,212,255,0.08)';
-        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.5)'"
-          (mouseleave)="$any($event.currentTarget).style.background='transparent';
-        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.25)'">
-          <span class="material-icons" style="font-size:16px">download</span>
+          <button *ngIf="saThinkerWindowPages[0] > 1"
+            class="pagination-page" (click)="saThinkerGoToPage(1)">1</button>
+          <span *ngIf="saThinkerWindowPages[0] > 2" class="pagination-ellipsis">...</span>
+
+          <button *ngFor="let page of saThinkerWindowPages"
+            class="pagination-page"
+            [class.active]="page === saThinkerCurrentPage"
+            (click)="saThinkerGoToPage(page)">{{ page }}</button>
+
+          <span *ngIf="saThinkerWindowPages[saThinkerWindowPages.length-1] < saThinkerTotalPages - 1"
+            class="pagination-ellipsis">...</span>
+          <button *ngIf="saThinkerWindowPages[saThinkerWindowPages.length-1] < saThinkerTotalPages"
+            class="pagination-page"
+            (click)="saThinkerGoToPage(saThinkerTotalPages)">{{ saThinkerTotalPages }}</button>
+
+          <button class="pagination-btn"
+            [disabled]="saThinkerCurrentPage === saThinkerTotalPages"
+            (click)="saThinkerGoToPage(saThinkerCurrentPage + 1)">
+            <span class="material-icons">chevron_right</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pagination-right">
+        <div class="pagination-size-wrapper">
+          <span class="rows-label">Rows per page</span>
+          <div class="pagination-size-select">
+            <select class="pagination-size-trigger"
+              [(ngModel)]="saThinkerPageSize"
+              (ngModelChange)="saThinkerChangePageSize($event)">
+              <option *ngFor="let size of [10, 25, 50, 100]" [value]="size">{{ size }}</option>
+            </select>
+          </div>
+        </div>
+        <button class="export-btn" (click)="saThinkerOnExport()">
+          <span class="material-icons">download</span>
           Export
         </button>
       </div>
     </div>
 
-    <!-- Legend (identical) -->
+    <!-- Legend -->
     <div style="
-      display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+      display:flex; align-items:center; gap:20px; flex-wrap:wrap;
       padding:12px 20px;
       border-top:1px solid rgba(255,255,255,0.05);
     ">
       <span style="display:flex;align-items:center;gap:6px">
-        <span style="width:8px;height:8px;border-radius:50%;
-                     background:#00E5A0;display:inline-block"></span>
-        <span style="color:#7B90B8;font-size:11px">Best ≥4.6</span>
+        <span style="width:8px;height:8px;border-radius:50%;background:#00E5A0;display:inline-block"></span>
+        <span style="color:#7B90B8;font-size:11px">Best ≥80</span>
       </span>
       <span style="display:flex;align-items:center;gap:6px">
-        <span style="width:8px;height:8px;border-radius:50%;
-                     background:#60A5FA;display:inline-block"></span>
-        <span style="color:#7B90B8;font-size:11px">Good 4.3–4.5</span>
+        <span style="width:8px;height:8px;border-radius:50%;background:#60A5FA;display:inline-block"></span>
+        <span style="color:#7B90B8;font-size:11px">Good 65–79</span>
       </span>
       <span style="display:flex;align-items:center;gap:6px">
-        <span style="width:8px;height:8px;border-radius:50%;
-                     background:#FF8C42;display:inline-block"></span>
-        <span style="color:#7B90B8;font-size:11px">Fair 4.0–4.2</span>
+        <span style="width:8px;height:8px;border-radius:50%;background:#FF8C42;display:inline-block"></span>
+        <span style="color:#7B90B8;font-size:11px">Fair 50–64</span>
       </span>
       <span style="display:flex;align-items:center;gap:6px">
-        <span style="width:8px;height:8px;border-radius:50%;
-                     background:#FF4560;display:inline-block"></span>
-        <span style="color:#7B90B8;font-size:11px">Poor &lt;4.0</span>
+        <span style="width:8px;height:8px;border-radius:50%;background:#FF4560;display:inline-block"></span>
+        <span style="color:#7B90B8;font-size:11px">Poor &lt;50</span>
       </span>
     </div>
   </div>
-</div>
 
+</div>

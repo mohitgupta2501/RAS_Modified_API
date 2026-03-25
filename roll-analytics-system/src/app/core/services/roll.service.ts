@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 // ─── Interface ────────────────────────────────────────────────────────────────
 
@@ -16,6 +17,14 @@ export interface RollRow {
   noOfCycle: number;
   supplier: string;
   progress: number;
+}
+
+export interface RollCounts {
+  ALL: number;
+  FM: number;
+  DC: number;
+  EG: number;
+  RM: number;
 }
 
 export interface RollApiResult {
@@ -46,12 +55,12 @@ interface ApiResponse {
 
 // ─── Valid stand section values matching the API path param ──────────────────
 
-export type StandSection = 'ALL' | 'FM' | 'DC' | 'EG' | 'RM';
+export type StandSection = 'ALL' | 'RM' | 'FM' | 'EG' | 'DC';
 
 @Injectable({ providedIn: 'root' })
 export class RollService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://10.139.199.250:8000';
+  private readonly baseUrl = environment.apiUrl;
 
   /**
    * Fetch roll data for a given stand section with server-side pagination.
@@ -69,11 +78,25 @@ export class RollService {
       .set('page_size', pageSize.toString());
 
     return this.http
-      .get<ApiResponse>(`${this.baseUrl}/api/home/runtime/${section}`, { params })
+      .get<ApiResponse>(`${this.baseUrl}/home/runtime/${section}`, { params })
       .pipe(
         map((res) => ({
           count: res.count ?? 0,
           rows: (res.results ?? []).map((item) => this.mapToRollRow(item))
+        }))
+      );
+  }
+
+  getRollCounts(): Observable<RollCounts> {
+    return this.http
+      .get<Partial<RollCounts>>(`${this.baseUrl}/home/runtime/counts`)
+      .pipe(
+        map((counts) => ({
+          ALL: counts.ALL ?? 0,
+          FM: counts.FM ?? 0,
+          DC: counts.DC ?? 0,
+          EG: counts.EG ?? 0,
+          RM: counts.RM ?? 0
         }))
       );
   }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
+import { environment } from '../../../environments/environment'; // ✅ added
 
 // ── Nested API shape (shared by all endpoints) ────────────────────────────────
 export interface AlarmDefinitionDetail {
@@ -78,8 +79,8 @@ function severityToIcon(s: string): string {
 function parseDateTime(isoString: string): { date: string; time: string } {
   if (!isoString) return { date: '—', time: '—' };
   const d = new Date(isoString);
-  const date = d.toLocaleDateString('en-GB');                                     // 10/03/2026
-  const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); // 11:42
+  const date = d.toLocaleDateString('en-GB');
+  const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   return { date, time };
 }
 
@@ -119,8 +120,9 @@ function extractItems(res: AlarmApiResponse | AlarmApiItem[]): AlarmApiItem[] {
 @Injectable({ providedIn: 'root' })
 export class AlarmService {
 
-  // ── Your backend IP ───────────────────────────────────────────────────────
-  private baseUrl = 'http://10.139.199.250:8000';
+  // ✅ No hardcoded IP — reads from environment.apiUrl
+  // Change IP only in proxy.conf.json (dev) or environment.prod.ts (prod)
+  private baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -132,34 +134,40 @@ export class AlarmService {
     });
   }
 
-  // ── 1. GET /api/alarms/?page=1&page_size=100 ──────────────────────────────
-  //    Paginated  →  used by AlarmsComponent (full table)
-  getAlarms(page = 1, pageSize = 100): Observable<Alarm[]> {
+  // ── 1. GET /api/alarms/?page=1&page_size=10 ───────────────────────────────
+  //    True server-side pagination → page & page_size sent on every call
+  //    Returns { count, alarms } so component knows the real total
+  getAlarms(page = 1, pageSize = 10): Observable<{ count: number; alarms: Alarm[] }> {
     return this.http
       .get<AlarmApiResponse>(
-        `${this.baseUrl}/api/alarms/?page=${page}&page_size=${pageSize}`,
+        `${this.baseUrl}/alarms/?page=${page}&page_size=${pageSize}`, // ✅ removed duplicate /api
         { headers: this.authHeaders }
       )
-      .pipe(map(res => extractItems(res).map(mapToAlarm)));
+      .pipe(
+        map(res => ({
+          count:  res.count,
+          alarms: extractItems(res).map(mapToAlarm)
+        }))
+      );
   }
 
   // ── 2. GET /api/alarms/latest/ ────────────────────────────────────────────
-  //    May be paginated or plain array  →  used by FooterComponent
+  //    Plain array response → used by FooterComponent
   getLatestAlarms(): Observable<Alarm[]> {
     return this.http
-      .get<AlarmApiResponse | AlarmApiItem[]>(
-        `${this.baseUrl}/api/alarms/latest/`,
+      .get<AlarmApiItem[]>(
+        `${this.baseUrl}/alarms/latest/`, // ✅ removed duplicate /api
         { headers: this.authHeaders }
       )
-      .pipe(map(res => extractItems(res as AlarmApiResponse).map(mapToAlarm)));
+      .pipe(map(items => items.map(mapToAlarm)));
   }
 
   // ── 3. GET /api/alarms/notify/ ────────────────────────────────────────────
-  //    Returns a PLAIN ARRAY (not paginated)  →  used by NotificationComponent
+  //    Plain array response → used by NotificationComponent
   getNotifyAlarms(): Observable<NotifyAlarm[]> {
     return this.http
-      .get<AlarmApiItem[]>(                          // ← typed as plain array
-        `${this.baseUrl}/api/alarms/notify/`,
+      .get<AlarmApiItem[]>(
+        `${this.baseUrl}/alarms/notify/`, // ✅ removed duplicate /api
         { headers: this.authHeaders }
       )
       .pipe(map(items => items.map(mapToNotifyAlarm)));
@@ -169,7 +177,7 @@ export class AlarmService {
   //    Acknowledge / update an alarm
   patchAlarm(id: number, payload: Partial<AlarmApiItem>): Observable<AlarmApiItem> {
     return this.http.patch<AlarmApiItem>(
-      `${this.baseUrl}/api/alarms/${id}/`,
+      `${this.baseUrl}/alarms/${id}/`, // ✅ removed duplicate /api
       payload,
       { headers: this.authHeaders }
     );

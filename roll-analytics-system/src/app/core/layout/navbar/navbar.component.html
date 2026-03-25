@@ -26,21 +26,24 @@
 
     <div class="navbar-divider"></div>
 
-    <a class="icon-btn notification-btn" [routerLink]="['/app/notifications']" aria-label="Notifications">
+    <button class="icon-btn notification-btn" (click)="layoutService.toggleNotification()" aria-label="Notifications">
       <span class="material-icons">notifications</span>
       <span class="badge" *ngIf="unreadCount > 0"></span>
-    </a>
+    </button>
 
     <div class="user-menu-wrapper">
       <button class="user-menu-trigger" (click)="toggleUserMenu()" type="button" aria-label="User menu">
-        <div class="avatar" [title]="currentUser?.name ?? 'User'">
-          <span>{{ (currentUser?.name ?? 'AD').slice(0, 2).toUpperCase() }}</span>
+        <!-- 💡 avatarInitials getter: profile API full_name → localStorage name → 'AD' -->
+        <div class="avatar" [title]="displayName">
+          <span>{{ avatarInitials }}</span>
         </div>
       </button>
+
       <div class="user-dropdown" *ngIf="userMenuOpen">
         <div class="user-dropdown-header">
-          <span class="user-name">{{ currentUser?.name ?? 'User' }}</span>
-          <span class="user-email">{{ currentUser?.email }}</span>
+          <!-- 💡 displayName and displayEmail getters handle fallback automatically -->
+          <span class="user-name">{{ displayName }}</span>
+          <span class="user-email">{{ displayEmail }}</span>
         </div>
         <button type="button" class="user-dropdown-item" (click)="logout()">
           <span class="material-icons">logout</span>

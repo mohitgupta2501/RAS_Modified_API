@@ -1,3 +1,9 @@
+<div class="home-page">
+  <div class="breadcrumb">
+    <!-- <span class="breadcrumb-item muted">Home</span> -->
+    <span class="material-icons breadcrumb-sep">chevron_right</span>
+    <span class="breadcrumb-item active">Home</span>
+  </div>
 
  <div class="w-full">
   <!-- SECTION 1 - MILL IMAGE BANNER -->
@@ -125,6 +131,7 @@
   <ag-grid-angular
     class="ag-theme-custom-dark home-table-grid"
     [rowData]="filteredData"
+    [getRowId]="getRowId"
     [columnDefs]="columnDefs"
     [defaultColDef]="defaultColDef"
     [animateRows]="true"

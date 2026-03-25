@@ -1,16 +1,18 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { AlarmService, NotifyAlarm } from '../../core/services/alarm.service'; // ← corrected relative path
+import { interval, Subscription } from 'rxjs';
+import { switchMap, startWith } from 'rxjs/operators';
+import { AlarmService, NotifyAlarm } from '../../core/services/alarm.service';
 
 @Component({
   selector: 'app-notification',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './notifications.component.html',  // ← corrected filename (added 's')
-  styleUrl: './notifications.component.scss'       // ← corrected filename (added 's')
+  templateUrl: './notifications.component.html',
+  styleUrl: './notifications.component.scss'
 })
-export class NotificationComponent implements OnInit, OnChanges {
+export class NotificationComponent implements OnInit, OnChanges, OnDestroy {
   @Input() isOpen = false;
   @Output() closePanel = new EventEmitter<void>();
 
@@ -18,28 +20,20 @@ export class NotificationComponent implements OnInit, OnChanges {
   isLoading = false;
   errorMsg = '';
 
+  private pollingSub!: Subscription;
+
   constructor(private alarmService: AlarmService) {}
 
   ngOnInit(): void {
-    // Load once on init so the bell badge count shows immediately
-    this.fetchNotifications();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    // Re-fetch fresh data every time the panel is opened
-    if (changes['isOpen'] && changes['isOpen'].currentValue === true) {
-      this.fetchNotifications();
-    }
-  }
-
-  private fetchNotifications(): void {
-    this.isLoading = true;
-    this.errorMsg = '';
-
-    this.alarmService.getNotifyAlarms().subscribe({
+    // Poll /api/alarms/notify/ every 5 seconds, starting immediately
+    this.pollingSub = interval(5000).pipe(
+      startWith(0),
+      switchMap(() => this.alarmService.getNotifyAlarms())
+    ).subscribe({
       next: (data) => {
         this.notifications = data;
         this.isLoading = false;
+        this.errorMsg = '';
       },
       error: (err) => {
         console.error('Failed to load notifications:', err);
@@ -47,6 +41,15 @@ export class NotificationComponent implements OnInit, OnChanges {
         this.isLoading = false;
       }
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Panel open/close changes are handled — polling already keeps data fresh.
+    // No extra fetch needed here.
+  }
+
+  ngOnDestroy(): void {
+    this.pollingSub?.unsubscribe();
   }
 
   get unreadNotifs(): number {

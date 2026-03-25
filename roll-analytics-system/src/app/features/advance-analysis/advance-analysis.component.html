@@ -1,7 +1,7 @@
 <div class="advance-analysis-page">
   <!-- Breadcrumb -->
   <div class="breadcrumb">
-    <span class="breadcrumb-item muted">Home</span>
+    <!-- <span class="breadcrumb-item muted">Home</span> -->
     <span class="material-icons breadcrumb-sep">chevron_right</span>
     <span class="breadcrumb-item active">Advance Analysis</span>
   </div>
@@ -50,10 +50,9 @@
             <span
               class="material-icons"
               [style.transform]="openDropdown === 'stand' ? 'rotate(180deg)' : 'rotate(0deg)'"
-              style="
-                color:#7B90B8; font-size:18px;
-                transition: transform 0.2s ease;
-              ">expand_more</span>
+              style="color:#7B90B8; font-size:18px; transition: transform 0.2s ease;">
+              expand_more
+            </span>
           </div>
 
           <div *ngIf="openDropdown === 'stand'"
@@ -73,8 +72,7 @@
             <div *ngFor="let opt of standOptions"
                  (click)="selectStand(opt)"
                  [style.color]="selectedStand === opt ? '#00D4FF' : '#7B90B8'"
-                 [style.background]="selectedStand === opt
-                   ? 'rgba(0,212,255,0.06)' : 'transparent'"
+                 [style.background]="selectedStand === opt ? 'rgba(0,212,255,0.06)' : 'transparent'"
                  style="
                    padding: 9px 14px;
                    font-size: 13px;
@@ -101,7 +99,7 @@
           (click)="$event.stopPropagation()"
           style="position: relative;">
           <div
-            (click)="$event.stopPropagation(); toggleDropdown('position')"
+            (click)="$event.stopPropagation(); toggleDropdown('rollType')"
             style="
               width: 140px;
               background: #0D1628;
@@ -117,14 +115,16 @@
               user-select: none;
               box-sizing: border-box;
             "
-            [style.border-color]="openDropdown === 'position'
-              ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.15)'">
-            <span>{{ selectedPosition }}</span>
+            [style.border-color]="openDropdown === 'rollType' ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.15)'"
+            [style.pointer-events]="selectedRollType === '-' ? 'none' : 'auto'"
+            [style.opacity]="selectedRollType === '-' ? '0.4' : '1'">
+            <span>{{ selectedRollType }}</span>
             <span class="material-icons"
-                  style="color:#7B90B8;font-size:18px">expand_more</span>
+                  style="color:#7B90B8;font-size:18px"
+                  *ngIf="selectedRollType !== '-'">expand_more</span>
           </div>
 
-          <div *ngIf="openDropdown === 'position'"
+          <div *ngIf="openDropdown === 'rollType'"
                (click)="$event.stopPropagation()"
                style="
                  position: absolute;
@@ -137,18 +137,17 @@
                  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
                  overflow: hidden;
                ">
-            <div *ngFor="let opt of positionOptions"
-                 (click)="selectPosition(opt)"
-                 [style.color]="selectedPosition === opt ? '#00D4FF' : '#7B90B8'"
-                 [style.background]="selectedPosition === opt
-                   ? 'rgba(0,212,255,0.06)' : 'transparent'"
+            <div *ngFor="let opt of rollTypeOptions"
+                 (click)="selectRollType(opt)"
+                 [style.color]="selectedRollType === opt ? '#00D4FF' : '#7B90B8'"
+                 [style.background]="selectedRollType === opt ? 'rgba(0,212,255,0.06)' : 'transparent'"
                  style="
                    padding: 9px 14px; font-size: 13px;
                    cursor: pointer; display: flex;
                    align-items: center; justify-content: space-between;
                  ">
               {{ opt }}
-              <span *ngIf="selectedPosition === opt"
+              <span *ngIf="selectedRollType === opt"
                     class="material-icons"
                     style="font-size:14px;color:#00D4FF">check</span>
             </div>
@@ -156,14 +155,23 @@
         </div>
       </div>
 
-      <!-- FIELD 3: ROLL ID + Search button -->
+      <!-- FIELD 3: ROLL ID (searchable + infinite scroll) -->
       <div class="filter-field-wrapper">
-        <span class="filter-field-label">ROLL ID</span>
+        <span class="filter-field-label">
+          ROLL ID
+          <span *ngIf="rollListTotal > 0"
+                style="color:#3D5175;font-weight:400;text-transform:none;
+                       font-size:11px;margin-left:4px">
+            ({{ rollListTotal }} total)
+          </span>
+        </span>
 
         <div
           class="custom-select"
           (click)="$event.stopPropagation()"
           style="position: relative;">
+
+          <!-- Trigger button -->
           <div
             (click)="$event.stopPropagation(); toggleFilterDropdown('rollId')"
             style="
@@ -181,13 +189,23 @@
               user-select: none;
               box-sizing: border-box;
             "
-            [style.border-color]="openDropdown === 'rollId'
-              ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.15)'">
-            <span>{{ filters.rollId }}</span>
+            [style.border-color]="openDropdown === 'rollId' ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.15)'">
+
+            <!-- Show spinner while loading initial list, else show selected value -->
+            <span *ngIf="isLoadingRollList && rollIdOptions.length === 0"
+                  style="color:#3D5175;font-size:12px">Loading...</span>
+            <span *ngIf="!(isLoadingRollList && rollIdOptions.length === 0)">
+              {{ filters.rollId || 'Select Roll ID' }}
+            </span>
+
             <span class="material-icons"
-                  style="color:#7B90B8;font-size:18px">expand_more</span>
+                  [style.transform]="openDropdown === 'rollId' ? 'rotate(180deg)' : 'rotate(0deg)'"
+                  style="color:#7B90B8;font-size:18px;transition:transform 0.2s ease">
+              expand_more
+            </span>
           </div>
 
+          <!-- Dropdown panel -->
           <div *ngIf="openDropdown === 'rollId'"
                (click)="$event.stopPropagation()"
                style="
@@ -202,10 +220,14 @@
                  overflow: hidden;
                ">
 
+            <!-- Search input (sticky at top) -->
             <div style="
               padding: 8px 10px;
               border-bottom: 1px solid rgba(0,212,255,0.1);
               background: #0D1628;
+              position: sticky;
+              top: 0;
+              z-index: 1;
             ">
               <div style="
                 display: flex; align-items: center; gap: 8px;
@@ -215,9 +237,7 @@
                 padding: 6px 10px;
               ">
                 <span class="material-icons"
-                      style="color:#3D5175;font-size:14px;flex-shrink:0">
-                  search
-                </span>
+                      style="color:#3D5175;font-size:14px;flex-shrink:0">search</span>
                 <input
                   type="text"
                   [value]="rollIdSearchQuery"
@@ -229,56 +249,100 @@
                     color: #E8F0FE; font-size: 12px; width: 100%;
                     font-family: inherit; caret-color: #00D4FF;
                   "
-                  autocomplete="off"/>
+                  autocomplete="off" />
               </div>
             </div>
 
-            <div *ngFor="let opt of filteredRollIds"
-                 (click)="selectFilterOption('rollId', opt, $event)"
-                 [style.color]="filters.rollId === opt ? '#00D4FF' : '#7B90B8'"
-                 [style.background]="filters.rollId === opt
-                   ? 'rgba(0,212,255,0.06)' : 'transparent'"
-                 style="
-                   padding: 9px 14px; font-size: 13px;
-                   cursor: pointer; display: flex;
-                   align-items: center; justify-content: space-between;
-                 ">
-              {{ opt }}
-              <span *ngIf="filters.rollId === opt"
-                    class="material-icons"
-                    style="font-size:14px;color:#00D4FF">check</span>
-            </div>
+            <!-- Scrollable list with infinite scroll -->
+            <div
+              (scroll)="onRollIdDropdownScroll($event)"
+              style="
+                max-height: 220px;
+                overflow-y: auto;
+              ">
 
-            <div *ngIf="filteredRollIds.length === 0"
-                 style="padding:12px;text-align:center;
-                        color:#3D5175;font-size:12px">
-              No results
+              <!-- Roll ID items -->
+              <div *ngFor="let opt of filteredRollIds"
+                   (click)="selectFilterOption('rollId', opt, $event)"
+                   [style.color]="filters.rollId === opt ? '#00D4FF' : '#7B90B8'"
+                   [style.background]="filters.rollId === opt ? 'rgba(0,212,255,0.06)' : 'transparent'"
+                   style="
+                     padding: 9px 14px; font-size: 13px;
+                     cursor: pointer; display: flex;
+                     align-items: center; justify-content: space-between;
+                   ">
+                {{ opt }}
+                <span *ngIf="filters.rollId === opt"
+                      class="material-icons"
+                      style="font-size:14px;color:#00D4FF">check</span>
+              </div>
+
+              <!-- Empty state (only when not loading) -->
+              <div *ngIf="filteredRollIds.length === 0 && !isLoadingRollList"
+                   style="padding:12px;text-align:center;color:#3D5175;font-size:12px">
+                No results
+              </div>
+
+              <!-- Infinite scroll loader (shown at bottom while loading more) -->
+              <div *ngIf="isLoadingRollList"
+                   style="
+                     padding: 10px;
+                     text-align: center;
+                     color: #3D5175;
+                     font-size: 12px;
+                     display: flex;
+                     align-items: center;
+                     justify-content: center;
+                     gap: 6px;
+                   ">
+                <span class="material-icons"
+                      style="font-size:14px;color:#3D5175;
+                             animation: spin 1s linear infinite">
+                  autorenew
+                </span>
+                Loading...
+              </div>
+
             </div>
           </div>
         </div>
-<!-- 
-        <button
-          (click)="onSearch()"
-          style="
-            flex-shrink: 0;
-            background: linear-gradient(135deg, #2563EB, #1d4ed8);
-            color: white; border: none; border-radius: 10px;
-            padding: 9px 18px; font-size: 13px; font-weight: 600;
-            display: flex; align-items: center; gap: 6px;
-            cursor: pointer; white-space: nowrap;
-            height: 38px;
-          ">
-          <span class="material-icons" style="font-size:16px">search</span>
-          Search
-        </button> -->
       </div>
 
     </div>
   </div>
 
+  <!-- GLOBAL LOADING STATE -->
+  <div *ngIf="isLoading"
+       style="
+         display: flex; align-items: center; justify-content: center;
+         gap: 10px; padding: 40px;
+         color: #7B90B8; font-size: 14px;
+       ">
+    <span class="material-icons"
+          style="font-size:20px;color:#00D4FF;animation:spin 1s linear infinite">
+      autorenew
+    </span>
+    Loading analysis data...
+  </div>
+
+  <!-- GLOBAL ERROR STATE -->
+  <div *ngIf="errorMessage && !isLoading"
+       style="
+         margin: 16px 0;
+         padding: 14px 20px;
+         background: rgba(239,68,68,0.08);
+         border: 1px solid rgba(239,68,68,0.25);
+         border-radius: 10px;
+         color: #f87171;
+         font-size: 13px;
+         display: flex; align-items: center; gap: 8px;
+       ">
+    <span class="material-icons" style="font-size:18px">error_outline</span>
+    {{ errorMessage }}
+  </div>
+
   <!-- SECTION 1: WEAR ANALYSIS -->
-  <div class="aa-section">
-    <!-- <div class="aa-section-label">WEAR ANALYSIS</div> -->
+  <div class="aa-section" *ngIf="!isLoading">
 
     <div class="aa-card">
       <div class="aa-card-header">
@@ -295,34 +359,55 @@
         <div class="aa-left-panel">
           <div class="aa-kpi-card aa-kpi-overall">
             <div class="aa-kpi-label">OVERALL UTILIZATION</div>
-            <div class="aa-kpi-value">73.5%</div>
+            <div class="aa-kpi-value">
+              {{ wearSummary ? (wearSummary.overall_utilization | number:'1.1-1') + '%' : '—' }}
+            </div>
             <div class="aa-kpi-sub">Campaign average</div>
           </div>
 
           <div class="aa-kpi-card aa-kpi-tonnage">
             <div class="aa-kpi-label">RECENT TONNAGE</div>
-            <div class="aa-kpi-value">1,251 TON</div>
+            <div class="aa-kpi-value">
+              {{ wearSummary ? (wearSummary.recent_tonnage | number:'1.0-0') + ' TON' : '—' }}
+            </div>
             <div class="aa-kpi-sub">Last cycle</div>
           </div>
 
           <div class="aa-kpi-card aa-kpi-cycle">
             <div class="aa-kpi-label">CYCLE PREDICTION</div>
-            <div class="aa-kpi-value">3 Cycles</div>
+            <div class="aa-kpi-value">
+              {{ wearSummary ? wearSummary.cycle_prediction + ' Cycles' : '—' }}
+            </div>
             <div class="aa-kpi-sub">Remaining estimated</div>
           </div>
 
           <div class="aa-kpi-card aa-kpi-status">
             <div class="aa-kpi-label">ROLL STATUS</div>
-            <div class="aa-kpi-value">READY</div>
+            <div class="aa-kpi-value">
+              {{ wearSummary ? wearSummary.roll_status : '—' }}
+            </div>
             <div class="aa-kpi-sub">Current assignment</div>
           </div>
         </div>
 
         <!-- RIGHT PANEL: AG GRID -->
         <div class="aa-right-panel">
+
+          <!-- Empty state when no roll selected -->
+          <div *ngIf="wearRowData.length === 0"
+               style="
+                 display: flex; align-items: center; justify-content: center;
+                 padding: 48px; color: #3D5175; font-size: 13px;
+                 flex-direction: column; gap: 8px;
+               ">
+            <span class="material-icons" style="font-size:32px;color:#1E2D4A">show_chart</span>
+            Select a Roll ID to view wear analysis
+          </div>
+
           <ag-grid-angular
+            *ngIf="wearRowData.length > 0"
             class="ag-theme-custom-dark advance-grid"
-            [rowData]="wearGridPaginatedData"
+            [rowData]="aaWearPaginatedData"
             [columnDefs]="wearColumnDefs"
             [rowHeight]="52"
             [headerHeight]="40"
@@ -333,129 +418,76 @@
             style="width:100%">
           </ag-grid-angular>
 
-          <div style="
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:nowrap;gap:16px;padding:12px 20px;
-  border-top:1px solid rgba(255,255,255,0.06);
-  background:rgba(10,20,40,0.4);
-  border-radius:0 0 12px 12px;
- ">
-            <span style="color:#7B90B8;font-size:13px;
-               white-space:nowrap;flex-shrink:0">
-              Showing
-              <strong style="color:#E8F0FE">
-                {{ (wearGridCurrentPage-1)*wearGridPageSize + 1 }}–{{
-                  wearGridCurrentPage*wearGridPageSize > wearGridTotalRows
-                    ? wearGridTotalRows
-                    : wearGridCurrentPage*wearGridPageSize
-                }}
-              </strong>
-              of
-              <strong style="color:#E8F0FE">{{ wearGridTotalRows }}</strong>
-              cycles
-            </span>
-
-            <div style="display:flex;align-items:center;gap:6px">
-              <button
-                (click)="wearGridGoToPage(wearGridCurrentPage - 1)"
-                [disabled]="wearGridCurrentPage === 1"
-                [style.opacity]="wearGridCurrentPage === 1 ? '0.4' : '1'"
-                style="width:34px;height:34px;border-radius:8px;
-             background:transparent;
-             border:1px solid rgba(255,255,255,0.1);
-             color:#7B90B8;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;
-             transition:all 0.2s ease">
-                <span class="material-icons" style="font-size:18px">
-                  chevron_left
-                </span>
-              </button>
-
-              <ng-container *ngFor="let p of wearGridGetPageNumbers()">
-                <span *ngIf="p === -1"
-                      style="color:#3D5175;font-size:13px;padding:0 4px">
-                  ...
-                </span>
-                <button *ngIf="p !== -1"
-                        (click)="wearGridGoToPage(p)"
-                        [style.background]="wearGridCurrentPage === p
-              ? 'linear-gradient(135deg,#2563EB,#1d4ed8)' : 'transparent'"
-                        [style.color]="wearGridCurrentPage === p
-              ? '#fff' : '#7B90B8'"
-                        [style.border]="wearGridCurrentPage === p
-              ? 'none' : '1px solid rgba(255,255,255,0.1)'"
-                        style="width:34px;height:34px;border-radius:8px;
-                   cursor:pointer;font-size:13px;font-weight:600;
-                   display:flex;align-items:center;justify-content:center;
-                   transition:all 0.2s ease">
-                  {{ p }}
-                </button>
-              </ng-container>
-
-              <button
-                (click)="wearGridGoToPage(wearGridCurrentPage + 1)"
-                [disabled]="wearGridCurrentPage === wearGridTotalPages"
-                [style.opacity]="wearGridCurrentPage === wearGridTotalPages
-        ? '0.4' : '1'"
-                style="width:34px;height:34px;border-radius:8px;
-             background:transparent;
-             border:1px solid rgba(255,255,255,0.1);
-             color:#7B90B8;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;
-             transition:all 0.2s ease">
-                <span class="material-icons" style="font-size:18px">
-                  chevron_right
-                </span>
-              </button>
+          <div class="pagination-bar" *ngIf="aaWearTotalRows > 0">
+            <div class="pagination-left">
+              <span class="pagination-info">
+                Showing
+                <span class="pagination-highlight">{{ aaWearStartRow }}</span>
+                to
+                <span class="pagination-highlight">{{ aaWearEndRow }}</span>
+                of
+                <span class="pagination-highlight">{{ aaWearTotalRows }}</span>
+                entries
+              </span>
             </div>
 
-            <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
-              <div style="display:flex;align-items:center;gap:8px">
-                <span style="color:#7B90B8;font-size:12px;white-space:nowrap">
-                  Rows per page
-                </span>
-                <select
-                  [(ngModel)]="wearGridPageSize"
-                  (change)="wearGridCurrentPage = 1"
-                  style="background:#0D1628;
-               border:1px solid rgba(0,212,255,0.15);
-               border-radius:6px;color:#E8F0FE;
-               font-size:12px;padding:6px 10px;
-               cursor:pointer;outline:none">
-                  <option [value]="5">5</option>
-                  <option [value]="10">10</option>
-                  <option [value]="15">15</option>
-                  <option [value]="20">20</option>
-                </select>
-              </div>
+            <div class="pagination-center">
+              <div class="pagination-nav">
+                <button class="pagination-btn"
+                  [disabled]="aaWearCurrentPage === 1"
+                  (click)="aaWearGoToPage(aaWearCurrentPage - 1)">
+                  <span class="material-icons">chevron_left</span>
+                </button>
 
-              <button
-                (click)="onExportWearGrid()"
-                style="display:flex;align-items:center;gap:8px;
-             background:transparent;
-             border:1px solid rgba(0,212,255,0.25);
-             border-radius:10px;padding:8px 18px;
-             color:#00D4FF;font-size:13px;font-weight:600;
-             cursor:pointer;white-space:nowrap;
-             transition:all 0.2s ease"
-                (mouseenter)="$any($event.currentTarget).style.background=
-        'rgba(0,212,255,0.08)';
-        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.5)'"
-                (mouseleave)="$any($event.currentTarget).style.background='transparent';
-        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.25)'">
-                <span class="material-icons" style="font-size:16px">download</span>
+                <button *ngIf="aaWearWindowPages[0] > 1"
+                  class="pagination-page" (click)="aaWearGoToPage(1)">1</button>
+                <span *ngIf="aaWearWindowPages[0] > 2"
+                  class="pagination-ellipsis">...</span>
+
+                <button *ngFor="let page of aaWearWindowPages"
+                  class="pagination-page"
+                  [class.active]="page === aaWearCurrentPage"
+                  (click)="aaWearGoToPage(page)">{{ page }}</button>
+
+                <span *ngIf="aaWearWindowPages[aaWearWindowPages.length-1] < aaWearTotalPages - 1"
+                  class="pagination-ellipsis">...</span>
+                <button *ngIf="aaWearWindowPages[aaWearWindowPages.length-1] < aaWearTotalPages"
+                  class="pagination-page"
+                  (click)="aaWearGoToPage(aaWearTotalPages)">{{ aaWearTotalPages }}</button>
+
+                <button class="pagination-btn"
+                  [disabled]="aaWearCurrentPage === aaWearTotalPages"
+                  (click)="aaWearGoToPage(aaWearCurrentPage + 1)">
+                  <span class="material-icons">chevron_right</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="pagination-right">
+              <div class="pagination-size-wrapper">
+                <span class="rows-label">Rows per page</span>
+                <div class="pagination-size-select">
+                  <select class="pagination-size-trigger"
+                    [(ngModel)]="aaWearPageSize"
+                    (ngModelChange)="aaWearChangePageSize($event)">
+                    <option *ngFor="let size of [10, 25, 50, 100]" [value]="size">{{ size }}</option>
+                  </select>
+                </div>
+              </div>
+              <button class="export-btn" (click)="aaWearOnExport()">
+                <span class="material-icons">download</span>
                 Export
               </button>
             </div>
           </div>
+
         </div>
       </div>
     </div>
   </div>
 
   <!-- SECTION 2: COST ANALYSIS -->
-  <div class="aa-section aa-section-cost">
-    <!-- <div class="aa-section-label">COST ANALYSIS</div> -->
+  <div class="aa-section aa-section-cost" *ngIf="!isLoading">
 
     <div class="aa-card">
       <div class="aa-card-header">
@@ -472,34 +504,55 @@
         <div class="aa-left-panel">
           <div class="aa-kpi-card aa-kpi-cost-ton">
             <div class="aa-kpi-label">COST PER TON</div>
-            <div class="aa-kpi-value">₹ 0.85 MINR</div>
+            <div class="aa-kpi-value">
+              {{ costSummary ? '₹ ' + (costSummary.cost_per_ton | number:'1.2-2') : '—' }}
+            </div>
             <div class="aa-kpi-sub">Per metric ton</div>
           </div>
 
           <div class="aa-kpi-card aa-kpi-cost-length">
             <div class="aa-kpi-label">COST PER LENGTH</div>
-            <div class="aa-kpi-value">₹ 1.20 MINR</div>
+            <div class="aa-kpi-value">
+              {{ costSummary ? '₹ ' + (costSummary.cost_per_length | number:'1.2-2') : '—' }}
+            </div>
             <div class="aa-kpi-sub">Per km rolled</div>
           </div>
 
           <div class="aa-kpi-card aa-kpi-cost-cycle">
             <div class="aa-kpi-label">COST PER CYCLE</div>
-            <div class="aa-kpi-value">₹ 8.40 MINR</div>
+            <div class="aa-kpi-value">
+              {{ costSummary ? '₹ ' + (costSummary.cost_per_cycle | number:'1.2-2') : '—' }}
+            </div>
             <div class="aa-kpi-sub">Average per cycle</div>
           </div>
 
           <div class="aa-kpi-card aa-kpi-cost-total">
             <div class="aa-kpi-label">TOTAL COST</div>
-            <div class="aa-kpi-value">₹ 400.3 MINR</div>
+            <div class="aa-kpi-value">
+              {{ costSummary ? '₹ ' + (costSummary.total_cost | number:'1.2-2') : '—' }}
+            </div>
             <div class="aa-kpi-sub">All cycles combined</div>
           </div>
         </div>
 
         <!-- RIGHT PANEL: COST GRID -->
         <div class="aa-right-panel" style="overflow:hidden; width:100%">
+
+          <!-- Empty state when no roll selected -->
+          <div *ngIf="costRowData.length === 0"
+               style="
+                 display: flex; align-items: center; justify-content: center;
+                 padding: 48px; color: #3D5175; font-size: 13px;
+                 flex-direction: column; gap: 8px;
+               ">
+            <span class="material-icons" style="font-size:32px;color:#1E2D4A">attach_money</span>
+            Select a Roll ID to view cost analysis
+          </div>
+
           <ag-grid-angular
+            *ngIf="costRowData.length > 0"
             class="ag-theme-custom-dark advance-grid"
-            [rowData]="costGridPaginatedData"
+            [rowData]="aaCostPaginatedData"
             [columnDefs]="costColumnDefs"
             [gridOptions]="costGridOptions"
             [rowHeight]="52"
@@ -511,124 +564,80 @@
             style="width:100%">
           </ag-grid-angular>
 
-          <div style="
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:nowrap;gap:16px;padding:12px 20px;
-  border-top:1px solid rgba(255,255,255,0.06);
-  background:rgba(10,20,40,0.4);
-  border-radius:0 0 12px 12px;
- ">
-            <span style="color:#7B90B8;font-size:13px;
-               white-space:nowrap;flex-shrink:0">
-              Showing
-              <strong style="color:#E8F0FE">
-                {{ (costGridCurrentPage-1)*costGridPageSize + 1 }}–{{
-                  costGridCurrentPage*costGridPageSize > costGridTotalRows
-                    ? costGridTotalRows
-                    : costGridCurrentPage*costGridPageSize
-                }}
-              </strong>
-              of
-              <strong style="color:#E8F0FE">{{ costGridTotalRows }}</strong>
-              cycles
-            </span>
-
-            <div style="display:flex;align-items:center;gap:6px">
-              <button
-                (click)="costGridGoToPage(costGridCurrentPage - 1)"
-                [disabled]="costGridCurrentPage === 1"
-                [style.opacity]="costGridCurrentPage === 1 ? '0.4' : '1'"
-                style="width:34px;height:34px;border-radius:8px;
-             background:transparent;
-             border:1px solid rgba(255,255,255,0.1);
-             color:#7B90B8;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;
-             transition:all 0.2s ease">
-                <span class="material-icons" style="font-size:18px">
-                  chevron_left
-                </span>
-              </button>
-
-              <ng-container *ngFor="let p of costGridGetPageNumbers()">
-                <span *ngIf="p === -1"
-                      style="color:#3D5175;font-size:13px;padding:0 4px">
-                  ...
-                </span>
-                <button *ngIf="p !== -1"
-                        (click)="costGridGoToPage(p)"
-                        [style.background]="costGridCurrentPage === p
-              ? 'linear-gradient(135deg,#2563EB,#1d4ed8)' : 'transparent'"
-                        [style.color]="costGridCurrentPage === p
-              ? '#fff' : '#7B90B8'"
-                        [style.border]="costGridCurrentPage === p
-              ? 'none' : '1px solid rgba(255,255,255,0.1)'"
-                        style="width:34px;height:34px;border-radius:8px;
-                   cursor:pointer;font-size:13px;font-weight:600;
-                   display:flex;align-items:center;justify-content:center;
-                   transition:all 0.2s ease">
-                  {{ p }}
-                </button>
-              </ng-container>
-
-              <button
-                (click)="costGridGoToPage(costGridCurrentPage + 1)"
-                [disabled]="costGridCurrentPage === costGridTotalPages"
-                [style.opacity]="costGridCurrentPage === costGridTotalPages
-        ? '0.4' : '1'"
-                style="width:34px;height:34px;border-radius:8px;
-             background:transparent;
-             border:1px solid rgba(255,255,255,0.1);
-             color:#7B90B8;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;
-             transition:all 0.2s ease">
-                <span class="material-icons" style="font-size:18px">
-                  chevron_right
-                </span>
-              </button>
+          <div class="pagination-bar" *ngIf="aaCostTotalRows > 0">
+            <div class="pagination-left">
+              <span class="pagination-info">
+                Showing
+                <span class="pagination-highlight">{{ aaCostStartRow }}</span>
+                to
+                <span class="pagination-highlight">{{ aaCostEndRow }}</span>
+                of
+                <span class="pagination-highlight">{{ aaCostTotalRows }}</span>
+                entries
+              </span>
             </div>
 
-            <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
-              <div style="display:flex;align-items:center;gap:8px">
-                <span style="color:#7B90B8;font-size:12px;white-space:nowrap">
-                  Rows per page
-                </span>
-                <select
-                  [(ngModel)]="costGridPageSize"
-                  (change)="costGridCurrentPage = 1"
-                  style="background:#0D1628;
-               border:1px solid rgba(0,212,255,0.15);
-               border-radius:6px;color:#E8F0FE;
-               font-size:12px;padding:6px 10px;
-               cursor:pointer;outline:none">
-                  <option [value]="5">5</option>
-                  <option [value]="10">10</option>
-                  <option [value]="15">15</option>
-                  <option [value]="20">20</option>
-                </select>
-              </div>
+            <div class="pagination-center">
+              <div class="pagination-nav">
+                <button class="pagination-btn"
+                  [disabled]="aaCostCurrentPage === 1"
+                  (click)="aaCostGoToPage(aaCostCurrentPage - 1)">
+                  <span class="material-icons">chevron_left</span>
+                </button>
 
-              <button
-                (click)="onExportCostGrid()"
-                style="display:flex;align-items:center;gap:8px;
-             background:transparent;
-             border:1px solid rgba(0,212,255,0.25);
-             border-radius:10px;padding:8px 18px;
-             color:#00D4FF;font-size:13px;font-weight:600;
-             cursor:pointer;white-space:nowrap;
-             transition:all 0.2s ease"
-                (mouseenter)="$any($event.currentTarget).style.background=
-        'rgba(0,212,255,0.08)';
-        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.5)'"
-                (mouseleave)="$any($event.currentTarget).style.background='transparent';
-        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.25)'">
-                <span class="material-icons" style="font-size:16px">download</span>
+                <button *ngIf="aaCostWindowPages[0] > 1"
+                  class="pagination-page" (click)="aaCostGoToPage(1)">1</button>
+                <span *ngIf="aaCostWindowPages[0] > 2"
+                  class="pagination-ellipsis">...</span>
+
+                <button *ngFor="let page of aaCostWindowPages"
+                  class="pagination-page"
+                  [class.active]="page === aaCostCurrentPage"
+                  (click)="aaCostGoToPage(page)">{{ page }}</button>
+
+                <span *ngIf="aaCostWindowPages[aaCostWindowPages.length-1] < aaCostTotalPages - 1"
+                  class="pagination-ellipsis">...</span>
+                <button *ngIf="aaCostWindowPages[aaCostWindowPages.length-1] < aaCostTotalPages"
+                  class="pagination-page"
+                  (click)="aaCostGoToPage(aaCostTotalPages)">{{ aaCostTotalPages }}</button>
+
+                <button class="pagination-btn"
+                  [disabled]="aaCostCurrentPage === aaCostTotalPages"
+                  (click)="aaCostGoToPage(aaCostCurrentPage + 1)">
+                  <span class="material-icons">chevron_right</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="pagination-right">
+              <div class="pagination-size-wrapper">
+                <span class="rows-label">Rows per page</span>
+                <div class="pagination-size-select">
+                  <select class="pagination-size-trigger"
+                    [(ngModel)]="aaCostPageSize"
+                    (ngModelChange)="aaCostChangePageSize($event)">
+                    <option *ngFor="let size of [10, 25, 50, 100]" [value]="size">{{ size }}</option>
+                  </select>
+                </div>
+              </div>
+              <button class="export-btn" (click)="aaCostOnExport()">
+                <span class="material-icons">download</span>
                 Export
               </button>
             </div>
           </div>
+
         </div>
       </div>
     </div>
   </div>
+
 </div>
 
+<!-- Spinner keyframe (add to global styles if not already present) -->
+<style>
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+</style>

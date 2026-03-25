@@ -228,15 +228,6 @@ export const routes: Routes = [
             (m) => m.AdvanceAnalysisComponent
           )
       },
-      {
-        path: 'notifications',                          // ← uncommented & fixed
-        title: 'Notifications',
-        data: { icon: 'notifications' },
-        loadComponent: () =>
-          import('./features/notifications/notifications.component').then(
-            (m) => m.NotificationComponent             // ← matches class name
-          )
-      },
       { path: '', redirectTo: 'home', pathMatch: 'full' }
     ]
   },

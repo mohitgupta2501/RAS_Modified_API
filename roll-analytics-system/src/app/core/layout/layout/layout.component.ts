@@ -3,12 +3,13 @@ import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { FooterComponent } from '../footer/footer.component';
+import { NotificationComponent } from '../notification/notification.component';
 import { LayoutService } from '../../services/layout.service';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, SidebarComponent, FooterComponent],
+  imports: [RouterOutlet, NavbarComponent, SidebarComponent, FooterComponent, NotificationComponent],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
 })

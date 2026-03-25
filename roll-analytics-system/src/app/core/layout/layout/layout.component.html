@@ -1,5 +1,6 @@
 <div class="layout-wrapper">
   <app-navbar></app-navbar>
+  <app-notification [isOpen]="layoutService.notificationOpen()" (closePanel)="layoutService.closeNotification()"></app-notification>
   <div class="layout-body">
     <app-sidebar></app-sidebar>
     <main class="main-content" [class.sidebar-collapsed]="layoutService.sidebarCollapsed()">

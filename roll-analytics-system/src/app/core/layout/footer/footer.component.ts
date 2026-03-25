@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AlarmService, Alarm } from '../../services/alarm.service';
+import { interval, Subscription } from 'rxjs';
+import { switchMap, startWith } from 'rxjs/operators';
 
 @Component({
   selector: 'app-footer',
@@ -14,7 +16,9 @@ export class FooterComponent implements OnInit, OnDestroy {
   popupOpen = false;
   currentTime = '';
   latestAlarmText = '';
+
   private timeInterval: any;
+  private alarmSub!: Subscription;
 
   alarms: Alarm[] = [];
 
@@ -40,13 +44,18 @@ export class FooterComponent implements OnInit, OnDestroy {
     this.updateTime();
     this.timeInterval = setInterval(() => this.updateTime(), 1000);
 
-    this.alarmService.getLatestAlarms().subscribe({
+    // Poll /api/alarms/latest/ every 30 seconds, starting immediately
+    this.alarmSub = interval(5000).pipe(
+      startWith(0),
+      switchMap(() => this.alarmService.getLatestAlarms())
+    ).subscribe({
       next: (data) => {
         this.alarms = data;
         if (data.length > 0) {
           const latest = data[0];
-          // Ticker text shown in the footer bar
           this.latestAlarmText = `${latest.date} | ${latest.time} | ${latest.description}`;
+        } else {
+          this.latestAlarmText = '';
         }
       },
       error: (err) => {
@@ -58,6 +67,9 @@ export class FooterComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.timeInterval) {
       clearInterval(this.timeInterval);
+    }
+    if (this.alarmSub) {
+      this.alarmSub.unsubscribe();
     }
   }
 

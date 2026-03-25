@@ -1,54 +1,3 @@
-// export interface LoginRequest {
-//   email: string;
-//   password: string;
-// }
-
-// export interface LoginResponse {
-//   accessToken: string;
-//   refreshToken: string;
-//   user: UserInfo;
-// }
-
-// export interface UserInfo {
-//   id: string;
-//   name: string;
-//   email: string;
-//   role: string;
-//   shift: string;
-// }
-
-// export interface ForgotPasswordRequest {
-//   email: string;
-// }
-
-// export interface VerifyOtpRequest {
-//   email: string;
-//   otp: string;
-// }
-
-// export interface ResetPasswordRequest {
-//   email: string;
-//   otp: string;
-//   newPassword: string;
-//   confirmPassword: string;
-// }
-
-// // auth.models.ts — ADD these new interfaces
-
-// // What your API returns on error (adjust field names to match your backend)
-// export interface ApiError {
-//   message: string;
-//   statusCode: number;
-//   errors?: { field: string; message: string }[];  // for validation errors
-// }
-
-// // Generic API wrapper (if your backend wraps responses)
-// export interface ApiResponse<T> {
-//   data: T;
-//   success: boolean;
-//   message: string;
-// }
-
 // ── LOGIN ──────────────────────────────────────────────────────────
 // What we SEND to backend for login
 export interface LoginRequest {
@@ -131,6 +80,41 @@ export interface ResetPasswordRequest {
 // What backend RETURNS after password is reset successfully
 export interface ResetPasswordResponse {
   message: string;        // e.g. "Password reset successful"
+}
+
+// ── USER PROFILE ───────────────────────────────────────────────────
+// What backend RETURNS when fetching the logged-in user's profile
+// URL: GET /api/user_management/profile/
+export interface UserProfileResponse {
+  id: number;
+  email: string;
+  username: string;
+  first_name: string;
+  last_name: string;
+  full_name: string;            // e.g. "John Doe" — use this for display in navbar
+  phone: string;
+  employee_id: string;
+  is_active: boolean;
+  is_superuser: boolean;
+  joined_date: string;          // ISO date string e.g. "2024-01-15"
+  last_login: string | null;    // ISO datetime string or null if never logged in
+  supervisor: string | null;    // supervisor's name or null
+  supervisor_email: string | null;
+  created: string;              // ISO datetime string
+  modified: string;             // ISO datetime string
+}
+
+// ── CHANGE PASSWORD ────────────────────────────────────────────────
+// What we SEND to backend to change the logged-in user's password
+// URL: POST /api/user_management/profile/
+export interface ChangePasswordRequest {
+  new_password: string;   // new password chosen by user
+  reset_token: string;    // valid reset token (from verify-otp flow)
+}
+
+// What backend RETURNS after password is changed successfully
+export interface ChangePasswordResponse {
+  message: string;        // e.g. "Password changed successfully"
 }
 
 // ── ERROR RESPONSE ─────────────────────────────────────────────────

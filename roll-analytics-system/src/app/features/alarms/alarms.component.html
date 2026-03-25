@@ -1,6 +1,6 @@
 <div class="alarms-page">
   <div class="breadcrumb">
-    <span class="breadcrumb-item muted">Home</span>
+    <!-- <span class="breadcrumb-item muted">Home</span> -->
     <span class="material-icons breadcrumb-sep">chevron_right</span>
     <span class="breadcrumb-item active">Alarms</span>
   </div>
@@ -42,10 +42,10 @@
     <div class="search-container">
       <div class="search-box">
         <span class="material-icons search-icon">search</span>
-        <input 
-          type="text" 
-          [(ngModel)]="searchTerm" 
-          (ngModelChange)="alarmsCurrentPage = 1"
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="alarmsCurrentPage = 1; loadAlarms()"
           placeholder="Search alarms..."
           class="search-input"
         >
@@ -63,7 +63,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let alarm of sorted; let i = index" [class.even]="i % 2 === 1">
+          <tr *ngFor="let alarm of alarmsPaginatedData; let i = index" [class.even]="i % 2 === 1">
             <td class="col-datetime">
               <span class="material-icons datetime-icon">access_time</span>
               {{ alarm.date }} &nbsp;|&nbsp; {{ alarm.time }}
@@ -73,7 +73,10 @@
               <span class="param-chip">{{ alarm.parameter }}</span>
             </td>
             <td class="col-severity">
-              <span class="severity-badge" [class.high]="alarm.severity === 'HIGH'" [class.medium]="alarm.severity === 'MEDIUM'" [class.low]="alarm.severity === 'LOW'">
+              <span class="severity-badge"
+                [class.high]="alarm.severity === 'HIGH'"
+                [class.medium]="alarm.severity === 'MEDIUM'"
+                [class.low]="alarm.severity === 'LOW'">
                 {{ alarm.severity }}
               </span>
             </td>
@@ -82,117 +85,65 @@
       </table>
     </div>
 
-    <div style="
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:nowrap;gap:16px;padding:12px 20px;
-  border-top:1px solid rgba(255,255,255,0.06);
-  background:rgba(10,20,40,0.4);
-  border-radius:0 0 12px 12px;
- ">
-      <span style="color:#7B90B8;font-size:13px;
-               white-space:nowrap;flex-shrink:0">
-        Showing
-        <strong style="color:#E8F0FE">
-          {{ (alarmsCurrentPage-1)*alarmsPageSize + 1 }}–{{
-            alarmsCurrentPage*alarmsPageSize > alarmsTotalRows
-              ? alarmsTotalRows
-              : alarmsCurrentPage*alarmsPageSize
-          }}
-        </strong>
-        of
-        <strong style="color:#E8F0FE">{{ alarmsTotalRows }}</strong>
-        alarms
-      </span>
-
-      <div style="display:flex;align-items:center;gap:6px">
-        <button
-          (click)="alarmsGoToPage(alarmsCurrentPage - 1)"
-          [disabled]="alarmsCurrentPage === 1"
-          [style.opacity]="alarmsCurrentPage === 1 ? '0.4' : '1'"
-          style="width:34px;height:34px;border-radius:8px;
-             background:transparent;
-             border:1px solid rgba(255,255,255,0.1);
-             color:#7B90B8;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;
-             transition:all 0.2s ease">
-          <span class="material-icons" style="font-size:18px">
-            chevron_left
-          </span>
-        </button>
-
-        <ng-container *ngFor="let p of alarmsGetPageNumbers()">
-          <span *ngIf="p === -1"
-                style="color:#3D5175;font-size:13px;padding:0 4px">
-            ...
-          </span>
-          <button *ngIf="p !== -1"
-                  (click)="alarmsGoToPage(p)"
-                  [style.background]="alarmsCurrentPage === p
-              ? 'linear-gradient(135deg,#2563EB,#1d4ed8)' : 'transparent'"
-                  [style.color]="alarmsCurrentPage === p
-              ? '#fff' : '#7B90B8'"
-                  [style.border]="alarmsCurrentPage === p
-              ? 'none' : '1px solid rgba(255,255,255,0.1)'"
-                  style="width:34px;height:34px;border-radius:8px;
-                   cursor:pointer;font-size:13px;font-weight:600;
-                   display:flex;align-items:center;justify-content:center;
-                   transition:all 0.2s ease">
-            {{ p }}
-          </button>
-        </ng-container>
-
-        <button
-          (click)="alarmsGoToPage(alarmsCurrentPage + 1)"
-          [disabled]="alarmsCurrentPage === alarmsTotalPages"
-          [style.opacity]="alarmsCurrentPage === alarmsTotalPages
-        ? '0.4' : '1'"
-          style="width:34px;height:34px;border-radius:8px;
-             background:transparent;
-             border:1px solid rgba(255,255,255,0.1);
-             color:#7B90B8;cursor:pointer;
-             display:flex;align-items:center;justify-content:center;
-             transition:all 0.2s ease">
-          <span class="material-icons" style="font-size:18px">
-            chevron_right
-          </span>
-        </button>
+    <div class="pagination-bar">
+      <div class="pagination-left">
+        <span class="pagination-info">
+          Showing
+          <span class="pagination-highlight">{{ alarmsStartRow }}</span>
+          to
+          <span class="pagination-highlight">{{ alarmsEndRow }}</span>
+          of
+          <span class="pagination-highlight">{{ alarmsTotalRows }}</span>
+          entries
+        </span>
       </div>
 
-      <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="color:#7B90B8;font-size:12px;white-space:nowrap">
-            Rows per page
-          </span>
-          <select
-            [(ngModel)]="alarmsPageSize"
-            (change)="alarmsCurrentPage = 1"
-            style="background:#0D1628;
-               border:1px solid rgba(0,212,255,0.15);
-               border-radius:6px;color:#E8F0FE;
-               font-size:12px;padding:6px 10px;
-               cursor:pointer;outline:none">
-            <option [value]="5">5</option>
-            <option [value]="10">10</option>
-            <option [value]="15">15</option>
-            <option [value]="20">20</option>
-          </select>
-        </div>
+      <div class="pagination-center">
+        <div class="pagination-nav">
+          <button class="pagination-btn"
+            [disabled]="alarmsCurrentPage === 1"
+            (click)="alarmsGoToPage(alarmsCurrentPage - 1)">
+            <span class="material-icons">chevron_left</span>
+          </button>
 
-        <button
-          (click)="onExportAlarms()"
-          style="display:flex;align-items:center;gap:8px;
-             background:transparent;
-             border:1px solid rgba(0,212,255,0.25);
-             border-radius:10px;padding:8px 18px;
-             color:#00D4FF;font-size:13px;font-weight:600;
-             cursor:pointer;white-space:nowrap;
-             transition:all 0.2s ease"
-          (mouseenter)="$any($event.currentTarget).style.background=
-        'rgba(0,212,255,0.08)';
-        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.5)'"
-          (mouseleave)="$any($event.currentTarget).style.background='transparent';
-        $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.25)'">
-          <span class="material-icons" style="font-size:16px">download</span>
+          <button *ngIf="alarmsWindowPages[0] > 1"
+            class="pagination-page" (click)="alarmsGoToPage(1)">1</button>
+          <span *ngIf="alarmsWindowPages[0] > 2"
+            class="pagination-ellipsis">...</span>
+
+          <button *ngFor="let page of alarmsWindowPages"
+            class="pagination-page"
+            [class.active]="page === alarmsCurrentPage"
+            (click)="alarmsGoToPage(page)">{{ page }}</button>
+
+          <span *ngIf="alarmsWindowPages[alarmsWindowPages.length-1] < alarmsTotalPages - 1"
+            class="pagination-ellipsis">...</span>
+          <button *ngIf="alarmsWindowPages[alarmsWindowPages.length-1] < alarmsTotalPages"
+            class="pagination-page"
+            (click)="alarmsGoToPage(alarmsTotalPages)">{{ alarmsTotalPages }}</button>
+
+          <button class="pagination-btn"
+            [disabled]="alarmsCurrentPage === alarmsTotalPages"
+            (click)="alarmsGoToPage(alarmsCurrentPage + 1)">
+            <span class="material-icons">chevron_right</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pagination-right">
+        <div class="pagination-size-wrapper">
+          <span class="rows-label">Rows per page</span>
+          <div class="pagination-size-select">
+            <select class="pagination-size-trigger"
+              [ngModel]="alarmsPageSize"
+              (ngModelChange)="alarmsChangePageSize($event)">
+              <!-- ↑ [ngModel] one-way binding only — prevents double API call on init -->
+              <option *ngFor="let size of [10, 25, 50, 100]" [value]="size">{{ size }}</option>
+            </select>
+          </div>
+        </div>
+        <button class="export-btn" (click)="alarmsOnExport()">
+          <span class="material-icons">download</span>
           Export
         </button>
       </div>

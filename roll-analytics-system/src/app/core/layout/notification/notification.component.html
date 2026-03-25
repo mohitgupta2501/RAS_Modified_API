@@ -1,4 +1,4 @@
-<!-- <div class="notif-overlay" *ngIf="isOpen" (click)="closePanel.emit()"></div>
+<div class="notif-overlay" *ngIf="isOpen" (click)="closePanel.emit()"></div>
 <div class="notif-panel" [class.open]="isOpen" (click)="$event.stopPropagation()">
   <div class="notif-header">
     <div class="notif-title">
@@ -13,11 +13,30 @@
   </div>
 
   <div class="notif-list">
-    <div class="notif-empty" *ngIf="notifications.length === 0">
+
+    <!-- Loading state -->
+    <div class="notif-empty" *ngIf="isLoading">
+      <span class="material-icons">hourglass_empty</span>
+      <p>Loading...</p>
+    </div>
+
+    <!-- Error state -->
+    <div class="notif-empty" *ngIf="!isLoading && errorMsg">
+      <span class="material-icons">error_outline</span>
+      <p>{{ errorMsg }}</p>
+    </div>
+
+    <!-- Empty state -->
+    <div class="notif-empty" *ngIf="!isLoading && !errorMsg && notifications.length === 0">
       <span class="material-icons">notifications_none</span>
       <p>No notifications</p>
     </div>
-    <div class="notif-item" *ngFor="let n of notifications" [class.unread]="!n.read" (click)="markRead(n)">
+
+    <!-- Notification items -->
+    <div class="notif-item"
+         *ngFor="let n of notifications"
+         [class.unread]="!n.read"
+         (click)="markRead(n)">
       <div class="notif-dot" *ngIf="!n.read"></div>
       <div class="notif-icon-wrap" [class]="'type-' + n.type">
         <span class="material-icons">{{ n.icon }}</span>
@@ -27,12 +46,13 @@
         <span class="notif-time">{{ n.time }}</span>
       </div>
     </div>
+
   </div>
 
   <div class="notif-footer">
-    <button class="view-all-btn" routerLink="/alarms" (click)="closePanel.emit()">
+    <button class="view-all-btn" routerLink="/app/alarms" (click)="closePanel.emit()">
       View All Alerts
       <span class="material-icons">arrow_forward</span>
     </button>
   </div>
-</div> -->
+</div>

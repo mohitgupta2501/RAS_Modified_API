@@ -25,14 +25,13 @@ export interface RollInventoryRow {
 }
 
 export interface ChokeRow {
-  chokeId: string;
-  weight: number;
-  slabs: number;
-  length: number;
+  chock_id: string;
+  total_weight: number;
+  total_coils: number;
+  total_length: number;
   supplier: string;
 }
 
-// ✅ REPLACE old KpiSummary interface with these two
 export interface KpiSummary {
   stand_category: string;
   ready: number;
@@ -40,13 +39,14 @@ export interface KpiSummary {
   bur?: number;
 }
 
+// BUG FIX #1: KpiApiResponse used for BOTH roll and chock KPI endpoints
 export interface KpiApiResponse {
-  kpi_Card_list: KpiSummary[];
+  kpi_card_list: KpiSummary[];
 }
 
 export interface PaginatedResponse<T> {
-  results: T[];      // ← was 'data'
-  count: number;     // ← was 'totalRows'
+  results: T[];
+  count: number;
   next: string | null;
   previous: string | null;
 }
@@ -61,8 +61,10 @@ export interface PaginatedResponse<T> {
 export class InventoryService {
   private readonly http = inject(HttpClient);
 
-//  private readonly baseUrl = environment.apiBaseUrl;
-    private readonly baseUrl = '';
+  // Strip trailing '/api' so URLs like `${baseUrl}/api/inventory/...` resolve correctly
+  // In dev:  environment.apiUrl = '/api'  → baseUrl = ''  → /api/inventory/...
+  // In prod: environment.apiUrl = 'http://192.168.99.1:8000/api' → baseUrl = 'http://192.168.99.1:8000'
+  private readonly baseUrl = environment.apiUrl.replace(/\/api$/, '');
 
   private get jsonHeaders(): HttpHeaders {
     return new HttpHeaders({ 'Content-Type': 'application/json' });
@@ -73,26 +75,27 @@ export class InventoryService {
   // GET /api/inventory/rolls/kpi
   // ──────────────────────────────────────────
 
-// ✅ REPLACE old getRollKpi() method
-getRollKpi(): Observable<KpiApiResponse> {
-  return this.http
-    .get<KpiApiResponse>(`${this.baseUrl}/api/inventory/rolls/kpi`, {
-      headers: this.jsonHeaders
-    })
-    .pipe(catchError((error: any) => this.handleError(error)));
-}
+  getRollKpi(): Observable<KpiApiResponse> {
+    return this.http
+      .get<KpiApiResponse>(`${this.baseUrl}/api/inventory/rolls/kpi`, {
+        headers: this.jsonHeaders
+      })
+      .pipe(catchError((error: any) => this.handleError(error)));
+  }
 
   // ──────────────────────────────────────────
   // CHOCK KPI
   // GET /api/inventory/chocks/kpi
+  // BUG FIX #1: was Observable<KpiSummary[]> — now correctly typed as
+  // Observable<KpiApiResponse> so res.kpi_card_list is accessible in the component
   // ──────────────────────────────────────────
 
-  getChockKpi(): Observable<KpiSummary[]> {
+  getChockKpi(): Observable<KpiApiResponse> {
     return this.http
-      .get<KpiSummary[]>(`${this.baseUrl}/api/inventory/chocks/kpi`, {
+      .get<KpiApiResponse>(`${this.baseUrl}/api/inventory/chocks/kpi`, {
         headers: this.jsonHeaders
       })
-      .pipe(catchError(this.handleError));
+      .pipe(catchError((error: any) => this.handleError(error)));
   }
 
   // ──────────────────────────────────────────
@@ -113,7 +116,7 @@ getRollKpi(): Observable<KpiApiResponse> {
         `${this.baseUrl}/api/inventory/rolls`,
         { headers: this.jsonHeaders, params }
       )
-      .pipe(catchError(this.handleError));
+      .pipe(catchError((error: any) => this.handleError(error)));
   }
 
   // ──────────────────────────────────────────
@@ -134,7 +137,7 @@ getRollKpi(): Observable<KpiApiResponse> {
         `${this.baseUrl}/api/inventory/chocks`,
         { headers: this.jsonHeaders, params }
       )
-      .pipe(catchError(this.handleError));
+      .pipe(catchError((error: any) => this.handleError(error)));
   }
 
   // ──────────────────────────────────────────

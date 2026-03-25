@@ -50,7 +50,10 @@
   </div>
 
   <div class="notif-footer">
-    <button class="view-all-btn" routerLink="/app/alarms" (click)="closePanel.emit()">
+    <button class="view-all-btn"
+      [routerLink]="['/app/alarms']"
+      [queryParams]="{ from: 'notifications' }"
+      (click)="closePanel.emit()">
       View All Alerts
       <span class="material-icons">arrow_forward</span>
     </button>

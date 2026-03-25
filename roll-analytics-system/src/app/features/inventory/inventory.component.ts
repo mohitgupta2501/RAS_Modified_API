@@ -4,15 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AgGridAngular } from 'ag-grid-angular';
 import type { ColDef, ColGroupDef } from 'ag-grid-community';
-// import { InventoryService, KpiSummary } from '../../../app/core/services/inventory.service';
-// ✅ REPLACE old import
 import { InventoryService, KpiApiResponse } from '../../../app/core/services/inventory.service';
 
 // ─────────────────────────────────────────────
 // LOCAL INTERFACES matching exact API response fields
 // ─────────────────────────────────────────────
 
-// Matches GET /api/inventory/rolls results[]
 interface RollInventoryRow {
   roll_id: string;
   stand_category: string;
@@ -29,7 +26,6 @@ interface RollInventoryRow {
   roll_added_time: string;
 }
 
-// Matches GET /api/inventory/chocks results[]
 interface ChokeRow {
   chock_id: string;
   total_weight: number;
@@ -39,7 +35,6 @@ interface ChokeRow {
 }
 
 type ActiveType = 'rolls' | 'choke';
-
 type RollPos = 'T' | 'B' | 'OP' | 'DR';
 
 interface KpiCard {
@@ -51,7 +46,7 @@ interface KpiCard {
   burCount: number;
   edCount?: number;
   pinchCount?: number;
-  ready: number; 
+  ready: number;
   totalWeight: string;
   totalLength: string;
   accent: string;
@@ -101,81 +96,11 @@ interface EntryForm {
   rollType: '' | 'Edger Roll' | 'Pinch Roll';
 }
 
-@Component({
-  selector: 'app-inventory',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, DatePipe, AgGridAngular],
-  templateUrl: './inventory.component.html',
-  styleUrl: './inventory.component.scss'
-})
-export class InventoryComponent implements OnInit {
-  private readonly router = inject(Router);
-  private readonly inventoryService = inject(InventoryService);
-
-  activeType: ActiveType = 'rolls';
-
-  openEntryModal = false;
-  showToast = false;
-  openDropdown: 'rollType' | 'grindType' | null = null;
-
-  isRollLoading = false;
-  isChokeLoading = false;
-
-  rollCurrentPage = 1;
-  rollPageSize = 10;
-  rollTotalRows = 0;
-
-  chokeCurrentPage = 1;
-  chokePageSize = 10;
-  chokeTotalRows = 0;
-
-  get rollTotalPages(): number {
-    return Math.ceil(this.rollTotalRows / this.rollPageSize);
-  }
-
-  get rollPaginatedData(): RollInventoryRow[] {
-    return this.rollInventoryRowData;
-  }
-
-  rollGoToPage(page: number) {
-    if (page >= 1 && page <= this.rollTotalPages) {
-      this.rollCurrentPage = page;
-      this.loadRollInventory();
-    }
-  }
-
-  rollGetPageNumbers(): number[] {
-    const pages: number[] = [];
-    for (let i = 1; i <= this.rollTotalPages; i++) pages.push(i);
-    return pages;
-  }
-
-  get chokeTotalPages(): number {
-    return Math.ceil(this.chokeTotalRows / this.chokePageSize);
-  }
-
-  get chokePaginatedData(): ChokeRow[] {
-    return this.chokeRowData;
-  }
-
-  chokeGoToPage(page: number) {
-    if (page >= 1 && page <= this.chokeTotalPages) {
-      this.chokeCurrentPage = page;
-      this.loadChokeInventory();
-    }
-  }
-
-  chokeGetPageNumbers(): number[] {
-    const pages: number[] = [];
-    for (let i = 1; i <= this.chokeTotalPages; i++) pages.push(i);
-    return pages;
-  }
-
-  min(a: number, b: number): number {
-    return Math.min(a, b);
-  }
-
-  kpiCards: KpiCard[] = [
+// ─────────────────────────────────────────────
+// HELPER — build a fresh set of KPI cards with all counters at zero
+// ─────────────────────────────────────────────
+function buildDefaultKpiCards(): KpiCard[] {
+  return [
     {
       id: 'r1',
       label: 'R1',
@@ -269,15 +194,139 @@ export class InventoryComponent implements OnInit {
       barGradient: 'linear-gradient(90deg,#FF4560,#CC1832)'
     }
   ];
+}
+
+@Component({
+  selector: 'app-inventory',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule, DatePipe, AgGridAngular],
+  templateUrl: './inventory.component.html',
+  styleUrl: './inventory.component.scss'
+})
+export class InventoryComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly inventoryService = inject(InventoryService);
+
+  activeType: ActiveType = 'rolls';
+
+  openEntryModal = false;
+  showToast = false;
+  openDropdown: 'rollType' | 'grindType' | 'rowsPerPage' | null = null;
+
+  isRollLoading = false;
+  isChokeLoading = false;
+
+  // ─── Roll pagination ───────────────────────
+  rollCurrentPage = 1;
+  rollPageSize = 10;
+  rollTotalRows = 0;
+  rollStartRow = 0;
+  rollEndRow = 0;
+
+  // ─── Chock pagination ──────────────────────
+  chokeCurrentPage = 1;
+  chokePageSize = 10;
+  chokeTotalRows = 0;
+  chokeStartRow = 0;
+  chokeEndRow = 0;
+
+  // ─────────────────────────────────────────────
+  // BUG FIX #2: Separate KPI card arrays for rolls vs chocks
+  // so they never overwrite each other's values.
+  // ─────────────────────────────────────────────
+  kpiCards: KpiCard[] = buildDefaultKpiCards();        // populated by loadRollKpi()
+  chockKpiCards: KpiCard[] = buildDefaultKpiCards();   // populated by loadChockKpi()
+
+  // BUG FIX #2: Getter returns the correct array based on active tab
+  get activeKpiCards(): KpiCard[] {
+    return this.activeType === 'choke' ? this.chockKpiCards : this.kpiCards;
+  }
+
+  // ─── Roll pagination helpers ───────────────
+  get rollTotalPages(): number {
+    return Math.ceil(this.rollTotalRows / this.rollPageSize);
+  }
+
+  get rollPaginatedData(): RollInventoryRow[] {
+    return this.rollInventoryRowData;
+  }
+
+  rollGoToPage(page: number): void {
+    if (page >= 1 && page <= this.rollTotalPages) {
+      this.rollCurrentPage = page;
+      this.loadRollInventory();
+    }
+  }
+
+  rollGetPageNumbers(): number[] {
+    const pages: number[] = [];
+    for (let i = 1; i <= this.rollTotalPages; i++) pages.push(i);
+    return pages;
+  }
+
+  rollGetWindowPages(): number[] {
+    const total = this.rollTotalPages;
+    const current = this.rollCurrentPage;
+    if (total <= 3) return Array.from({ length: total }, (_, i) => i + 1);
+    if (current <= 2) return [1, 2, 3];
+    if (current >= total - 1) return [total - 2, total - 1, total];
+    return [current - 1, current, current + 1];
+  }
+
+  rollSetPageSize(size: number): void {
+    this.rollPageSize = size;
+    this.rollCurrentPage = 1;
+    this.loadRollInventory();
+  }
+
+  // ─── Chock pagination helpers ──────────────
+  get chokeTotalPages(): number {
+    return Math.ceil(this.chokeTotalRows / this.chokePageSize);
+  }
+
+  get chokePaginatedData(): ChokeRow[] {
+    return this.chokeRowData;
+  }
+
+  chokeGoToPage(page: number): void {
+    if (page >= 1 && page <= this.chokeTotalPages) {
+      this.chokeCurrentPage = page;
+      this.loadChokeInventory();
+    }
+  }
+
+  chokeGetPageNumbers(): number[] {
+    const pages: number[] = [];
+    for (let i = 1; i <= this.chokeTotalPages; i++) pages.push(i);
+    return pages;
+  }
+
+  chokeGetWindowPages(): number[] {
+    const total = this.chokeTotalPages;
+    const current = this.chokeCurrentPage;
+    if (total <= 3) return Array.from({ length: total }, (_, i) => i + 1);
+    if (current <= 2) return [1, 2, 3];
+    if (current >= total - 1) return [total - 2, total - 1, total];
+    return [current - 1, current, current + 1];
+  }
+
+  chokeSetPageSize(size: number): void {
+    this.chokePageSize = size;
+    this.chokeCurrentPage = 1;
+    this.loadChokeInventory();
+  }
+
+  min(a: number, b: number): number {
+    return Math.min(a, b);
+  }
 
   // ─────────────────────────────────────────────
   // ROLL TABLE COLUMN DEFS
-  // All field names updated to match API snake_case response
   // ─────────────────────────────────────────────
   readonly rollInventoryColDefs: Array<ColDef | ColGroupDef> = [
     {
       headerName: 'ROLL ID',
-      field: 'roll_id',                    // ✅ was 'rollNo'
+      field: 'roll_id',
       pinned: 'left',
       width: 150,
       lockPinned: true,
@@ -291,7 +340,7 @@ export class InventoryComponent implements OnInit {
     },
     {
       headerName: 'STAND CATEGORY',
-      field: 'stand_category',             // ✅ was 'standCategory'
+      field: 'stand_category',
       width: 150,
       cellRenderer: (params: any) => {
         const val = params.value || '-';
@@ -299,8 +348,7 @@ export class InventoryComponent implements OnInit {
           return `<span style="color:#3D5175;font-size:13px">-</span>`;
         }
         return `
-          <div style="display:flex;align-items:center;
-                      justify-content:center;height:100%">
+          <div style="display:flex;align-items:center;justify-content:center;height:100%">
             <span style="
               background: rgba(167,139,250,0.15);
               color: #A78BFA;
@@ -323,27 +371,15 @@ export class InventoryComponent implements OnInit {
     },
     {
       headerName: 'DIAMETER [MM]',
-      field: 'diameter',                   // ✅ no change
+      field: 'diameter',
       width: 150,
-      cellStyle: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#E8F0FE',
-        fontSize: '13px'
-      }
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontSize: '13px' }
     },
     {
       headerName: 'MATERIAL CODE',
-      field: 'material_code',              // ✅ was 'materialCode'
+      field: 'material_code',
       width: 140,
-      cellStyle: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#E8F0FE',
-        fontSize: '13px'
-      }
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontSize: '13px' }
     },
     {
       headerName: 'INIT. CROWN [MM]',
@@ -351,49 +387,29 @@ export class InventoryComponent implements OnInit {
       children: [
         {
           headerName: 'MAX',
-          field: 'crown_max',              // ✅ was 'initCrownMax'
+          field: 'crown_max',
           width: 110,
-          cellStyle: {
-            display: 'flex', alignItems: 'center',
-            justifyContent: 'center',
-            color: '#E8F0FE', fontSize: '13px'
-          }
+          cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontSize: '13px' }
         },
         {
           headerName: 'MIN',
-          field: 'crown_min',              // ✅ was 'initCrownMin'
+          field: 'crown_min',
           width: 110,
-          cellStyle: {
-            display: 'flex', alignItems: 'center',
-            justifyContent: 'center',
-            color: '#E8F0FE', fontSize: '13px'
-          }
+          cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontSize: '13px' }
         }
       ]
     } as ColGroupDef,
     {
       headerName: 'GRIND CYCLES',
-      field: 'grind_cycles',               // ✅ was 'grindIndex'
+      field: 'grind_cycles',
       width: 120,
-      cellStyle: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#E8F0FE',
-        fontSize: '13px'
-      }
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontSize: '13px' }
     },
     {
       headerName: 'SHIM [MM]',
-      field: 'shim',                       // ✅ no change
+      field: 'shim',
       width: 110,
-      cellStyle: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#E8F0FE',
-        fontSize: '13px'
-      }
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontSize: '13px' }
     },
     {
       headerName: 'TOTAL ACCUMULATION',
@@ -402,65 +418,35 @@ export class InventoryComponent implements OnInit {
       children: [
         {
           headerName: 'WEIGHT [TON]',
-          field: 'total_weight',           // ✅ was 'totalWeight'
+          field: 'total_weight',
           width: 130,
-          cellStyle: {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#E8F0FE',
-            fontSize: '13px'
-          }
+          cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontSize: '13px' }
         },
         {
           headerName: 'COILS',
-          field: 'total_coils',            // ✅ was 'totalSlabs' — API returns total_coils
+          field: 'total_coils',
           width: 100,
-          cellStyle: {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#E8F0FE',
-            fontSize: '13px'
-          }
+          cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontSize: '13px' }
         },
         {
           headerName: 'LENGTH [KM]',
-          field: 'total_length',           // ✅ was 'totalLength'
+          field: 'total_length',
           width: 120,
-          cellStyle: {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#E8F0FE',
-            fontSize: '13px'
-          }
+          cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontSize: '13px' }
         }
       ]
     } as ColGroupDef,
     {
       headerName: 'SUPPLIER',
-      field: 'supplier',                   // ✅ no change
+      field: 'supplier',
       width: 130,
-      cellStyle: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#E8F0FE',
-        fontSize: '13px'
-      }
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontSize: '13px' }
     },
     {
       headerName: 'ROLL ADDED TIME',
-      field: 'roll_added_time',            // ✅ was 'rollGrindTime'
+      field: 'roll_added_time',
       width: 190,
-      cellStyle: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#E8F0FE',
-        fontSize: '13px'
-      }
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontSize: '13px' }
     }
   ];
 
@@ -473,39 +459,18 @@ export class InventoryComponent implements OnInit {
 
   rollInventoryRowData: RollInventoryRow[] = [];
 
-  onExportRollInventory() {
+  onExportRollInventory(): void {
     const headers = [
-      'Roll ID',
-      'Stand Category',
-      'Diameter [MM]',
-      'Material Code',
-      'Crown Max',
-      'Crown Min',
-      'Grind Cycles',
-      'Shim [MM]',
-      'Total Weight [TON]',
-      'Total Coils',
-      'Total Length [KM]',
-      'Supplier',
-      'Roll Added Time'
+      'Roll ID', 'Stand Category', 'Diameter [MM]', 'Material Code',
+      'Crown Max', 'Crown Min', 'Grind Cycles', 'Shim [MM]',
+      'Total Weight [TON]', 'Total Coils', 'Total Length [KM]', 'Supplier', 'Roll Added Time'
     ];
-
     const rows = this.rollInventoryRowData.map((r: any) => [
-      r.roll_id,
-      r.stand_category,
-      r.diameter,
-      r.material_code,
-      r.crown_max,
-      r.crown_min,
-      r.grind_cycles,
-      r.shim,
-      r.total_weight,
-      r.total_coils,
-      r.total_length,
-      r.supplier,
+      r.roll_id, r.stand_category, r.diameter, r.material_code,
+      r.crown_max, r.crown_min, r.grind_cycles, r.shim,
+      r.total_weight, r.total_coils, r.total_length, r.supplier,
       r.roll_added_time ? r.roll_added_time.replace('T', ' ') : ''
     ]);
-
     const csv = [headers, ...rows].map((r: any[]) => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -520,78 +485,42 @@ export class InventoryComponent implements OnInit {
 
   // ─────────────────────────────────────────────
   // CHOCK TABLE COLUMN DEFS
-  // field names to be confirmed once chock API response is shared
   // ─────────────────────────────────────────────
   readonly chokeColDefs: ColDef[] = [
     {
       headerName: 'CHOCK ID',
-      field: 'chock_id',                   // ✅ was 'chokeId' — update if API field differs
+      field: 'chock_id',
       width: 180,
       pinned: 'left',
-      cellStyle: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#00D4FF',
-        fontWeight: '700',
-        fontSize: '13px'
-      }
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00D4FF', fontWeight: '700', fontSize: '13px' }
     },
     {
       headerName: 'WEIGHT (TON)',
-      field: 'total_weight',               // ✅ was 'weight' — update if API field differs
+      field: 'total_weight',
       flex: 1,
       minWidth: 130,
-      cellStyle: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#E8F0FE',
-        fontWeight: '500',
-        fontSize: '13px'
-      }
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontWeight: '500', fontSize: '13px' }
     },
     {
       headerName: 'COILS',
-      field: 'total_coils',                // ✅ was 'slabs' — update if API field differs
+      field: 'total_coils',
       flex: 1,
       minWidth: 100,
-      cellStyle: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#E8F0FE',
-        fontWeight: '500',
-        fontSize: '13px'
-      }
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontWeight: '500', fontSize: '13px' }
     },
     {
       headerName: 'LENGTH (KM)',
-      field: 'total_length',               // ✅ was 'length' — update if API field differs
+      field: 'total_length',
       flex: 1,
       minWidth: 120,
-      cellStyle: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#E8F0FE',
-        fontWeight: '500',
-        fontSize: '13px'
-      }
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontWeight: '500', fontSize: '13px' }
     },
     {
       headerName: 'SUPPLIER',
-      field: 'supplier',                   // ✅ no change
+      field: 'supplier',
       flex: 1,
       minWidth: 130,
-      cellStyle: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#E8F0FE',
-        fontWeight: '500',
-        fontSize: '13px'
-      }
+      cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#E8F0FE', fontWeight: '500', fontSize: '13px' }
     }
   ];
 
@@ -599,23 +528,13 @@ export class InventoryComponent implements OnInit {
     resizable: false,
     sortable: false,
     suppressMovable: true,
-    cellStyle: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '13px',
-      color: '#E8F0FE'
-    }
+    cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', color: '#E8F0FE' }
   };
 
-  onExportChokeInventory() {
+  onExportChokeInventory(): void {
     const headers = ['Chock ID', 'Weight (TON)', 'Coils', 'Length (KM)', 'Supplier'];
     const rows = this.chokeRowData.map((r: any) => [
-      r.chock_id,
-      r.total_weight,
-      r.total_coils,
-      r.total_length,
-      r.supplier
+      r.chock_id, r.total_weight, r.total_coils, r.total_length, r.supplier
     ]);
     const csv = [headers, ...rows].map((r: any[]) => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -627,6 +546,9 @@ export class InventoryComponent implements OnInit {
     window.URL.revokeObjectURL(url);
   }
 
+  // ─────────────────────────────────────────────
+  // LIFECYCLE
+  // ─────────────────────────────────────────────
   ngOnInit(): void {
     this.loadRollInventory();
     this.loadChokeInventory();
@@ -634,158 +556,145 @@ export class InventoryComponent implements OnInit {
     this.loadChockKpi();
   }
 
-  // ✅ FIXED: uses res.results and res.count to match API response structure
+  // ─────────────────────────────────────────────
+  // DATA LOADERS
+  // ─────────────────────────────────────────────
   private loadRollInventory(): void {
     this.isRollLoading = true;
     this.inventoryService.getRollInventory(this.rollCurrentPage, this.rollPageSize).subscribe({
       next: (res: any) => {
         this.rollInventoryRowData = res.results ?? [];
         this.rollTotalRows = res.count ?? 0;
+        this.rollStartRow = this.rollTotalRows === 0 ? 0 : (this.rollCurrentPage - 1) * this.rollPageSize + 1;
+        this.rollEndRow = Math.min(this.rollCurrentPage * this.rollPageSize, this.rollTotalRows);
         this.isRollLoading = false;
       },
       error: (err: any) => {
         console.error('Failed to load roll inventory:', err);
         this.isRollLoading = false;
+        this.rollInventoryRowData = [];
+        this.rollTotalRows = 0;
+        this.rollStartRow = 0;
+        this.rollEndRow = 0;
       }
     });
   }
 
-  // ✅ FIXED: uses res.results and res.count to match API response structure
   private loadChokeInventory(): void {
     this.isChokeLoading = true;
     this.inventoryService.getChockInventory(this.chokeCurrentPage, this.chokePageSize).subscribe({
       next: (res: any) => {
         this.chokeRowData = res.results ?? [];
         this.chokeTotalRows = res.count ?? 0;
+        this.chokeStartRow = this.chokeTotalRows === 0 ? 0 : (this.chokeCurrentPage - 1) * this.chokePageSize + 1;
+        this.chokeEndRow = Math.min(this.chokeCurrentPage * this.chokePageSize, this.chokeTotalRows);
         this.isChokeLoading = false;
       },
       error: (err: any) => {
         console.error('Failed to load chock inventory:', err);
         this.isChokeLoading = false;
+        this.chokeRowData = [];
+        this.chokeTotalRows = 0;
+        this.chokeStartRow = 0;
+        this.chokeEndRow = 0;
       }
     });
   }
 
-private loadRollKpi(): void {
-  this.inventoryService.getRollKpi().subscribe({
-    next: (res: any) => {
-      const list = res.kpi_card_list ?? [];
-      list.forEach((item: any) => {
-        const cat = item.stand_category;
+  // BUG FIX #1 (service) + BUG FIX #2: writes only to this.kpiCards (roll-specific)
+  private loadRollKpi(): void {
+    this.inventoryService.getRollKpi().subscribe({
+      next: (res: any) => {
+        const list = res.kpi_card_list ?? [];
+        list.forEach((item: any) => {
+          const cat = item.stand_category;
+          if (cat === 'R1') {
+            const card = this.kpiCards.find(c => c.id === 'r1');
+            if (card) { card.ready = item.ready ?? 0; card.wrCount = item.wr ?? 0; card.burCount = item.bur ?? 0; }
+          }
+          if (cat === 'R2') {
+            const card = this.kpiCards.find(c => c.id === 'r2');
+            if (card) { card.ready = item.ready ?? 0; card.wrCount = item.wr ?? 0; card.burCount = item.bur ?? 0; }
+          }
+          if (cat === 'F1-4') {
+            const card = this.kpiCards.find(c => c.id === 'f1f4');
+            if (card) { card.ready = item.ready ?? 0; card.wrCount = item.wr ?? 0; card.burCount = item.bur ?? 0; }
+          }
+          if (cat === 'F5-7') {
+            const card = this.kpiCards.find(c => c.id === 'f5f7');
+            if (card) { card.ready = item.ready ?? 0; card.wrCount = item.wr ?? 0; card.burCount = item.bur ?? 0; }
+          }
+          if (cat === 'EG') {
+            const card = this.kpiCards.find(c => c.id === 'ed');
+            if (card) { card.ready = item.ready ?? 0; card.edCount = item.ready ?? 0; }
+          }
+          if (cat === 'PR') {
+            const card = this.kpiCards.find(c => c.id === 'pinch');
+            if (card) { card.ready = item.ready ?? 0; card.pinchCount = item.ready ?? 0; }
+          }
+        });
+      },
+      error: (err: any) => console.error('Failed to load roll KPI:', err)
+    });
+  }
 
-        if (cat === 'F1-4') {
-          const card = this.kpiCards.find(c => c.id === 'f1f4');
-          if (card) {
-            card.ready    = item.ready ?? 0;  // ✅
-            card.wrCount  = item.wr    ?? 0;
-            card.burCount = item.bur   ?? 0;
+  // BUG FIX #1 (service) + BUG FIX #2: writes only to this.chockKpiCards (chock-specific)
+  private loadChockKpi(): void {
+    this.inventoryService.getChockKpi().subscribe({
+      next: (res: any) => {
+        const list = res.kpi_card_list ?? [];
+        list.forEach((item: any) => {
+          const cat = item.stand_category;
+          if (cat === 'F1-4') {
+            const card = this.chockKpiCards.find(c => c.id === 'f1f4');
+            if (card) { card.ready = item.ready ?? 0; card.wrCount = item.wr ?? 0; card.burCount = item.bur ?? 0; }
           }
-        }
-        if (cat === 'F5-7') {
-          const card = this.kpiCards.find(c => c.id === 'f5f7');
-          if (card) {
-            card.ready    = item.ready ?? 0;  // ✅
-            card.wrCount  = item.wr    ?? 0;
-            card.burCount = item.bur   ?? 0;
+          if (cat === 'F5-7') {
+            const card = this.chockKpiCards.find(c => c.id === 'f5f7');
+            if (card) { card.ready = item.ready ?? 0; card.wrCount = item.wr ?? 0; card.burCount = item.bur ?? 0; }
           }
-        }
-        if (cat === 'EG') {
-          const card = this.kpiCards.find(c => c.id === 'ed');
-          if (card) {
-            card.ready   = item.ready ?? 0;   // ✅
-            card.edCount = item.ready ?? 0;
+          if (cat === 'EG') {
+            const card = this.chockKpiCards.find(c => c.id === 'ed');
+            if (card) { card.ready = item.ready ?? 0; card.edCount = item.ready ?? 0; }
           }
-        }
-        if (cat === 'PR') {
-          const card = this.kpiCards.find(c => c.id === 'pinch');
-          if (card) {
-            card.ready      = item.ready ?? 0; // ✅
-            card.pinchCount = item.ready ?? 0;
+          if (cat === 'PR') {
+            const card = this.chockKpiCards.find(c => c.id === 'pinch');
+            if (card) { card.ready = item.ready ?? 0; card.pinchCount = item.ready ?? 0; }
           }
-        }
-        if (cat === 'R1') {
-          const card = this.kpiCards.find(c => c.id === 'r1');
-          if (card) {
-            card.ready    = item.ready ?? 0;  // ✅
-            card.wrCount  = item.wr    ?? 0;
-            card.burCount = item.bur   ?? 0;
-          }
-        }
-        if (cat === 'R2') {
-          const card = this.kpiCards.find(c => c.id === 'r2');
-          if (card) {
-            card.ready    = item.ready ?? 0;  // ✅
-            card.wrCount  = item.wr    ?? 0;
-            card.burCount = item.bur   ?? 0;
-          }
-        }
-      });
-    },
-    error: (err: any) => console.error('Failed to load roll KPI:', err)
-  });
-}
+        });
+      },
+      error: (err: any) => console.error('Failed to load chock KPI:', err)
+    });
+  }
 
-private loadChockKpi(): void {
-  this.inventoryService.getChockKpi().subscribe({
-    next: (res: any) => {
-      const list = res.kpi_card_list ?? [];
-      list.forEach((item: any) => {
-        const cat = item.stand_category;
-
-        if (cat === 'F1-4') {
-          const card = this.kpiCards.find(c => c.id === 'f1f4');
-          if (card) {
-            card.ready    = item.ready ?? 0;  // ✅
-            card.wrCount  = item.wr    ?? 0;
-            card.burCount = item.bur   ?? 0;
-          }
-        }
-        if (cat === 'F5-7') {
-          const card = this.kpiCards.find(c => c.id === 'f5f7');
-          if (card) {
-            card.ready    = item.ready ?? 0;  // ✅
-            card.wrCount  = item.wr    ?? 0;
-            card.burCount = item.bur   ?? 0;
-          }
-        }
-        if (cat === 'EG') {
-          const card = this.kpiCards.find(c => c.id === 'ed');
-          if (card) {
-            card.ready   = item.ready ?? 0;   // ✅
-            card.edCount = item.ready ?? 0;
-          }
-        }
-        if (cat === 'PR') {
-          const card = this.kpiCards.find(c => c.id === 'pinch');
-          if (card) {
-            card.ready      = item.ready ?? 0; // ✅
-            card.pinchCount = item.ready ?? 0;
-          }
-        }
-      });
-    },
-    error: (err: any) => console.error('Failed to load chock KPI:', err)
-  });
-}
-
+  // ─────────────────────────────────────────────
+  // ENTRY FORM
+  // ─────────────────────────────────────────────
   entryForm: EntryForm = this.createEmptyForm();
   readonly rollTypeOptions: Array<'Edger Roll' | 'Pinch Roll'> = ['Edger Roll', 'Pinch Roll'];
   readonly grindTypeOptions: Array<'CVC' | 'Flat' | 'HSS' | 'HICHR' | 'FS' | 'SS'> = [
     'CVC', 'Flat', 'HSS', 'HICHR', 'FS', 'SS'
   ];
 
-  getStandCategoryPillStyle(standCategory: RollRow['standCategory']): { [key: string]: string } {
-    return {
-      background: 'rgba(167,139,250,0.15)',
-      color: '#A78BFA',
-      border: '1px solid rgba(167,139,250,0.35)'
-    };
-  }
-
+  // ─────────────────────────────────────────────
+  // TAB SWITCHING
+  // BUG FIX #3: reload data whenever the user switches tabs
+  // ─────────────────────────────────────────────
   setType(type: ActiveType): void {
+    if (this.activeType === type) return; // no-op if already on this tab
     this.activeType = type;
+    if (type === 'rolls') {
+      this.loadRollInventory();
+      this.loadRollKpi();
+    } else {
+      this.loadChokeInventory();
+      this.loadChockKpi();
+    }
   }
 
+  // ─────────────────────────────────────────────
+  // MODAL
+  // ─────────────────────────────────────────────
   openManualEntry(): void {
     this.openEntryModal = true;
   }
@@ -798,9 +707,7 @@ private loadChockKpi(): void {
   submitEntry(): void {
     this.closeManualEntry();
     this.showToast = true;
-    setTimeout(() => {
-      this.showToast = false;
-    }, 3500);
+    setTimeout(() => { this.showToast = false; }, 3500);
   }
 
   resetForm(): void {
@@ -830,21 +737,32 @@ private loadChockKpi(): void {
     };
   }
 
+  // ─────────────────────────────────────────────
+  // STYLE HELPERS
+  // ─────────────────────────────────────────────
+  getStandCategoryPillStyle(standCategory: RollRow['standCategory']): { [key: string]: string } {
+    return {
+      background: 'rgba(167,139,250,0.15)',
+      color: '#A78BFA',
+      border: '1px solid rgba(167,139,250,0.35)'
+    };
+  }
+
   getGrindTypeBadge(type: RollRow['grindType']): { [key: string]: string } {
-    if (type === 'CVC') return { background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.3)', color: '#A78BFA' };
-    if (type === 'Flat') return { background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.3)', color: '#00E5A0' };
-    if (type === 'HSS') return { background: 'rgba(255,140,66,0.1)', border: '1px solid rgba(255,140,66,0.3)', color: '#FF8C42' };
-    if (type === 'HICHR') return { background: 'rgba(255,69,96,0.1)', border: '1px solid rgba(255,69,96,0.3)', color: '#FF4560' };
-    if (type === 'FS') return { background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.3)', color: '#00D4FF' };
-    if (type === 'SS') return { background: 'rgba(123,144,184,0.12)', border: '1px solid rgba(123,144,184,0.3)', color: '#7B90B8' };
+    if (type === 'CVC')   return { background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.3)', color: '#A78BFA' };
+    if (type === 'Flat')  return { background: 'rgba(0,229,160,0.1)',    border: '1px solid rgba(0,229,160,0.3)',   color: '#00E5A0' };
+    if (type === 'HSS')   return { background: 'rgba(255,140,66,0.1)',   border: '1px solid rgba(255,140,66,0.3)',  color: '#FF8C42' };
+    if (type === 'HICHR') return { background: 'rgba(255,69,96,0.1)',    border: '1px solid rgba(255,69,96,0.3)',   color: '#FF4560' };
+    if (type === 'FS')    return { background: 'rgba(0,212,255,0.1)',    border: '1px solid rgba(0,212,255,0.3)',   color: '#00D4FF' };
+    if (type === 'SS')    return { background: 'rgba(123,144,184,0.12)', border: '1px solid rgba(123,144,184,0.3)', color: '#7B90B8' };
     return { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#7B90B8' };
   }
 
   getPOSBadge(pos: RollPos): { [key: string]: string } {
-    if (pos === 'T') return { background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.35)', color: '#00D4FF' };
-    if (pos === 'B') return { background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.35)', color: '#A78BFA' };
-    if (pos === 'OP') return { background: 'rgba(0,229,160,0.1)', border: '1px solid rgba(0,229,160,0.35)', color: '#00E5A0' };
-    if (pos === 'DR') return { background: 'rgba(255,140,66,0.12)', border: '1px solid rgba(255,140,66,0.35)', color: '#FF8C42' };
+    if (pos === 'T')  return { background: 'rgba(0,212,255,0.1)',    border: '1px solid rgba(0,212,255,0.35)',   color: '#00D4FF' };
+    if (pos === 'B')  return { background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.35)', color: '#A78BFA' };
+    if (pos === 'OP') return { background: 'rgba(0,229,160,0.1)',    border: '1px solid rgba(0,229,160,0.35)',   color: '#00E5A0' };
+    if (pos === 'DR') return { background: 'rgba(255,140,66,0.12)',  border: '1px solid rgba(255,140,66,0.35)',  color: '#FF8C42' };
     return { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#7B90B8' };
   }
 
@@ -852,7 +770,7 @@ private loadChockKpi(): void {
     this.router.navigate(['/roll-details']);
   }
 
-  toggleDropdown(name: 'rollType' | 'grindType'): void {
+  toggleDropdown(name: 'rollType' | 'grindType' | 'rowsPerPage'): void {
     this.openDropdown = this.openDropdown === name ? null : name;
   }
 }

@@ -1,7 +1,7 @@
 <div class="inventory-page">
   <!-- Breadcrumb -->
   <div class="breadcrumb">
-    <span class="breadcrumb-item muted">Home</span>
+    <!-- <span class="breadcrumb-item muted">Home</span> -->
     <span class="material-icons breadcrumb-sep">chevron_right</span>
     <span class="breadcrumb-item active">Inventory</span>
   </div>
@@ -24,9 +24,13 @@
     </div>
   </div>
 
-  <!-- SECTION 2 - KPI CARDS (ROLLS) -->
+  <!-- SECTION 2 - KPI CARDS -->
+  <!-- BUG FIX #2: All *ngFor changed from kpiCards → activeKpiCards -->
+  <!-- This ensures rolls tab shows roll KPI data and chock tab shows chock KPI data -->
   <div class="kpi-grid">
-    <ng-container *ngFor="let k of kpiCards">
+
+    <!-- R1 Card -->
+    <ng-container *ngFor="let k of activeKpiCards">
       <div
         class="kpi-card"
         *ngIf="k.id === 'r1'"
@@ -53,7 +57,6 @@
           <div class="kpi-card-half">
             <div class="kpi-half-label">WR</div>
             <div class="kpi-half-value">{{ k.wrCount }}</div>
-            
           </div>
           <!-- <div class="kpi-card-half">
             <div class="kpi-half-label">BUR</div>
@@ -63,7 +66,8 @@
       </div>
     </ng-container>
 
-    <ng-container *ngFor="let k of kpiCards">
+    <!-- R2 Card -->
+    <ng-container *ngFor="let k of activeKpiCards">
       <div
         class="kpi-card"
         *ngIf="k.id === 'r2'"
@@ -99,7 +103,8 @@
       </div>
     </ng-container>
 
-    <ng-container *ngFor="let k of kpiCards">
+    <!-- F1–F4 Card -->
+    <ng-container *ngFor="let k of activeKpiCards">
       <div
         class="kpi-card"
         *ngIf="k.id === 'f1f4'"
@@ -117,7 +122,7 @@
             </div>
           </div>
           <div class="kpi-card-top-right">
-            <div class="kpi-card-total" [style.color]="k.accent">16</div>
+            <div class="kpi-card-total" [style.color]="k.accent">{{ k.ready }}</div>
             <span class="kpi-card-subtitle">Ready</span>
           </div>
         </div>
@@ -135,7 +140,8 @@
       </div>
     </ng-container>
 
-    <ng-container *ngFor="let k of kpiCards">
+    <!-- F5–F7 Card -->
+    <ng-container *ngFor="let k of activeKpiCards">
       <div
         class="kpi-card"
         *ngIf="k.id === 'f5f7'"
@@ -171,8 +177,11 @@
       </div>
     </ng-container>
 
+    <!-- ED + Pinch stacked -->
     <div class="kpi-col-stack">
-      <ng-container *ngFor="let k of kpiCards">
+
+      <!-- ED Card -->
+      <ng-container *ngFor="let k of activeKpiCards">
         <div
           class="kpi-card"
           *ngIf="k.id === 'ed'"
@@ -195,7 +204,8 @@
         </div>
       </ng-container>
 
-      <ng-container *ngFor="let k of kpiCards">
+      <!-- Pinch Card -->
+      <ng-container *ngFor="let k of activeKpiCards">
         <div
           class="kpi-card"
           *ngIf="k.id === 'pinch'"
@@ -217,6 +227,7 @@
           </div>
         </div>
       </ng-container>
+
     </div>
   </div>
 
@@ -255,79 +266,87 @@
       </div>
 
       <div class="pagination-bar">
-        <span style="color:#7B90B8;font-size:13px;white-space:nowrap;flex-shrink:0">
-          Showing
-          <strong style="color:#E8F0FE">
-            {{ (rollCurrentPage-1)*rollPageSize + 1 }}–{{ min(rollCurrentPage*rollPageSize, rollTotalRows) }}
-          </strong>
-          of <strong style="color:#E8F0FE">{{ rollTotalRows }}</strong> rolls
-        </span>
-
-        <div style="display:flex;align-items:center;gap:6px">
-          <button
-            class="page-btn"
-            (click)="rollGoToPage(rollCurrentPage - 1)"
-            [disabled]="rollCurrentPage === 1">
-            <span class="material-icons" style="font-size:18px">chevron_left</span>
-          </button>
-
-          <button
-            *ngFor="let p of rollGetPageNumbers()"
-            class="page-btn"
-            [class.active]="rollCurrentPage === p"
-            (click)="rollGoToPage(p)">
-            {{ p }}
-          </button>
-
-          <button
-            class="page-btn"
-            (click)="rollGoToPage(rollCurrentPage + 1)"
-            [disabled]="rollCurrentPage === rollTotalPages">
-            <span class="material-icons" style="font-size:18px">chevron_right</span>
-          </button>
+        <div class="pagination-left">
+          <span class="pagination-info">
+            Showing
+            <span class="pagination-highlight">{{ rollStartRow }}</span>
+            to
+            <span class="pagination-highlight">{{ rollEndRow }}</span>
+            of
+            <span class="pagination-highlight">{{ rollTotalRows }}</span>
+            entries
+          </span>
         </div>
 
-        <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="color:#7B90B8;font-size:12px;white-space:nowrap">
-              Rows per page
-            </span>
-            <select
-              [(ngModel)]="rollPageSize"
-              (change)="rollCurrentPage=1; rollTotalRows=rollInventoryRowData.length"
-              style="
-                background:#0D1628;
-                border:1px solid rgba(0,212,255,0.15);
-                border-radius:6px;
-                color:#E8F0FE;
-                font-size:12px;
-                padding:6px 10px;
-                cursor:pointer;
-                outline:none;
-              ">
-              <option [value]="5">5</option>
-              <option [value]="10">10</option>
-              <option [value]="15">15</option>
-              <option [value]="20">20</option>
-            </select>
+        <div class="pagination-center">
+          <div class="pagination-nav">
+
+            <!-- Left arrow -->
+            <button class="pagination-btn"
+              [disabled]="rollCurrentPage === 1"
+              (click)="rollGoToPage(rollCurrentPage - 1)">
+              <span class="material-icons">chevron_left</span>
+            </button>
+
+            <!-- Always show page 1 + ellipsis if window is far from start -->
+            <button *ngIf="rollGetWindowPages()[0] > 1"
+              class="pagination-page"
+              (click)="rollGoToPage(1)">1</button>
+
+            <span *ngIf="rollGetWindowPages()[0] > 2"
+              class="pagination-ellipsis">...</span>
+
+            <!-- 3-page sliding window -->
+            <button *ngFor="let page of rollGetWindowPages()"
+              class="pagination-page"
+              [class.active]="page === rollCurrentPage"
+              (click)="rollGoToPage(page)">
+              {{ page }}
+            </button>
+
+            <!-- Ellipsis + last page if window is far from end -->
+            <span *ngIf="rollGetWindowPages()[rollGetWindowPages().length - 1] < rollTotalPages - 1"
+              class="pagination-ellipsis">...</span>
+
+            <button *ngIf="rollGetWindowPages()[rollGetWindowPages().length - 1] < rollTotalPages"
+              class="pagination-page"
+              (click)="rollGoToPage(rollTotalPages)">
+              {{ rollTotalPages }}
+            </button>
+
+            <!-- Right arrow -->
+            <button class="pagination-btn"
+              [disabled]="rollCurrentPage === rollTotalPages"
+              (click)="rollGoToPage(rollCurrentPage + 1)">
+              <span class="material-icons">chevron_right</span>
+            </button>
+
+          </div>
+        </div>
+
+        <div class="pagination-right">
+          <div class="pagination-size-wrapper">
+            <span class="rows-label">Rows per page</span>
+            <div class="pagination-size-select">
+              <select class="pagination-size-trigger"
+                [(ngModel)]="rollPageSize"
+                (ngModelChange)="rollSetPageSize($event)">
+                <option *ngFor="let size of [10, 25, 50, 100]" [value]="size">{{ size }}</option>
+              </select>
+            </div>
           </div>
 
-          <button
-            class="export-btn"
-            (click)="onExportRollInventory()"
-            (mouseenter)="$any($event.currentTarget).style.background='rgba(0,212,255,0.08)';
-                          $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.5)'"
-            (mouseleave)="$any($event.currentTarget).style.background='transparent';
-                          $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.25)'">
-            <span class="material-icons" style="font-size:16px">download</span>
+          <button class="export-btn" (click)="onExportRollInventory()">
+            <span class="material-icons">download</span>
             Export
           </button>
         </div>
       </div>
+
     </div>
   </div>
 
-  <!-- SECTION 4 - CHOKE KPI CARDS + TABLE -->
+  <!-- SECTION 4 - CHOCK TABLE -->
   <div *ngIf="activeType === 'choke'">
     <div class="table-card">
       <div class="table-header">
@@ -352,75 +371,83 @@
       </div>
 
       <div class="pagination-bar">
-        <span style="color:#7B90B8;font-size:13px;white-space:nowrap;flex-shrink:0">
-          Showing
-          <strong style="color:#E8F0FE">
-            {{ (chokeCurrentPage-1)*chokePageSize + 1 }}–{{ min(chokeCurrentPage*chokePageSize, chokeTotalRows) }}
-          </strong>
-          of <strong style="color:#E8F0FE">{{ chokeTotalRows }}</strong> chokes
-        </span>
-
-        <div style="display:flex;align-items:center;gap:6px">
-          <button
-            class="page-btn"
-            (click)="chokeGoToPage(chokeCurrentPage - 1)"
-            [disabled]="chokeCurrentPage === 1">
-            <span class="material-icons" style="font-size:18px">chevron_left</span>
-          </button>
-
-          <button
-            *ngFor="let p of chokeGetPageNumbers()"
-            class="page-btn"
-            [class.active]="chokeCurrentPage === p"
-            (click)="chokeGoToPage(p)">
-            {{ p }}
-          </button>
-
-          <button
-            class="page-btn"
-            (click)="chokeGoToPage(chokeCurrentPage + 1)"
-            [disabled]="chokeCurrentPage === chokeTotalPages">
-            <span class="material-icons" style="font-size:18px">chevron_right</span>
-          </button>
+        <div class="pagination-left">
+          <span class="pagination-info">
+            Showing
+            <span class="pagination-highlight">{{ chokeStartRow }}</span>
+            to
+            <span class="pagination-highlight">{{ chokeEndRow }}</span>
+            of
+            <span class="pagination-highlight">{{ chokeTotalRows }}</span>
+            entries
+          </span>
         </div>
 
-        <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="color:#7B90B8;font-size:12px;white-space:nowrap">
-              Rows per page
-            </span>
-            <select
-              [(ngModel)]="chokePageSize"
-              (change)="chokeCurrentPage=1; chokeTotalRows=chokeRowData.length"
-              style="
-                background:#0D1628;
-                border:1px solid rgba(0,212,255,0.15);
-                border-radius:6px;
-                color:#E8F0FE;
-                font-size:12px;
-                padding:6px 10px;
-                cursor:pointer;
-                outline:none;
-              ">
-              <option [value]="5">5</option>
-              <option [value]="10">10</option>
-              <option [value]="15">15</option>
-              <option [value]="20">20</option>
-            </select>
+        <div class="pagination-center">
+          <div class="pagination-nav">
+
+            <!-- Left arrow -->
+            <button class="pagination-btn"
+              [disabled]="chokeCurrentPage === 1"
+              (click)="chokeGoToPage(chokeCurrentPage - 1)">
+              <span class="material-icons">chevron_left</span>
+            </button>
+
+            <!-- Always show page 1 + ellipsis if window is far from start -->
+            <button *ngIf="chokeGetWindowPages()[0] > 1"
+              class="pagination-page"
+              (click)="chokeGoToPage(1)">1</button>
+
+            <span *ngIf="chokeGetWindowPages()[0] > 2"
+              class="pagination-ellipsis">...</span>
+
+            <!-- 3-page sliding window -->
+            <button *ngFor="let page of chokeGetWindowPages()"
+              class="pagination-page"
+              [class.active]="page === chokeCurrentPage"
+              (click)="chokeGoToPage(page)">
+              {{ page }}
+            </button>
+
+            <!-- Ellipsis + last page if window is far from end -->
+            <span *ngIf="chokeGetWindowPages()[chokeGetWindowPages().length - 1] < chokeTotalPages - 1"
+              class="pagination-ellipsis">...</span>
+
+            <button *ngIf="chokeGetWindowPages()[chokeGetWindowPages().length - 1] < chokeTotalPages"
+              class="pagination-page"
+              (click)="chokeGoToPage(chokeTotalPages)">
+              {{ chokeTotalPages }}
+            </button>
+
+            <!-- Right arrow -->
+            <button class="pagination-btn"
+              [disabled]="chokeCurrentPage === chokeTotalPages"
+              (click)="chokeGoToPage(chokeCurrentPage + 1)">
+              <span class="material-icons">chevron_right</span>
+            </button>
+
+          </div>
+        </div>
+
+        <div class="pagination-right">
+          <div class="pagination-size-wrapper">
+            <span class="rows-label">Rows per page</span>
+            <div class="pagination-size-select">
+              <select class="pagination-size-trigger"
+                [(ngModel)]="chokePageSize"
+                (ngModelChange)="chokeSetPageSize($event)">
+                <option *ngFor="let size of [10, 25, 50, 100]" [value]="size">{{ size }}</option>
+              </select>
+            </div>
           </div>
 
-          <button
-            class="export-btn"
-            (click)="onExportChokeInventory()"
-            (mouseenter)="$any($event.currentTarget).style.background='rgba(0,212,255,0.08)';
-                          $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.5)'"
-            (mouseleave)="$any($event.currentTarget).style.background='transparent';
-                          $any($event.currentTarget).style.borderColor='rgba(0,212,255,0.25)'">
-            <span class="material-icons" style="font-size:16px">download</span>
+          <button class="export-btn" (click)="onExportChokeInventory()">
+            <span class="material-icons">download</span>
             Export
           </button>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -448,9 +475,7 @@
       <div class="entry-modal-body">
         <div class="form-field">
           <label>Stand</label>
-          <input
-            type="text"
-            [(ngModel)]="entryForm.stand" />
+          <input type="text" [(ngModel)]="entryForm.stand" />
         </div>
         <div class="form-field">
           <label>POS</label>
@@ -464,9 +489,7 @@
         </div>
         <div class="form-field">
           <label>Roll No.</label>
-          <input
-            type="text"
-            [(ngModel)]="entryForm.rollNo" />
+          <input type="text" [(ngModel)]="entryForm.rollNo" />
         </div>
         <div class="form-field">
           <label>Roll Type</label>
@@ -474,12 +497,8 @@
             class="custom-select"
             [class.open]="openDropdown === 'rollType'"
             (click)="$event.stopPropagation()">
-            <div
-              class="select-trigger"
-              (click)="toggleDropdown('rollType')">
-              <span class="select-value">
-                {{ entryForm.rollType || 'Select...' }}
-              </span>
+            <div class="select-trigger" (click)="toggleDropdown('rollType')">
+              <span class="select-value">{{ entryForm.rollType || 'Select...' }}</span>
               <span class="material-icons select-arrow">expand_more</span>
             </div>
             <div class="select-options">
@@ -488,11 +507,7 @@
                 *ngFor="let o of rollTypeOptions"
                 [class.selected]="entryForm.rollType === o"
                 (click)="entryForm.rollType = o; openDropdown = null">
-                <span
-                  class="option-check material-icons"
-                  *ngIf="entryForm.rollType === o">
-                  check
-                </span>
+                <span class="option-check material-icons" *ngIf="entryForm.rollType === o">check</span>
                 {{ o }}
               </div>
             </div>
@@ -500,9 +515,7 @@
         </div>
         <div class="form-field">
           <label>Diameter [mm]</label>
-          <input
-            type="number"
-            [(ngModel)]="entryForm.diameter" />
+          <input type="number" [(ngModel)]="entryForm.diameter" />
         </div>
         <div class="form-field">
           <label>Material Code</label>
@@ -516,27 +529,19 @@
         </div>
         <div class="form-field">
           <label>Init Crown Max [mm]</label>
-          <input
-            type="number"
-            [(ngModel)]="entryForm.initCrownMax" />
+          <input type="number" [(ngModel)]="entryForm.initCrownMax" />
         </div>
         <div class="form-field">
           <label>Init Crown Min [mm]</label>
-          <input
-            type="number"
-            [(ngModel)]="entryForm.initCrownMin" />
+          <input type="number" [(ngModel)]="entryForm.initCrownMin" />
         </div>
         <div class="form-field">
           <label>Equi Crown Max [mm]</label>
-          <input
-            type="number"
-            [(ngModel)]="entryForm.equiCrownMax" />
+          <input type="number" [(ngModel)]="entryForm.equiCrownMax" />
         </div>
         <div class="form-field">
           <label>Equi Crown Min [mm]</label>
-          <input
-            type="number"
-            [(ngModel)]="entryForm.equiCrownMin" />
+          <input type="number" [(ngModel)]="entryForm.equiCrownMin" />
         </div>
         <div class="form-field">
           <label>Grind Type</label>
@@ -544,12 +549,8 @@
             class="custom-select"
             [class.open]="openDropdown === 'grindType'"
             (click)="$event.stopPropagation()">
-            <div
-              class="select-trigger"
-              (click)="toggleDropdown('grindType')">
-              <span class="select-value">
-                {{ entryForm.grindType || 'Select...' }}
-              </span>
+            <div class="select-trigger" (click)="toggleDropdown('grindType')">
+              <span class="select-value">{{ entryForm.grindType || 'Select...' }}</span>
               <span class="material-icons select-arrow">expand_more</span>
             </div>
             <div class="select-options">
@@ -558,11 +559,7 @@
                 *ngFor="let g of grindTypeOptions"
                 [class.selected]="entryForm.grindType === g"
                 (click)="entryForm.grindType = g; openDropdown = null">
-                <span
-                  class="option-check material-icons"
-                  *ngIf="entryForm.grindType === g">
-                  check
-                </span>
+                <span class="option-check material-icons" *ngIf="entryForm.grindType === g">check</span>
                 {{ g }}
               </div>
             </div>
@@ -570,62 +567,46 @@
         </div>
         <div class="form-field">
           <label>Grind Index</label>
-          <input
-            type="number"
-            [(ngModel)]="entryForm.grindIndex" />
+          <input type="number" [(ngModel)]="entryForm.grindIndex" />
         </div>
         <div class="form-field">
           <label>Shim [mm]</label>
-          <input
-            type="number"
-            [(ngModel)]="entryForm.shim" />
+          <input type="number" [(ngModel)]="entryForm.shim" />
         </div>
         <div class="form-field">
           <label>Total Accumulation Weight</label>
-          <input
-            type="number"
-            [(ngModel)]="entryForm.accumWeight" />
+          <input type="number" [(ngModel)]="entryForm.accumWeight" />
         </div>
         <div class="form-field">
           <label>Total Accumulation Slabs</label>
-          <input
-            type="number"
-            [(ngModel)]="entryForm.accumSlabs" />
+          <input type="number" [(ngModel)]="entryForm.accumSlabs" />
         </div>
         <div class="form-field">
           <label>Total Accumulation Length</label>
-          <input
-            type="number"
-            [(ngModel)]="entryForm.accumLength" />
+          <input type="number" [(ngModel)]="entryForm.accumLength" />
         </div>
         <div class="form-field">
           <label>Supplier</label>
           <select [(ngModel)]="entryForm.supplier">
             <option value="">Select</option>
-            <option *ngFor="let s of ['Supplier1','Supplier2','Supplier3','Supplier4','Supplier5','Supplier6','Supplier7','Supplier8','Supplier9']" [value]="s">
+            <option
+              *ngFor="let s of ['Supplier1','Supplier2','Supplier3','Supplier4','Supplier5','Supplier6','Supplier7','Supplier8','Supplier9']"
+              [value]="s">
               {{ s }}
             </option>
           </select>
         </div>
         <div class="form-field">
           <label>Roll Change Time</label>
-          <input
-            type="datetime-local"
-            [(ngModel)]="entryForm.rollChangeTime" />
+          <input type="datetime-local" [(ngModel)]="entryForm.rollChangeTime" />
         </div>
       </div>
 
       <div class="entry-modal-footer">
-        <button
-          type="button"
-          class="entry-cancel-btn"
-          (click)="closeManualEntry()">
+        <button type="button" class="entry-cancel-btn" (click)="closeManualEntry()">
           Cancel
         </button>
-        <button
-          type="button"
-          class="entry-submit-btn"
-          (click)="submitEntry()">
+        <button type="button" class="entry-submit-btn" (click)="submitEntry()">
           Save Entry
         </button>
       </div>
@@ -638,4 +619,3 @@
     <span>Entry saved successfully!</span>
   </div>
 </div>
-
