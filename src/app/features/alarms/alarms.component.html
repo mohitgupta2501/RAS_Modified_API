@@ -1,0 +1,153 @@
+<div class="alarms-page">
+  <div class="breadcrumb">
+    <!-- <span class="breadcrumb-item muted">Home</span> -->
+    <span class="material-icons breadcrumb-sep">chevron_right</span>
+    <span class="breadcrumb-item active">Alarms</span>
+  </div>
+
+  <div class="main-card">
+    <header class="card-header">
+      <div class="card-title-wrap">
+        <span class="material-icons card-icon">notifications_active</span>
+        <h2 class="card-title">Alarms</h2>
+      </div>
+      <div class="chips-row">
+        <div class="chip chip-total">
+          <span class="material-icons chip-icon">notifications</span>
+          <span class="chip-label">Total</span>
+          <span class="chip-count">{{ totalCount }}</span>
+        </div>
+        <div class="chip chip-high">
+          <span class="material-icons chip-icon">error</span>
+          <span class="chip-label">HIGH</span>
+          <span class="chip-count">{{ highCount }}</span>
+        </div>
+        <div class="chip chip-medium">
+          <span class="material-icons chip-icon">warning</span>
+          <span class="chip-label">MEDIUM</span>
+          <span class="chip-count">{{ mediumCount }}</span>
+        </div>
+        <div class="chip chip-low">
+          <span class="material-icons chip-icon">check_circle</span>
+          <span class="chip-label">LOW</span>
+          <span class="chip-count">{{ lowCount }}</span>
+        </div>
+      </div>
+      <!-- <button type="button" class="download-btn" (click)="downloadCsv()">
+        <span class="material-icons">download</span>
+        <span>Download</span>
+      </button> -->
+    </header>
+
+    <div class="search-container">
+      <div class="search-box">
+        <span class="material-icons search-icon">search</span>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="alarmsCurrentPage = 1; loadAlarms()"
+          placeholder="Search alarms..."
+          class="search-input"
+        >
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="alarms-table">
+        <thead>
+          <tr>
+            <th (click)="sort('date')">Date & Time <span class="material-icons sort-icon">unfold_more</span></th>
+            <th (click)="sort('description')">Description <span class="material-icons sort-icon">unfold_more</span></th>
+            <th (click)="sort('parameter')">Parameter <span class="material-icons sort-icon">unfold_more</span></th>
+            <th (click)="sort('severity')">Severity <span class="material-icons sort-icon">unfold_more</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let alarm of alarmsPaginatedData; let i = index" [class.even]="i % 2 === 1">
+            <td class="col-datetime">
+              <span class="material-icons datetime-icon">access_time</span>
+              {{ alarm.date }} &nbsp;|&nbsp; {{ alarm.time }}
+            </td>
+            <td class="col-desc">{{ alarm.description }}</td>
+            <td class="col-param">
+              <span class="param-chip">{{ alarm.parameter }}</span>
+            </td>
+            <td class="col-severity">
+              <span class="severity-badge"
+                [class.high]="alarm.severity === 'HIGH'"
+                [class.medium]="alarm.severity === 'MEDIUM'"
+                [class.low]="alarm.severity === 'LOW'">
+                {{ alarm.severity }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-bar">
+      <div class="pagination-left">
+        <span class="pagination-info">
+          Showing
+          <span class="pagination-highlight">{{ alarmsStartRow }}</span>
+          to
+          <span class="pagination-highlight">{{ alarmsEndRow }}</span>
+          of
+          <span class="pagination-highlight">{{ alarmsTotalRows }}</span>
+          entries
+        </span>
+      </div>
+
+      <div class="pagination-center">
+        <div class="pagination-nav">
+          <button class="pagination-btn"
+            [disabled]="alarmsCurrentPage === 1"
+            (click)="alarmsGoToPage(alarmsCurrentPage - 1)">
+            <span class="material-icons">chevron_left</span>
+          </button>
+
+          <button *ngIf="alarmsWindowPages[0] > 1"
+            class="pagination-page" (click)="alarmsGoToPage(1)">1</button>
+          <span *ngIf="alarmsWindowPages[0] > 2"
+            class="pagination-ellipsis">...</span>
+
+          <button *ngFor="let page of alarmsWindowPages"
+            class="pagination-page"
+            [class.active]="page === alarmsCurrentPage"
+            (click)="alarmsGoToPage(page)">{{ page }}</button>
+
+          <span *ngIf="alarmsWindowPages[alarmsWindowPages.length-1] < alarmsTotalPages - 1"
+            class="pagination-ellipsis">...</span>
+          <button *ngIf="alarmsWindowPages[alarmsWindowPages.length-1] < alarmsTotalPages"
+            class="pagination-page"
+            (click)="alarmsGoToPage(alarmsTotalPages)">{{ alarmsTotalPages }}</button>
+
+          <button class="pagination-btn"
+            [disabled]="alarmsCurrentPage === alarmsTotalPages"
+            (click)="alarmsGoToPage(alarmsCurrentPage + 1)">
+            <span class="material-icons">chevron_right</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pagination-right">
+        <div class="pagination-size-wrapper">
+          <span class="rows-label">Rows per page</span>
+          <div class="pagination-size-select">
+            <select class="pagination-size-trigger"
+              [ngModel]="alarmsPageSize"
+              (ngModelChange)="alarmsChangePageSize($event)">
+              <!-- ↑ [ngModel] one-way binding only — prevents double API call on init -->
+              <option *ngFor="let size of [10, 25, 50, 100]" [value]="size">{{ size }}</option>
+            </select>
+          </div>
+        </div>
+        <button class="export-btn" (click)="alarmsOnExport()">
+          <span class="material-icons">download</span>
+          Export
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

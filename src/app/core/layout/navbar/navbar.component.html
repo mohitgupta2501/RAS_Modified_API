@@ -1,0 +1,59 @@
+<nav class="navbar">
+  <div class="navbar-left">
+    <button class="mobile-menu-btn" (click)="toggleMobileSidebar()" aria-label="Toggle menu">
+      <span class="material-icons">menu</span>
+    </button>
+    <a class="logo-box client-box" href="#">
+      <img src="assets/images/logo.png" alt="Jindal Logo" class="logo-img">
+    </a>
+  </div>
+
+  <div class="navbar-center">
+    <span class="material-icons title-icon">{{ pageIcon }}</span>
+    <h1 class="app-title">
+      <span class="app-page">{{ pageTitle }}</span>
+    </h1>
+  </div>
+
+  <div class="navbar-right">
+    <div class="shift-card">
+      <!-- <span class="shift-badge">A</span> -->
+      <div class="shift-text">
+        <span class="shift-label">{{ shiftLabel }}</span>
+        <span class="shift-time">{{ shiftTime }}</span>
+      </div>
+    </div>
+
+    <div class="navbar-divider"></div>
+
+    <button class="icon-btn notification-btn" (click)="layoutService.toggleNotification()" aria-label="Notifications">
+      <span class="material-icons">notifications</span>
+      <span class="badge" *ngIf="unreadCount > 0"></span>
+    </button>
+
+    <div class="user-menu-wrapper">
+      <button class="user-menu-trigger" (click)="toggleUserMenu()" type="button" aria-label="User menu">
+        <!-- 💡 avatarInitials getter: profile API full_name → localStorage name → 'AD' -->
+        <div class="avatar" [title]="displayName">
+          <span>{{ avatarInitials }}</span>
+        </div>
+      </button>
+
+      <div class="user-dropdown" *ngIf="userMenuOpen">
+        <div class="user-dropdown-header">
+          <!-- 💡 displayName and displayEmail getters handle fallback automatically -->
+          <span class="user-name">{{ displayName }}</span>
+          <span class="user-email">{{ displayEmail }}</span>
+        </div>
+        <button type="button" class="user-dropdown-item" (click)="logout()">
+          <span class="material-icons">logout</span>
+          Logout
+        </button>
+      </div>
+    </div>
+
+    <a class="logo-box hitachi-box" href="#">
+      <img src="assets/images/Hitachi_Logo.jpeg" alt="Hitachi Logo" class="logo-img">
+    </a>
+  </div>
+</nav>

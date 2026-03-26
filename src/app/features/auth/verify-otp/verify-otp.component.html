@@ -1,0 +1,102 @@
+<div class="auth-wrapper">
+  <div class="auth-left">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="auth-left-content">
+      <div class="logo-box">
+        <span class="material-icons">bar_chart</span>
+      </div>
+      <h1 class="auth-title">
+        Roll Analytics<br />
+        <span class="shimmer">System</span>
+      </h1>
+      <p class="auth-tagline">Intelligent Roll Management</p>
+      <!-- <div class="stats-row">
+        <div class="stat">
+          <span class="stat-num">15</span>
+          <span class="stat-label">Stands</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">3</span>
+          <span class="stat-label">Shifts</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">24/7</span>
+          <span class="stat-label">Monitor</span>
+        </div>
+      </div> -->
+    </div>
+    <div class="auth-footer">Powered by Hitachi India Pvt Ltd</div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card">
+      <div class="form-card" [class.shake]="errorMessage">
+        <a routerLink="/auth/forgot-password" class="back-link">
+          <span class="material-icons">arrow_back</span>
+          Back to Forgot Password
+        </a>
+
+        <div class="icon-circle icon-purple">
+          <span class="material-icons">mark_email_read</span>
+        </div>
+        <h2 class="form-title center">Verify OTP</h2>
+        <p class="form-subtitle center">
+          Enter 6-digit OTP sent to<br />
+          <strong class="email-display">{{ email }}</strong>
+        </p>
+
+        <form [formGroup]="otpForm">
+        <div class="otp-inputs" (paste)="onOtpPaste($event)" formArrayName="otp">
+          <input
+            *ngFor="let _ of otpControls; let i = index"
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            [formControlName]="i"
+            #otpInput
+            (input)="onDigitInput(i, $any($event.target).value)"
+            (keydown)="onDigitKeydown(i, $event)"
+            class="otp-box"
+          />
+        </div>
+
+        <div class="error-alert" *ngIf="invalidOtpError">
+          <span class="material-icons">error</span>
+          Invalid OTP. Please try again.
+        </div>
+        </form>
+
+        <div class="timer-row">
+          <span *ngIf="timerSeconds > 0" class="timer-text">
+            Resend OTP in {{ timerDisplay }}
+          </span>
+          <button
+            *ngIf="timerSeconds === 0"
+            type="button"
+            class="resend-link"
+            (click)="resendOtp()"
+          >
+            Resend OTP
+          </button>
+        </div>
+
+        <button
+          type="button"
+          class="submit-btn"
+          [disabled]="!isOtpComplete || isLoading || invalidOtpError"
+          (click)="verifyOtp()"
+        >
+          <span class="spinner" *ngIf="isLoading"></span>
+          {{ isLoading ? 'Verifying...' : 'Verify OTP' }}
+        </button>
+
+        <div class="error-alert" *ngIf="errorMessage && !invalidOtpError">
+          <span class="material-icons">error</span>
+          {{ errorMessage }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

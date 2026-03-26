@@ -1,0 +1,168 @@
+<div class="perf-page">
+  <div class="breadcrumb">
+    <!-- <span class="breadcrumb-item muted">Home</span> -->
+    <span class="material-icons breadcrumb-sep">chevron_right</span>
+    <span class="breadcrumb-item active">Performance</span>
+  </div>
+
+  <div class="filter-card">
+    <span class="filter-heading">{{ dynamicLabel }}</span>
+
+    <div class="toggle-wrap">
+      <span class="toggle-label" [class.active]="!isMillStats" [class.inactive]="isMillStats">Supplier Stats</span>
+      <button type="button" class="toggle-pill" [class.on]="isMillStats" (click)="toggleMode()" role="switch" [attr.aria-checked]="isMillStats">
+        <span class="toggle-thumb"></span>
+      </button>
+      <span class="toggle-label" [class.active]="isMillStats" [class.inactive]="!isMillStats">Mill Stats</span>
+    </div>
+
+    <ng-container *ngIf="!isMillStats">
+      <div class="filter-group">
+        <label class="filter-label">SELECT MILL</label>
+        <div class="custom-select" [class.open]="openDropdown === 'mill'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('mill')">
+            <span class="select-value">{{ selectedMill }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let opt of millOptions" [class.selected]="selectedMill === opt" (click)="selectMill(opt)">
+              <span class="option-check material-icons" *ngIf="selectedMill === opt">check</span>
+              {{ opt }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="isMillStats">
+      <div class="filter-group">
+        <label class="filter-label">SELECT SUPPLIER</label>
+        <div class="custom-select" [class.open]="openDropdown === 'supplier'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('supplier')">
+            <span class="select-value">{{ selectedSupplier }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let opt of supplierOptions" [class.selected]="selectedSupplier === opt" (click)="selectSupplier(opt)">
+              <span class="option-check material-icons" *ngIf="selectedSupplier === opt">check</span>
+              {{ opt }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+<!-- 
+    <div class="filter-group">
+      <label class="filter-label">SELECT ITEM</label>
+      <div class="custom-select" [class.open]="openDropdown === 'item'" (click)="$event.stopPropagation()">
+        <div class="select-trigger" (click)="toggleDropdown('item')">
+          <span class="select-value">{{ selectedItem }}</span>
+          <span class="material-icons select-arrow">expand_more</span>
+        </div>
+        <div class="select-options">
+          <div class="select-option" *ngFor="let opt of itemOptions" [class.selected]="selectedItem === opt" (click)="selectItem(opt)">
+            <span class="option-check material-icons" *ngIf="selectedItem === opt">check</span>
+            {{ opt }}
+          </div>
+        </div>
+      </div>
+    </div> -->
+
+    <div class="filter-group">
+      <label class="filter-label">SELECT GRADE</label>
+      <div class="custom-select" [class.open]="openDropdown === 'grade'" (click)="$event.stopPropagation()">
+        <div class="select-trigger" (click)="toggleDropdown('grade')">
+          <span class="select-value">{{ selectedGrade }}</span>
+          <span class="material-icons select-arrow">expand_more</span>
+        </div>
+        <div class="select-options">
+          <div class="select-option" *ngFor="let opt of gradeOptions" [class.selected]="selectedGrade === opt" (click)="selectGrade(opt)">
+            <span class="option-check material-icons" *ngIf="selectedGrade === opt">check</span>
+            {{ opt }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label class="filter-label">SELECT ROLL</label>
+      <div class="custom-select" [class.open]="openDropdown === 'roll'" (click)="$event.stopPropagation()">
+        <div class="select-trigger" (click)="toggleDropdown('roll')">
+          <span class="select-value">{{ selectedRoll }}</span>
+          <span class="material-icons select-arrow">expand_more</span>
+        </div>
+        <div class="select-options">
+          <div class="select-option" *ngFor="let opt of rollOptions" [class.selected]="selectedRoll === opt" (click)="selectRoll(opt)">
+            <span class="option-check material-icons" *ngIf="selectedRoll === opt">check</span>
+            {{ opt }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-wrap">
+      <table class="perf-table">
+        <colgroup>
+          <col style="width: 260px; min-width: 260px">
+          <col style="width: 110px; min-width: 110px">
+          <col style="width: calc((100% - 370px) / 3)">
+          <col style="width: calc((100% - 370px) / 3)">
+          <col style="width: calc((100% - 370px) / 3)">
+        </colgroup>
+        <thead>
+          <tr class="header-row">
+            <th class="col-param" (click)="sort('parameter')">
+              Parameters
+              <span class="material-icons sort-icon" [class.active]="sortField === 'parameter'">unfold_more</span>
+            </th>
+            <th class="col-units-h" (click)="sort('units')">
+              Units
+              <span class="material-icons sort-icon" [class.active]="sortField === 'units'">unfold_more</span>
+            </th>
+            <th *ngFor="let header of currentHeaders; let i = index" class="col-val-h" (click)="sort('v' + (i + 1))">
+              {{ header }}
+              <span class="material-icons sort-icon" [class.active]="sortField === 'v' + (i + 1)">unfold_more</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of sortedData; let i = index" [class.even]="i % 2 === 1" [class.rating-row]="row.parameter === 'Ratings'">
+            <td class="col-parameter" [class.rating-row]="row.parameter === 'Ratings'">
+              {{ row.parameter }}
+            </td>
+            <td class="col-units">{{ row.units }}</td>
+            <td class="col-value" [style.color]="getValueColor(row, 'v1')">
+              <ng-container *ngIf="row.parameter === 'Ratings'; else normalValue">
+                <div class="rating-cell">
+                  <span class="rating-num" [style.color]="getValueColor(row, 'v1')">{{ row.v1 }}</span>
+                  <span class="rating-stars">{{ getStars(row.v1) }}</span>
+                </div>
+              </ng-container>
+              <ng-template #normalValue>{{ row.v1 }}</ng-template>
+            </td>
+            <td class="col-value" [style.color]="getValueColor(row, 'v2')">
+              <ng-container *ngIf="row.parameter === 'Ratings'; else normalValue2">
+                <div class="rating-cell">
+                  <span class="rating-num" [style.color]="getValueColor(row, 'v2')">{{ row.v2 }}</span>
+                  <span class="rating-stars">{{ getStars(row.v2) }}</span>
+                </div>
+              </ng-container>
+              <ng-template #normalValue2>{{ row.v2 }}</ng-template>
+            </td>
+            <td class="col-value" [style.color]="getValueColor(row, 'v3')">
+              <ng-container *ngIf="row.parameter === 'Ratings'; else normalValue3">
+                <div class="rating-cell">
+                  <span class="rating-num" [style.color]="getValueColor(row, 'v3')">{{ row.v3 }}</span>
+                  <span class="rating-stars">{{ getStars(row.v3) }}</span>
+                </div>
+              </ng-container>
+              <ng-template #normalValue3>{{ row.v3 }}</ng-template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

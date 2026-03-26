@@ -1,0 +1,62 @@
+<aside
+  class="sidebar"
+  [class.collapsed]="layoutService.sidebarCollapsed()"
+  [class.mobile-open]="layoutService.mobileSidebarOpen()">
+  <header class="sidebar-header">
+    <div class="header-left" *ngIf="!layoutService.sidebarCollapsed() || layoutService.mobileSidebarOpen()">
+      <div class="sidebar-brand">Roll Analytics System</div>
+      <div class="sidebar-divider"></div>
+      <!-- <div class="menu-row">
+        <span class="menu-dot"></span>
+        <span class="menu-label">MENU</span>
+      </div> -->
+    </div>
+    <button
+      class="collapse-btn"
+      (click)="toggleSidebar()"
+      type="button"
+      aria-label="Toggle sidebar">
+      <span class="material-icons">{{
+        layoutService.sidebarCollapsed() ? 'chevron_right' : 'chevron_left'
+      }}</span>
+    </button>
+  </header>
+
+  <nav class="sidebar-nav">
+    <ng-container *ngFor="let item of menuItems; let first = first">
+      <a
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-item"
+        (click)="onNavClick()"
+        [attr.title]="layoutService.sidebarCollapsed() ? item.label : null">
+        <span class="nav-icon-wrap">
+          <span class="material-icons nav-icon">{{ item.icon }}</span>
+        </span>
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+
+      <!-- Inventory menu item directly after Home
+      <a
+        *ngIf="first"
+        routerLink="/inventory"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-item"
+        (click)="onNavClick()"
+        [attr.title]="layoutService.sidebarCollapsed() ? 'Inventory' : null">
+        <span class="nav-icon-wrap">
+          <span class="material-icons nav-icon">inventory_2</span>
+        </span>
+        <span class="nav-label">Inventory</span>
+      </a>
+    </ng-container>
+  </nav> -->
+
+<!-- </aside> -->
+
+<div
+  class="sidebar-overlay"
+  [class.visible]="layoutService.mobileSidebarOpen()"
+  (click)="layoutService.closeMobileSidebar()"></div>

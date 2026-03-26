@@ -1,0 +1,347 @@
+<div class="home-page">
+  <div class="breadcrumb">
+    <!-- <span class="breadcrumb-item muted">Home</span> -->
+    <span class="material-icons breadcrumb-sep">chevron_right</span>
+    <span class="breadcrumb-item active">Home</span>
+  </div>
+
+  <div class="w-full">
+    <!-- SECTION 1 - MILL IMAGE BANNER -->
+    <div class="status-inline" style="padding-bottom: 8px">
+      <div class="updated-chip">
+        <span class="material-icons">schedule</span>
+        <span>{{ lastUpdated | date: "HH:mm:ss" }}</span>
+      </div>
+      <div class="refresh-chip">
+        <span class="refresh-lbl">Auto Refresh</span>
+        <div
+          class="toggle-wrap"
+          [class.is-on]="autoRefresh"
+          (click)="toggleAutoRefresh()"
+        >
+          <div class="toggle-knob"></div>
+        </div>
+        <span class="toggle-val">
+          {{ autoRefresh ? "ON" : "OFF" }}
+        </span>
+      </div>
+    </div>
+
+    <div class="mill-image-banner">
+      <img
+        src="assets/images/RAS_Image.png"
+        alt="Mill Layout"
+        class="mill-img"
+        (error)="onImgError($event)"
+      />
+      <div class="mill-img-overlay"></div>
+    </div>
+
+    <!-- SECTION 2 - TABS -->
+    <div class="tabs-and-status-row">
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          flex-wrap: nowrap;
+          overflow-x: auto;
+        "
+      >
+        <button
+          *ngFor="let tab of tabs"
+          (click)="setActiveTab(tab.id)"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+          "
+          [style.background]="
+            activeTab === tab.id ? 'rgba(0,212,255,0.12)' : 'transparent'
+          "
+          [style.color]="activeTab === tab.id ? '#00D4FF' : '#7B90B8'"
+          [style.border]="
+            activeTab === tab.id
+              ? '1px solid rgba(0,212,255,0.3)'
+              : '1px solid transparent'
+          "
+        >
+          <span>{{ tab.label }}</span>
+
+          <span
+            style="
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              min-width: 22px;
+              height: 22px;
+              border-radius: 6px;
+              padding: 0 6px;
+              font-size: 11px;
+              font-weight: 700;
+              line-height: 1;
+              transition: all 0.2s ease;
+            "
+            [style.background]="
+              activeTab === tab.id
+                ? 'rgba(0,212,255,0.2)'
+                : 'rgba(255,255,255,0.06)'
+            "
+            [style.color]="activeTab === tab.id ? '#00D4FF' : '#3D5175'"
+          >
+            {{ tab.count }}
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- LOADING STATE -->
+    <div
+      *ngIf="isLoading"
+      style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        color: #7b90b8;
+        gap: 10px;
+        font-size: 13px;
+        font-weight: 500;
+      "
+    >
+      <span
+        class="material-icons"
+        style="animation: spin 1s linear infinite; font-size: 20px"
+      >
+        refresh
+      </span>
+      Loading data...
+    </div>
+
+    <!-- ERROR STATE -->
+    <div
+      *ngIf="error && !isLoading"
+      style="
+        text-align: center;
+        padding: 20px;
+        color: #ff6b6b;
+        font-size: 13px;
+        font-weight: 500;
+      "
+    >
+      <span
+        class="material-icons"
+        style="vertical-align: middle; margin-right: 6px; font-size: 16px"
+      >
+        error_outline
+      </span>
+      {{ error }}
+    </div>
+
+    <!-- SECTION 3 - AG GRID TABLE
+         Roll ID pinned LEFT (140px) | Campaign Util pinned RIGHT (200px).
+         [alwaysShowHorizontalScroll]="true"  → scrollbar always visible between pinned cols
+         [suppressColumnVirtualisation]="true" → all columns rendered (needed for pinning)
+         width: 100% on the grid — AG Grid internally knows total column width = 1490px
+         and creates its own horizontal scroll for the middle 1150px of scrollable columns.
+    -->
+    <!-- <div class="grid-scroll-wrapper"> -->
+    <ag-grid-angular
+      class="ag-theme-custom-dark home-table-grid"
+      [rowData]="filteredData"
+      [getRowId]="getRowId"
+      [columnDefs]="columnDefs"
+      [defaultColDef]="defaultColDef"
+      [animateRows]="true"
+      [pagination]="false"
+      [suppressCellFocus]="false"
+
+      [rowHeight]="52"
+      [headerHeight]="40"
+      [groupHeaderHeight]="36"
+      style="width: 100%; height: calc(100vh - 420px); min-height: 360px"
+      (gridReady)="onGridReady($event)"
+    >
+    </ag-grid-angular>
+    <!-- </div> -->
+
+    <!-- CUSTOM PAGINATION -->
+    <div class="custom-pagination" *ngIf="totalRows > 0">
+      <div class="page-info">
+        Showing
+        <span class="page-highlight"> {{ startRow }}–{{ endRow }} </span>
+        of
+        <span class="page-highlight">{{ totalRows }}</span>
+        rolls
+      </div>
+      <div class="page-controls">
+        <button
+          class="page-btn"
+          [disabled]="currentPage === 1"
+          (click)="goToPage(currentPage - 1)"
+        >
+          <span class="material-icons">chevron_left</span>
+        </button>
+        <ng-container *ngFor="let p of pageNumbers">
+          <button
+            class="page-num-btn"
+            [class.page-active]="p === currentPage"
+            (click)="goToPage(p)"
+          >
+            {{ p }}
+          </button>
+        </ng-container>
+        <button
+          class="page-btn"
+          [disabled]="currentPage === totalPages"
+          (click)="goToPage(currentPage + 1)"
+        >
+          <span class="material-icons">chevron_right</span>
+        </button>
+      </div>
+      <div class="page-size-control">
+        <span class="page-size-label">Rows per page</span>
+        <div class="page-size-select">
+          <div class="custom-select" [class.open]="pageSizeOpen">
+            <div class="select-trigger" (click)="togglePageSizeDropdown()">
+              <span>{{ pageSize }}</span>
+              <span class="material-icons">expand_more</span>
+            </div>
+            <div class="select-options">
+              <div
+                class="select-option"
+                *ngFor="let size of pageSizeOptions"
+                [class.selected]="size === pageSize"
+                (click)="changePageSize(size)"
+              >
+                {{ size }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Button -->
+        <button
+          (click)="onExport()"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            border-radius: 10px;
+            padding: 8px 18px;
+            color: #00d4ff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+          "
+          (mouseenter)="
+            $any($event.currentTarget).style.background =
+              'rgba(0,212,255,0.08)';
+            $any($event.currentTarget).style.borderColor = 'rgba(0,212,255,0.5)'
+          "
+          (mouseleave)="
+            $any($event.currentTarget).style.background = 'transparent';
+            $any($event.currentTarget).style.borderColor =
+              'rgba(0,212,255,0.25)'
+          "
+        >
+          <span class="material-icons" style="font-size: 16px">download</span>
+          Export
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROLL ID CLICK MODAL -->
+  <div
+    class="modal-backdrop"
+    *ngIf="showRollModal"
+    (click)="showRollModal = false"
+  ></div>
+  <div
+    class="roll-modal"
+    *ngIf="showRollModal"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-header">
+      <div class="flex items-center gap-3">
+        <span class="material-icons text-cyan-400">settings</span>
+        <span>Roll Details: {{ selectedRoll?.rollId }}</span>
+      </div>
+      <button type="button" (click)="showRollModal = false">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body grid grid-cols-2 gap-4 p-6">
+      <div class="modal-item">
+        <div class="label">Stand</div>
+        <div class="value">{{ selectedRoll?.stand }}</div>
+      </div>
+      <div class="modal-item">
+        <div class="label">Type</div>
+        <div class="value">{{ selectedRoll?.type }}</div>
+      </div>
+      <div class="modal-item">
+        <div class="label">Position</div>
+        <div class="value">{{ selectedRoll?.position }}</div>
+      </div>
+      <div class="modal-item">
+        <div class="label">Supplier</div>
+        <div class="value">{{ selectedRoll?.supplier }}</div>
+      </div>
+      <div class="modal-item">
+        <div class="label">Cycle Weight</div>
+        <div class="value">{{ selectedRoll?.cycleWeight }} TON</div>
+      </div>
+      <div class="modal-item">
+        <div class="label">Cycle Length</div>
+        <div class="value">{{ selectedRoll?.cycleLength }} KM</div>
+      </div>
+      <div class="modal-item">
+        <div class="label">Cumul Weight</div>
+        <div class="value">{{ selectedRoll?.cumulWeight }} TON</div>
+      </div>
+      <div class="modal-item">
+        <div class="label">Cumul Length</div>
+        <div class="value">{{ selectedRoll?.cumulLength }} KM</div>
+      </div>
+      <div class="modal-item col-span-2">
+        <div class="label">Campaign Utilization</div>
+        <div class="value">{{ selectedRoll?.progress }}%</div>
+      </div>
+    </div>
+
+    <div class="modal-footer flex justify-end p-4">
+      <button
+        type="button"
+        (click)="navigateToRollDetails()"
+        class="view-details-btn"
+      >
+        <span class="material-icons">open_in_new</span>
+        View Full Details
+      </button>
+      <button
+        type="button"
+        (click)="showRollModal = false"
+        class="cancel-btn ml-3"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</div>
