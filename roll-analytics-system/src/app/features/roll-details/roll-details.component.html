@@ -1,0 +1,291 @@
+<div class="roll-details-page">
+  <div class="breadcrumb">
+    <!-- <span class="breadcrumb-item muted">Home</span> -->
+    <span class="material-icons breadcrumb-sep">chevron_right</span>
+    <span class="breadcrumb-item active">Roll Details</span>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="dropdown-wrap">
+      <label class="dropdown-label">Select Mill</label>
+      <div class="custom-select" [class.open]="openDropdown === 'mill'">
+        <div class="select-trigger" (click)="toggleDropdown('mill')">
+          <span class="select-value">{{ selectedMill }}</span>
+          <span class="material-icons select-arrow">expand_more</span>
+        </div>
+        <div class="select-options">
+          <div
+            *ngFor="let mill of millOptions"
+            class="select-option"
+            [class.selected]="selectedMill === mill"
+            (click)="selectMill(mill)">
+            {{ mill }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dropdown-wrap">
+      <label class="dropdown-label">Select Roll</label>
+      <div class="custom-select" [class.open]="openDropdown === 'roll'">
+        <div class="select-trigger" (click)="toggleDropdown('roll')">
+          <span class="select-value">{{ selectedRoll }}</span>
+          <span class="material-icons select-arrow">expand_more</span>
+        </div>
+        <div class="select-options">
+          <div
+            *ngFor="let roll of rollOptions"
+            class="select-option"
+            [class.selected]="selectedRoll === roll"
+            (click)="selectRoll(roll)">
+            {{ roll }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dropdown-wrap">
+      <label class="dropdown-label">Select Position</label>
+      <div class="custom-select" [class.open]="openDropdown === 'position'">
+        <div class="select-trigger" (click)="toggleDropdown('position')">
+          <span class="select-value">{{ selectedPosition }}</span>
+          <span class="material-icons select-arrow">expand_more</span>
+        </div>
+        <div class="select-options">
+          <div
+            *ngFor="let pos of positionOptions"
+            class="select-option"
+            [class.selected]="selectedPosition === pos"
+            (click)="selectPosition(pos)">
+            {{ pos }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Roll Details Info Card -->
+  <div class="info-card">
+    <div class="info-header">Roll Details</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="info-label">Roll ID</div>
+        <div class="info-value roll-id">WR123</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Seller</div>
+        <div class="info-value seller">Supplier3</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Delivery Date</div>
+        <div class="info-value delivery-date">2025-01-10</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">PO Price</div>
+        <div class="info-value po-price">1000 MINR</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Min Diameter</div>
+        <div class="info-value min-diameter">50.10 mm</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Rating</div>
+        <div class="info-value rating">8.9/10</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs Row -->
+  <div class="tabs-row">
+    <button
+      type="button"
+      class="tab-button"
+      [class.active]="activeTab === 'dia'"
+      (click)="activeTab = 'dia'">
+      Dia Consumption
+    </button>
+    <button
+      type="button"
+      class="tab-button"
+      [class.active]="activeTab === 'usage'"
+      (click)="activeTab = 'usage'">
+      Roll Usage
+    </button>
+  </div>
+
+  <!-- Tab Content Area -->
+  <div class="tab-content-area">
+    <!-- Tab Content: Dia Consumption -->
+    <div class="tab-content" *ngIf="activeTab === 'dia'">
+      <div class="chart-container">
+        <div echarts [options]="chartOptions" [autoResize]="true" class="chart"></div>
+      </div>
+    </div>
+
+    <!-- Tab Content: Roll Usage -->
+    <div class="tab-content" *ngIf="activeTab === 'usage'">
+      <div class="table-wrapper">
+        <table class="usage-table">
+          <thead>
+            <tr>
+              <th>Cycle No</th>
+              <th>Plant</th>
+              <th>Position</th>
+              <th>Rolled Length</th>
+              <th>Cycle Start Date</th>
+              <th>Cycle End Date</th>
+              <th>Diameter(Start)</th>
+              <th>Diameter(End)</th>
+              <th>Maint Cost(MINR)</th>
+              <th>Remarks</th>
+              <th>Spall</th>
+              <th>Crack</th>
+              <th>Uniform Circulation</th>
+              <th>Fit For Use</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let row of rollUsageData; let i = index"
+              [class.even]="i % 2 === 1"
+              [class.last-row]="i === rollUsageData.length - 1">
+              <td class="col-cycle">{{ row.cycleNo }}</td>
+              <td class="col-plant">{{ row.plant }}</td>
+              <td class="col-position">{{ row.position }}</td>
+              <td class="col-length">{{ row.rolledLength }}</td>
+              <td class="col-date">{{ row.startDate }}</td>
+              <td class="col-date">{{ row.endDate }}</td>
+              <td class="col-dia-start">{{ row.diaStart }}</td>
+              <td class="col-dia-end">{{ row.diaEnd }}</td>
+              <td class="col-cost">{{ row.maintCost }}</td>
+              <td class="col-remarks">{{ row.remarks }}</td>
+              <td class="col-spall" [class.yes]="row.spall === 'Yes'" [class.no]="row.spall === 'No'">{{ row.spall }}</td>
+              <td class="col-crack" [class.yes]="row.crack === 'Yes'" [class.no]="row.crack === 'No'">{{ row.crack }}</td>
+              <td class="col-uniform" [class.good]="row.uniformCirc === 'Good'" [class.average]="row.uniformCirc === 'Average'" [class.poor]="row.uniformCirc === 'Poor'">{{ row.uniformCirc }}</td>
+              <td class="col-fit" [class.yes]="row.fitForUse === 'Yes'" [class.no]="row.fitForUse === 'No'">{{ row.fitForUse }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-actions">
+        <button type="button" class="edit-btn" (click)="openEditModal()">
+          <span class="material-icons">edit</span>
+          <span>Edit Recent Cycle</span>
+        </button>
+        <div class="pagination-wrap">
+          <button type="button" class="page-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+            <span>Previous</span>
+          </button>
+          <button
+            type="button"
+            class="page-btn"
+            [class.active]="currentPage === 1"
+            (click)="goToPage(1)">
+            Page 1
+          </button>
+          <button type="button" class="page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+            <span>Next</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-backdrop" *ngIf="showEditModal" (click)="showEditModal = false"></div>
+<div class="edit-modal" *ngIf="showEditModal" (click)="$event.stopPropagation()">
+  <div class="modal-header">
+    <div class="modal-title">
+      <span class="material-icons">edit</span>
+      Edit Recent Cycle
+    </div>
+    <button type="button" (click)="showEditModal = false">
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="form-field">
+      <label>Rolled Length</label>
+      <input type="number" [(ngModel)]="editForm.rolledLength" />
+    </div>
+    <div class="form-field">
+      <label>Maint Cost MINR</label>
+      <input type="number" step="0.1" [(ngModel)]="editForm.maintCost" />
+    </div>
+    <div class="form-field">
+      <label>Remarks</label>
+      <input type="text" [(ngModel)]="editForm.remarks" />
+    </div>
+    <div class="form-field full-width">
+      <label>Roll Change Time</label>
+      <app-datetime-picker [(value)]="editForm.rollChangeTime" label=""></app-datetime-picker>
+    </div>
+    <div class="form-field">
+      <label>Spall</label>
+      <div class="custom-select" [class.open]="openDropdown === 'spall'" (click)="$event.stopPropagation()">
+        <div class="select-trigger" (click)="toggleDropdown('spall')">
+          <span class="select-value">{{ editForm.spall }}</span>
+          <span class="material-icons select-arrow">expand_more</span>
+        </div>
+        <div class="select-options">
+          <div class="select-option" *ngFor="let o of spallOptions" [class.selected]="editForm.spall === o" (click)="editForm.spall = o; openDropdown = null">
+            <span class="option-check material-icons" *ngIf="editForm.spall === o">check</span>
+            {{ o }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-field">
+      <label>Crack</label>
+      <div class="custom-select" [class.open]="openDropdown === 'crack'" (click)="$event.stopPropagation()">
+        <div class="select-trigger" (click)="toggleDropdown('crack')">
+          <span class="select-value">{{ editForm.crack }}</span>
+          <span class="material-icons select-arrow">expand_more</span>
+        </div>
+        <div class="select-options">
+          <div class="select-option" *ngFor="let o of crackOptions" [class.selected]="editForm.crack === o" (click)="editForm.crack = o; openDropdown = null">
+            <span class="option-check material-icons" *ngIf="editForm.crack === o">check</span>
+            {{ o }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-field">
+      <label>Uniform Circulation</label>
+      <div class="custom-select" [class.open]="openDropdown === 'uniformCirc'" (click)="$event.stopPropagation()">
+        <div class="select-trigger" (click)="toggleDropdown('uniformCirc')">
+          <span class="select-value">{{ editForm.uniformCirc }}</span>
+          <span class="material-icons select-arrow">expand_more</span>
+        </div>
+        <div class="select-options">
+          <div class="select-option" *ngFor="let o of uniformCircOptions" [class.selected]="editForm.uniformCirc === o" (click)="editForm.uniformCirc = o; openDropdown = null">
+            <span class="option-check material-icons" *ngIf="editForm.uniformCirc === o">check</span>
+            {{ o }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-field">
+      <label>Fit For Use</label>
+      <div class="custom-select" [class.open]="openDropdown === 'fitForUse'" (click)="$event.stopPropagation()">
+        <div class="select-trigger" (click)="toggleDropdown('fitForUse')">
+          <span class="select-value">{{ editForm.fitForUse }}</span>
+          <span class="material-icons select-arrow">expand_more</span>
+        </div>
+        <div class="select-options">
+          <div class="select-option" *ngFor="let o of fitForUseOptions" [class.selected]="editForm.fitForUse === o" (click)="editForm.fitForUse = o; openDropdown = null">
+            <span class="option-check material-icons" *ngIf="editForm.fitForUse === o">check</span>
+            {{ o }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="cancel-btn" (click)="showEditModal = false">Cancel</button>
+    <button type="button" class="save-btn" (click)="saveEdit()">Save</button>
+  </div>
+</div>

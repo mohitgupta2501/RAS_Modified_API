@@ -1,0 +1,271 @@
+.perf-page {
+  min-height: 100%;
+  padding: 24px;
+  background: #060B18;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.breadcrumb-item {
+  color: #7B90B8;
+
+  &.muted {
+    color: #3D5175;
+  }
+
+  &.active {
+    color: #00D4FF;
+    font-weight: 500;
+  }
+}
+
+.breadcrumb-sep {
+  font-size: 16px;
+  color: #3D5175;
+}
+
+/* FIX 5 - Performance filter bar */
+.filter-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 16px 24px;
+  margin-bottom: 16px;
+  background: linear-gradient(145deg, #0F1A2E, #0A1020);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  border-radius: 14px;
+}
+
+.filter-heading {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #E8F0FE;
+  text-transform: uppercase;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.toggle-label {
+  font-size: 12px;
+  color: #3D5175;
+  font-weight: 400;
+
+  &.inactive {
+    color: #3D5175;
+  }
+
+  &.active {
+    color: #00D4FF;
+    font-weight: 700;
+  }
+}
+
+.toggle-pill {
+  width: 48px;
+  height: 26px;
+  border-radius: 13px;
+  border: none;
+  background: #2563EB;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.3s;
+
+  &.on .toggle-thumb {
+    transform: translateX(22px);
+  }
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.3s;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 140px;
+}
+
+.filter-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #3D5175;
+  margin-bottom: 4px;
+}
+
+.filter-select {
+  min-width: 140px;
+  max-width: 180px;
+}
+
+/* FIX 6 - Performance table card */
+.table-card {
+  background: linear-gradient(145deg, #0F1A2E, #0A1020);
+  border: 1px solid rgba(0, 212, 255, 0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  width: 100%;
+  margin-top: 0;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 520px;
+}
+
+/* FIX 1 - Table column alignment */
+.perf-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.perf-table .header-row {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #0D1628;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+}
+
+.perf-table th,
+.perf-table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+  padding: 13px 20px;
+  box-sizing: border-box;
+}
+
+.perf-table th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #3D5175;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(0, 212, 255, 0.08);
+  }
+}
+
+.perf-table th .sort-icon {
+  font-size: 14px;
+  vertical-align: middle;
+  margin-left: 4px;
+  color: #3D5175;
+  cursor: pointer;
+
+  &.active {
+    color: #00D4FF;
+  }
+}
+
+.perf-table .col-param {
+  text-align: left;
+  padding-left: 20px;
+}
+
+.perf-table .col-units-h,
+.perf-table .col-val-h {
+  text-align: center;
+}
+
+.perf-table td.col-parameter {
+  text-align: left;
+  padding-left: 20px;
+  color: #E8F0FE;
+  font-weight: 500;
+
+  &.rating-row {
+    font-weight: 700;
+  }
+}
+
+.perf-table td.col-units {
+  text-align: center;
+  color: #7B90B8;
+  font-size: 12px;
+}
+
+.perf-table td.col-value {
+  text-align: center;
+  font-weight: 600;
+}
+
+.perf-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.2s;
+
+  &:hover {
+    background: rgba(37, 99, 235, 0.07);
+  }
+
+  &.even {
+    background: rgba(0, 0, 0, 0.15);
+  }
+
+  &:hover.even {
+    background: rgba(37, 99, 235, 0.07);
+  }
+
+  &.rating-row {
+    background: rgba(0, 212, 255, 0.03);
+    border-top: 2px solid rgba(0, 212, 255, 0.1);
+  }
+}
+
+.perf-table td {
+  font-size: 13.5px;
+}
+
+/* Ratings row value cell */
+.rating-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.rating-num {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.rating-stars {
+  font-size: 15px;
+  letter-spacing: 3px;
+  color: #FFB800;
+  margin-top: 2px;
+}

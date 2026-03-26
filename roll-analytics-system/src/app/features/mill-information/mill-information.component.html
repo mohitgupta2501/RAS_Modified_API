@@ -1,0 +1,383 @@
+<div class="mill-info-page">
+  <div class="breadcrumb">
+    <!-- <span class="breadcrumb-item muted">Home</span> -->
+    <span class="material-icons breadcrumb-sep">chevron_right</span>
+    <span class="breadcrumb-item active">Mill Information</span>
+  </div>
+
+  <div class="image-card">
+    <img src="assets/login/Mill_Information.png" alt="Mill Layout Diagram" class="mill-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <div class="image-placeholder" style="display: none;">
+      Mill Layout Diagram
+    </div>
+  </div>
+
+  <div class="tabs-row">
+    <button
+      *ngFor="let stand of stands"
+      type="button"
+      class="tab-button"
+      [class.active]="selectedStand === stand"
+      (click)="onTabChange(stand)">
+      {{ stand }}
+    </button>
+  </div>
+
+  <div class="table-card">
+    <div class="card-header">
+      <div class="header-left">
+        <span class="material-icons card-icon">table_chart</span>
+        <span class="card-title">Roll Information</span>
+      </div>
+      <div class="stand-badge">{{ selectedStand }} Stand</div>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="roll-table">
+        <thead>
+          <tr class="header-row-1">
+            <th rowspan="2">Type</th>
+            <th rowspan="2">Position</th>
+            <th rowspan="2">Roll ID</th>
+            <th rowspan="2">Supplier</th>
+            <th rowspan="2">Diameter (mm)</th>
+            <th rowspan="2">Rough (uRA)</th>
+            <th colspan="2" class="crown-header">Crown (Micron)</th>
+            <th rowspan="2">Total Cycles</th>
+            <th colspan="3" class="current-header">Current Accumulation</th>
+            <th colspan="3" class="cumulative-header">Cumulative Accumulation</th>
+            <th rowspan="2">Roll Change Time</th>
+          </tr>
+          <tr class="header-row-2">
+            <th>Min</th>
+            <th>Max</th>
+            <th>Weight (Ton)</th>
+            <th>Slabs</th>
+            <th>Length (Km)</th>
+            <th>Weight (Ton)</th>
+            <th>Slabs</th>
+            <th>Length (Km)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let roll of rollInformation; let i = index" [class.even]="i % 2 === 1">
+            <td class="col-type">{{ roll.name }}</td>
+            <td class="col-position">{{ roll.position }}</td>
+            <td class="col-roll-id">{{ roll.rollId }}</td>
+            <td class="col-supplier">{{ roll.supplier }}</td>
+            <td class="col-diameter">{{ roll.diameter }}</td>
+            <td class="col-rough" [class.no-value]="roll.rough === '-'">{{ roll.rough }}</td>
+            <td class="col-crown">{{ roll.crownMin }}</td>
+            <td class="col-crown">{{ roll.crownMax }}</td>
+            <td class="col-cycles">{{ roll.totalCycles }}</td>
+            <td class="col-current">{{ roll.weightTon }}</td>
+            <td class="col-current">{{ roll.slabs }}</td>
+            <td class="col-current">{{ roll.lengthKm }}</td>
+            <td class="col-cumulative">{{ roll.weightTon2 }}</td>
+            <td class="col-cumulative">{{ roll.slabs2 }}</td>
+            <td class="col-cumulative">{{ roll.lengthKm2 }}</td>
+            <td class="col-time">{{ roll.rollChangeTime }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="action-buttons">
+      <button *ngIf="showManualEntryButton" type="button" class="action-btn manual-entry-btn" (click)="openManualEntryModal()">
+        <span class="material-icons">edit</span>
+        Manual Entry
+      </button>
+      <button type="button" class="action-btn defect-btn" (click)="openDefectModal()">
+        <span class="material-icons">bug_report</span>
+        Defect
+      </button>
+      <button type="button" class="action-btn downtime-btn" (click)="openDowntimeModal()">
+        <span class="material-icons">timer_off</span>
+        Downtime
+      </button>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  <div class="success-toast" [class.visible]="showSuccessToast">
+    <span class="material-icons">check_circle</span>
+    <span>Entry submitted successfully!</span>
+  </div>
+
+  <!-- Manual Entry Modal -->
+  <div class="modal-backdrop" *ngIf="showManualEntryModal" (click)="showManualEntryModal = false"></div>
+  <div class="mill-modal" *ngIf="showManualEntryModal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        <span class="material-icons">edit</span>
+        Manual Entry
+      </div>
+      <button type="button" (click)="showManualEntryModal = false">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label>Roll ID</label>
+        <input type="text" [(ngModel)]="manualEntryForm.rollId" />
+      </div>
+      <div class="form-field">
+        <label>Roll Type</label>
+        <div class="custom-select" [class.open]="openDropdown === 'manualRollType'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('manualRollType')">
+            <span class="select-value">{{ manualEntryForm.rollType }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let o of rollTypeOptions" [class.selected]="manualEntryForm.rollType === o" (click)="manualEntryForm.rollType = o; openDropdown = null">
+              <span class="option-check material-icons" *ngIf="manualEntryForm.rollType === o">check</span>
+              {{ o }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Supplier</label>
+        <input type="text" [(ngModel)]="manualEntryForm.supplier" />
+      </div>
+      <div class="form-field">
+        <label>Diameter mm</label>
+        <input type="number" [(ngModel)]="manualEntryForm.diameterMm" />
+      </div>
+      <div class="form-field">
+        <label>Rough uRA</label>
+        <input type="number" step="0.001" [(ngModel)]="manualEntryForm.roughUra" />
+      </div>
+      <div class="form-field">
+        <label>Crown Min</label>
+        <input type="number" step="0.01" [(ngModel)]="manualEntryForm.crownMin" />
+      </div>
+      <div class="form-field">
+        <label>Crown Max</label>
+        <input type="number" step="0.01" [(ngModel)]="manualEntryForm.crownMax" />
+      </div>
+      <div class="form-field">
+        <label>Total Cycles</label>
+        <input type="number" [(ngModel)]="manualEntryForm.totalCycles" />
+      </div>
+      <div class="form-field full-width">
+        <label>Roll Change Time</label>
+        <app-datetime-picker [(value)]="manualEntryForm.rollChangeTime" label=""></app-datetime-picker>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="cancel-btn" (click)="showManualEntryModal = false">Cancel</button>
+      <button type="button" class="submit-btn">Submit</button>
+    </div>
+  </div>
+
+  <!-- Defect Modal -->
+  <div class="modal-backdrop" *ngIf="showDefectModal" (click)="showDefectModal = false"></div>
+  <div class="mill-modal" *ngIf="showDefectModal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title defect-title">
+        <span class="material-icons">bug_report</span>
+        Report Defect
+      </div>
+      <button type="button" (click)="showDefectModal = false">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label>Stand</label>
+        <div class="custom-select" [class.open]="openDropdown === 'defectStand'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('defectStand')">
+            <span class="select-value">{{ defectForm.stand }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let s of stands" [class.selected]="defectForm.stand === s" (click)="defectForm.stand = s; onDefectStandChange(); openDropdown = null">
+              <span class="option-check material-icons" *ngIf="defectForm.stand === s">check</span>
+              {{ s }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Type</label>
+        <div class="custom-select" [class.open]="openDropdown === 'defectType'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('defectType')">
+            <span class="select-value">{{ defectForm.type }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let o of defectTypeOptions" [class.selected]="defectForm.type === o" (click)="defectForm.type = o; onDefectTypeChange(); openDropdown = null">
+              <span class="option-check material-icons" *ngIf="defectForm.type === o">check</span>
+              {{ o }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Kind</label>
+        <div class="custom-select" [class.open]="openDropdown === 'defectKind'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('defectKind')">
+            <span class="select-value">{{ defectForm.kind }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let k of kindOptionsForDefect" [class.selected]="defectForm.kind === k" (click)="defectForm.kind = k; openDropdown = null">
+              <span class="option-check material-icons" *ngIf="defectForm.kind === k">check</span>
+              {{ k }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Position</label>
+        <div class="custom-select" [class.open]="openDropdown === 'defectPosition'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('defectPosition')">
+            <span class="select-value">{{ defectForm.position }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let p of positionOptionsForDefect" [class.selected]="defectForm.position === p" (click)="defectForm.position = p; openDropdown = null">
+              <span class="option-check material-icons" *ngIf="defectForm.position === p">check</span>
+              {{ p }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-field full-width">
+        <label>Defect</label>
+        <div class="custom-select" [class.open]="openDropdown === 'defect'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('defect')">
+            <span class="select-value">{{ selectedDefect || 'Select...' }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let d of defectOptions" [class.selected]="selectedDefect === d" (click)="selectedDefect = d; onDefectChange(); openDropdown = null">
+              <span class="option-check material-icons" *ngIf="selectedDefect === d">check</span>
+              {{ d }}
+            </div>
+          </div>
+        </div>
+        <input
+          *ngIf="showOtherDefectInput"
+          type="text"
+          class="other-defect-input"
+          placeholder="Describe defect..."
+          [(ngModel)]="otherDefectText"
+          (blur)="addCustomDefect()"
+          (keydown.enter)="addCustomDefect()"
+        />
+      </div>
+      <div class="form-field full-width">
+        <label>Reason</label>
+        <textarea rows="3" placeholder="Enter reason for defect..." [(ngModel)]="defectForm.reason"></textarea>
+      </div>
+      <div class="form-field full-width">
+        <label>Date &amp; Time</label>
+        <app-datetime-picker [(value)]="defectForm.dateTime" label=""></app-datetime-picker>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="cancel-btn" (click)="showDefectModal = false">Cancel</button>
+      <button type="button" class="submit-btn">Submit</button>
+    </div>
+  </div>
+
+  <!-- Downtime Modal (FIX 3 - Downtime Data table fields) -->
+  <div class="modal-backdrop" *ngIf="showDowntimeModal" (click)="showDowntimeModal = false"></div>
+  <div class="mill-modal downtime-modal" *ngIf="showDowntimeModal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title downtime-title">
+        <span class="material-icons">timer_off</span>
+        Log Downtime
+      </div>
+      <button type="button" (click)="showDowntimeModal = false">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="modal-body form-grid-2">
+      <div class="form-field">
+        <label>Mill ID</label>
+        <input type="text" [(ngModel)]="downtimeForm.millId" />
+      </div>
+      <div class="form-field">
+        <label>Mill Section</label>
+        <div class="custom-select" [class.open]="openDropdown === 'downtimeSection'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('downtimeSection')">
+            <span class="select-value">{{ downtimeForm.millSection }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let o of millSectionOptions" [class.selected]="downtimeForm.millSection === o" (click)="downtimeForm.millSection = o; openDropdown = null">
+              <span class="option-check material-icons" *ngIf="downtimeForm.millSection === o">check</span>
+              {{ o }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-field full-width">
+        <label>Downtime Start Time</label>
+        <app-datetime-picker [(value)]="downtimeForm.startTime" label=""></app-datetime-picker>
+        <span class="dt-hint">Format: YYYYMMDDHHmmss e.g. 20260209150536</span>
+      </div>
+      <div class="form-field full-width">
+        <label>Downtime Actual Start Time</label>
+        <app-datetime-picker [(value)]="downtimeForm.actualStartTime" label=""></app-datetime-picker>
+        <span class="dt-hint">Format: YYYYMMDDHHmmss e.g. 20260209150536</span>
+      </div>
+      <div class="form-field">
+        <label>Downtime Planned Duration</label>
+        <div class="input-with-unit">
+          <input type="number" [(ngModel)]="downtimeForm.plannedDurationHrs" max="9999" placeholder="Hrs" />
+          <span class="unit-badge">Hrs</span>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Downtime Actual Duration</label>
+        <div class="input-with-unit">
+          <input type="number" [(ngModel)]="downtimeForm.actualDurationHrs" placeholder="Hrs" />
+          <span class="unit-badge">Hrs</span>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Downtime Type</label>
+        <div class="custom-select" [class.open]="openDropdown === 'downtimeType'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('downtimeType')">
+            <span class="select-value">{{ downtimeForm.downtimeType }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let o of downtimeTypeOptions" [class.selected]="downtimeForm.downtimeType === o" (click)="downtimeForm.downtimeType = o; openDropdown = null">
+              <span class="option-check material-icons" *ngIf="downtimeForm.downtimeType === o">check</span>
+              {{ o }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-field full-width">
+        <label>Reason</label>
+        <div class="custom-select" [class.open]="openDropdown === 'downtimeReason'" (click)="$event.stopPropagation()">
+          <div class="select-trigger" (click)="toggleDropdown('downtimeReason')">
+            <span class="select-value">{{ downtimeForm.reason }}</span>
+            <span class="material-icons select-arrow">expand_more</span>
+          </div>
+          <div class="select-options">
+            <div class="select-option" *ngFor="let r of downtimeReasonOptions" [class.selected]="downtimeForm.reason === r" (click)="downtimeForm.reason = r; openDropdown = null">
+              <span class="option-check material-icons" *ngIf="downtimeForm.reason === r">check</span>
+              {{ r }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-field full-width">
+        <label>Remarks</label>
+        <textarea rows="3" [(ngModel)]="downtimeForm.remarks" maxlength="50" placeholder="Max 50 characters"></textarea>
+        <span class="char-counter">{{ remarksLength }}/{{ maxRemarksLength }}</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="cancel-btn" (click)="showDowntimeModal = false">Cancel</button>
+      <button type="button" class="submit-btn" (click)="submitDowntime()">Submit</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,198 @@
+<div class="telegram-page">
+  <div class="breadcrumb">
+    <!-- <span class="breadcrumb-item muted">Home</span> -->
+    <span class="material-icons breadcrumb-sep">chevron_right</span>
+    <span class="breadcrumb-item active">Telegram Logs</span>
+  </div>
+
+  <div class="main-card">
+    <header class="card-header">
+      <div class="card-title-wrap">
+        <span class="material-icons card-icon">chat</span>
+        <h2 class="card-title">Telegram Log</h2>
+      </div>
+    </header>
+
+    <div class="search-container">
+      <div class="search-box">
+        <span class="material-icons search-icon">search</span>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="currentPage = 1"
+          placeholder="Search telegram logs..."
+          class="search-input"
+        >
+      </div>
+    </div>
+
+    <!-- OLD TABLE START
+    <div class="table-wrap">
+      <table class="logs-table">
+        <thead>
+          <tr>
+            <th (click)="sort('id')">ID</th>
+            <th (click)="sort('created_at')">Created At</th>
+            <th (click)="sort('chat_id')">Chat ID</th>
+            <th (click)="sort('message')">Message</th>
+            <th (click)="sort('status')">Status</th>
+            <th (click)="sort('response_message')">Response Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="isLoading">
+            <td colspan="6" style="text-align:center">Loading...</td>
+          </tr>
+          <tr *ngIf="!isLoading && errorMessage">
+            <td colspan="6" style="color:red; text-align:center">{{ errorMessage }}</td>
+          </tr>
+          <tr *ngIf="!isLoading && !errorMessage && totalRows === 0">
+            <td colspan="6" style="text-align:center">No records found.</td>
+          </tr>
+          <tr *ngFor="let log of tlPaginatedData">
+            <td>{{ log.id }}</td>
+            <td>{{ log.created_at | date:'medium' }}</td>
+            <td>{{ log.chat_id }}</td>
+            <td>{{ log.message }}</td>
+            <td>{{ log.status }}</td>
+            <td>{{ log.response_message }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    OLD TABLE END -->
+
+    <!-- ✅ LOADING STATE -->
+    <div *ngIf="isLoading" style="
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      color: #7B90B8;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 500;
+    ">
+      <span class="material-icons" style="animation: spin 1s linear infinite; font-size: 20px;">
+        refresh
+      </span>
+      Loading data...
+    </div>
+
+    <!-- ✅ ERROR STATE -->
+    <div *ngIf="errorMessage && !isLoading" style="
+      text-align: center;
+      padding: 10px;
+      color: #FF6B6B;
+      font-size: 13px;
+      font-weight: 500;
+      background: rgba(255, 107, 107, 0.05);
+      border: 1px solid rgba(255, 107, 107, 0.1);
+      margin: 0 24px 10px;
+      border-radius: 8px;
+    ">
+      <span class="material-icons" style="vertical-align: middle; margin-right: 6px; font-size: 16px;">
+        error_outline
+      </span>
+      {{ errorMessage }}
+    </div>
+
+    <!-- AG GRID TABLE -->
+    <ag-grid-angular
+      class="ag-theme-custom-dark home-table-grid"
+      [rowData]="tlPaginatedData"
+      [columnDefs]="telegramColDefs"
+      [defaultColDef]="defaultColDef"
+      [animateRows]="true"
+      [pagination]="false"
+      [suppressCellFocus]="false"
+      [rowHeight]="52"
+      [headerHeight]="40"
+      [groupHeaderHeight]="36"
+      [loadingOverlayComponent]="null"
+      style="width: 100%; height: calc(100vh - 420px); min-height: 360px"
+      (gridReady)="onGridReady($event)"></ag-grid-angular>
+
+    <!-- CUSTOM PAGINATION -->
+    <div class="pagination-bar" *ngIf="!isLoading">
+      <div class="pagination-left">
+        <span class="pagination-info">
+          Showing
+          <span class="pagination-highlight">{{ startRow }}</span>
+          to
+          <span class="pagination-highlight">{{ endRow }}</span>
+          of
+          <span class="pagination-highlight">{{ totalRows }}</span>
+          entries
+        </span>
+      </div>
+
+      <div class="pagination-center">
+        <div class="pagination-nav" *ngIf="totalRows > 0">
+          <!-- Left arrow -->
+          <button class="pagination-btn"
+            [disabled]="currentPage === 1"
+            (click)="goToPage(currentPage - 1)">
+            <span class="material-icons">chevron_left</span>
+          </button>
+
+          <!-- Always show page 1 + ellipsis if window is far from start -->
+          <button *ngIf="windowPages[0] > 1"
+            class="pagination-page"
+            (click)="goToPage(1)">1</button>
+
+          <span *ngIf="windowPages[0] > 2"
+            class="pagination-ellipsis">...</span>
+
+          <!-- 3-page sliding window -->
+          <button *ngFor="let page of windowPages"
+            class="pagination-page"
+            [class.active]="page === currentPage"
+            (click)="goToPage(page)">
+            {{ page }}
+          </button>
+
+          <!-- Ellipsis + last page if window is far from end -->
+          <span *ngIf="windowPages[windowPages.length - 1] < totalPages - 1"
+            class="pagination-ellipsis">...</span>
+
+          <button *ngIf="windowPages[windowPages.length - 1] < totalPages"
+            class="pagination-page"
+            (click)="goToPage(totalPages)">
+            {{ totalPages }}
+          </button>
+
+          <!-- Right arrow -->
+          <button class="pagination-btn"
+            [disabled]="currentPage === totalPages"
+            (click)="goToPage(currentPage + 1)">
+            <span class="material-icons">chevron_right</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pagination-right">
+        <div class="pagination-size-wrapper"> 
+          <span class="rows-label">Rows per page</span> 
+          <div class="pagination-size-select"> 
+            <select class="pagination-size-trigger" 
+              [(ngModel)]="pageSize" 
+              (ngModelChange)="changePageSize($event)"> 
+              <option *ngFor="let size of [10, 25, 50, 100]" [value]="size">{{ size }}</option> 
+            </select> 
+          </div> 
+        </div>
+
+        <button class="export-btn" (click)="onExport()">
+          <span class="material-icons">download</span>
+          Export
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="accordion-body" *ngIf="!accordionCollapsed">
+    <p class="accordion-text">No alarm data to display.</p>
+  </div>
+</div>

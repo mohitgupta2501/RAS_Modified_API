@@ -1,0 +1,523 @@
+<div class="roll-analysis-page">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <!-- <span class="breadcrumb-item muted">Home</span> -->
+    <span class="material-icons breadcrumb-sep">chevron_right</span>
+    <span class="breadcrumb-item active">Roll Analysis</span>
+  </div>
+
+  <div class="aa-filter-card filter-card filter-bar-wrapper">
+    <div style="
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 24px;
+      padding: 16px 0px;
+      width: 100%;
+      box-sizing: border-box;
+    ">
+      <div class="filter-fields-row">
+
+        <!-- STAND CATEGORY -->
+        <div class="filter-field-wrapper">
+          <span class="filter-field-label">STAND CATEGORY</span>
+
+          <div class="custom-select" (click)="$event.stopPropagation()">
+            <div class="filter-dropdown-trigger"
+              (click)="$event.stopPropagation(); toggleDropdown('stand')"
+              [style.border-color]="openDropdown === 'stand' ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.15)'">
+              <span>{{ selectedStand }}</span>
+              <span class="material-icons"
+                [style.transform]="openDropdown === 'stand' ? 'rotate(180deg)' : 'rotate(0deg)'"
+                style="transition: transform 0.2s ease;">expand_more</span>
+            </div>
+
+            <div *ngIf="openDropdown === 'stand'" class="filter-dropdown-panel"
+              (click)="$event.stopPropagation()" style="width: 160px;">
+              <div *ngFor="let stand of standOptions"
+                (click)="selectStand(stand)"
+                style="
+                  padding: 10px 14px;
+                  cursor: pointer;
+                  font-size: 13px;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+                [style.color]="selectedStand === stand ? '#00D4FF' : '#7B90B8'"
+                [style.background]="selectedStand === stand ? 'rgba(0,212,255,0.06)' : 'transparent'">
+                <span>{{ stand }}</span>
+                <span class="material-icons" *ngIf="selectedStand === stand"
+                  style="font-size:16px;color:#00D4FF">check</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROLL TYPE -->
+        <div class="filter-field-wrapper">
+          <span class="filter-field-label">ROLL TYPE</span>
+
+          <div class="custom-select" (click)="$event.stopPropagation()">
+            <div class="filter-dropdown-trigger"
+              (click)="$event.stopPropagation(); toggleDropdown('rollType')"
+              style="width: 140px;"
+              [style.border-color]="openDropdown === 'rollType' ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.15)'"
+              [style.pointer-events]="selectedRollType === '-' ? 'none' : 'auto'"
+              [style.opacity]="selectedRollType === '-' ? '0.4' : '1'">
+              <span>{{ selectedRollType }}</span>
+              <span class="material-icons"
+                [style.transform]="openDropdown === 'rollType' ? 'rotate(180deg)' : 'rotate(0deg)'"
+                style="transition: transform 0.2s ease;"
+                *ngIf="selectedRollType !== '-'">expand_more</span>
+            </div>
+
+            <div *ngIf="openDropdown === 'rollType'" class="filter-dropdown-panel"
+              (click)="$event.stopPropagation()" style="width: 140px;">
+              <div *ngFor="let type of rollTypeOptions"
+                (click)="selectRollType(type)"
+                style="
+                  padding: 10px 14px;
+                  cursor: pointer;
+                  font-size: 13px;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+                [style.color]="selectedRollType === type ? '#00D4FF' : '#7B90B8'"
+                [style.background]="selectedRollType === type ? 'rgba(0,212,255,0.06)' : 'transparent'">
+                <span>{{ type }}</span>
+                <span class="material-icons" *ngIf="selectedRollType === type"
+                  style="font-size:16px;color:#00D4FF">check</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROLL ID -->
+        <div class="filter-field-wrapper">
+          <span class="filter-field-label">ROLL ID</span>
+
+          <div class="custom-select" (click)="$event.stopPropagation()">
+            <div class="filter-dropdown-trigger"
+              (click)="$event.stopPropagation(); !isLoadingRollList && toggleFilterDropdown('rollId')"
+              [style.border-color]="openDropdown === 'rollId' ? 'rgba(0,212,255,0.5)' : 'rgba(0,212,255,0.15)'"
+              [style.opacity]="isLoadingRollList ? '0.5' : '1'"
+              [style.pointer-events]="isLoadingRollList ? 'none' : 'auto'">
+
+              <!-- Loading state -->
+              <ng-container *ngIf="isLoadingRollList">
+                <span style="color: #7B90B8; font-size: 13px;">Loading...</span>
+                <span class="roll-id-spinner"></span>
+              </ng-container>
+
+              <!-- Normal state -->
+              <ng-container *ngIf="!isLoadingRollList">
+                <span>{{ selectedRollId || 'Select Roll ID' }}</span>
+                <span class="material-icons"
+                  [style.transform]="openDropdown === 'rollId' ? 'rotate(180deg)' : 'rotate(0deg)'"
+                  style="transition: transform 0.2s ease;">expand_more</span>
+              </ng-container>
+            </div>
+
+            <div *ngIf="openDropdown === 'rollId'" class="filter-dropdown-panel"
+              (click)="$event.stopPropagation()"
+              style="width: 200px; max-height: 260px; overflow: hidden;">
+
+              <!-- Search input -->
+              <div style="padding: 10px 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+                <input
+                  type="text"
+                  [value]="rollIdSearchQuery"
+                  (input)="onRollIdSearchInput(($any($event.target).value))"
+                  placeholder="Search Roll ID"
+                  style="
+                    width: 100%;
+                    background: rgba(255,255,255,0.03);
+                    border: 1px solid rgba(0,212,255,0.18);
+                    border-radius: 8px;
+                    padding: 9px 10px;
+                    color: #E8F0FE;
+                    font-size: 13px;
+                    outline: none;
+                    box-sizing: border-box;
+                  "
+                  (click)="$event.stopPropagation()" />
+              </div>
+
+              <!-- Options list -->
+              <div style="max-height: 210px; overflow-y: auto;">
+                <ng-container *ngIf="filteredRollIds.length > 0; else noRollIdResults">
+                  <div *ngFor="let rollId of filteredRollIds"
+                    (click)="selectFilterOption('rollId', rollId)"
+                    style="
+                      padding: 10px 14px;
+                      cursor: pointer;
+                      font-size: 13px;
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: center;
+                    "
+                    [style.color]="selectedRollId === rollId ? '#00D4FF' : '#7B90B8'"
+                    [style.background]="selectedRollId === rollId ? 'rgba(0,212,255,0.06)' : 'transparent'">
+                    <span>{{ rollId }}</span>
+                    <span class="material-icons" *ngIf="selectedRollId === rollId"
+                      style="font-size:16px;color:#00D4FF">check</span>
+                  </div>
+                </ng-container>
+
+                <ng-template #noRollIdResults>
+                  <div style="padding: 12px 14px; color: #3D5175; font-size: 12px;">
+                    No matching Roll IDs
+                  </div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ← CHANGED: KPI Info Card — now driven by rollAnalysisResult from API -->
+  <!-- Loading skeleton -->
+  <div class="kpi-card" *ngIf="isLoadingAnalysis && !rollAnalysisResult">
+    <div class="kpi-header">ROLL DETAILS</div>
+    <div class="kpi-body" style="color: #3D5175; font-size: 13px; padding: 16px; display: flex; align-items: center; gap: 10px;">
+      <span class="analysis-spinner"></span>
+      <span>Loading roll details...</span>
+    </div>
+  </div>
+
+  <!-- Populated KPI card -->
+  <div class="kpi-card" *ngIf="rollAnalysisResult">
+    <div class="kpi-header">ROLL DETAILS</div>
+    <div class="kpi-body">
+      <div class="kpi-grid">
+
+        <!-- Roll ID — always first, styled in cyan -->
+        <div class="kpi-item">
+          <div class="kpi-label">Roll ID</div>
+          <div class="kpi-value roll-id">{{ rollAnalysisResult.rollInfo.rollId }}</div>
+        </div>
+
+        <!-- Dynamic metrics from API -->
+        <div class="kpi-item" *ngFor="let metric of rollAnalysisResult.rollInfo.metrics">
+          <div class="kpi-label">{{ metric.title }}</div>
+          <div class="kpi-value">
+            {{ metric.value }}<span *ngIf="metric.unit !== '-'">&nbsp;{{ metric.unit }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="charts-grid">
+    <!-- Chart 1 -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <span class="material-icons">show_chart</span>
+        <div class="chart-title">Diameter Consumption</div>
+      </div>
+      <div class="chart-card-body">
+        <div echarts [options]="diameterChartOptions" [autoResize]="true" class="chart"></div>
+      </div>
+    </div>
+
+    <!-- Chart 2 -->
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <span class="material-icons">show_chart</span>
+        <div class="chart-title">Campaign Utilization Trend</div>
+      </div>
+      <div class="chart-card-body">
+        <div echarts [options]="utilizationChartOptions" [autoResize]="true" class="chart"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Roll Usage Table -->
+  <div class="usage-section">
+    <div class="usage-header-row">
+      <div class="usage-title-row">
+        <span class="material-icons usage-icon">table_rows</span>
+        <span class="usage-title">Roll Usage</span>
+      </div>
+      <div class="usage-actions">
+        <button type="button" class="defect-btn" (click)="openDefectModal()">
+          <span class="material-icons">warning</span>
+          <span>Defect</span>
+        </button>
+        <button type="button" class="edit-btn" (click)="openEditModal()">
+          <span class="material-icons">edit</span>
+          <span>Edit Recent Cycle</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Analysis loading state -->
+    <div *ngIf="isLoadingAnalysis" class="analysis-loading-row">
+      <span class="analysis-spinner"></span>
+      <span style="color: #7B90B8; font-size: 13px;">Loading roll data...</span>
+    </div>
+
+    <!-- Empty state: no roll IDs returned -->
+    <div *ngIf="!isLoadingAnalysis && !isLoadingRollList && rollIdOptions.length === 0 && !selectedRollId"
+      class="empty-state-row">
+      <span class="material-icons" style="color: #3D5175; font-size: 32px;">inbox</span>
+      <span style="color: #3D5175; font-size: 13px; margin-top: 8px;">
+        No Roll IDs found for selected Stand Category and Roll Type.
+      </span>
+    </div>
+
+    <!-- Table: shown only when not loading and data exists -->
+    <ng-container *ngIf="!isLoadingAnalysis && rollUsageRowData.length > 0">
+      <div class="ag-theme-custom-dark w-full" style="width: 100%">
+        <ag-grid-angular
+          [rowData]="rollUsagePaginatedData"
+          [columnDefs]="rollUsageColumnDefs"
+          [defaultColDef]="defaultColDef"
+          [gridOptions]="gridOptions"
+          [rowHeight]="52"
+          [headerHeight]="44"
+          [domLayout]="'autoHeight'"
+          [suppressCellFocus]="true"
+          [pagination]="true"
+          [paginationPageSize]="10"
+          [suppressPaginationPanel]="true"
+          style="width: 100%">
+        </ag-grid-angular>
+      </div>
+
+      <div class="pagination-bar">
+        <div class="pagination-left">
+          <span class="pagination-info">
+            Showing
+            <span class="pagination-highlight">{{ rollUsageStartRow }}</span>
+            to
+            <span class="pagination-highlight">{{ rollUsageEndRow }}</span>
+            of
+            <span class="pagination-highlight">{{ rollUsageTotalRows }}</span>
+            entries
+          </span>
+        </div>
+
+        <div class="pagination-center">
+          <div class="pagination-nav">
+
+            <!-- Left arrow -->
+            <button class="pagination-btn"
+              [disabled]="rollUsageCurrentPage === 1"
+              (click)="rollUsageGoToPage(rollUsageCurrentPage - 1)">
+              <span class="material-icons">chevron_left</span>
+            </button>
+
+            <!-- Always show page 1 + ellipsis if window is far from start -->
+            <button *ngIf="rollUsageGetWindowPages()[0] > 1"
+              class="pagination-page"
+              (click)="rollUsageGoToPage(1)">1</button>
+
+            <span *ngIf="rollUsageGetWindowPages()[0] > 2"
+              class="pagination-ellipsis">...</span>
+
+            <!-- 3-page sliding window -->
+            <button *ngFor="let page of rollUsageGetWindowPages()"
+              class="pagination-page"
+              [class.active]="page === rollUsageCurrentPage"
+              (click)="rollUsageGoToPage(page)">
+              {{ page }}
+            </button>
+
+            <!-- Ellipsis + last page if window is far from end -->
+            <span *ngIf="rollUsageGetWindowPages()[rollUsageGetWindowPages().length - 1] < rollUsageTotalPages - 1"
+              class="pagination-ellipsis">...</span>
+
+            <button *ngIf="rollUsageGetWindowPages()[rollUsageGetWindowPages().length - 1] < rollUsageTotalPages"
+              class="pagination-page"
+              (click)="rollUsageGoToPage(rollUsageTotalPages)">
+              {{ rollUsageTotalPages }}
+            </button>
+
+            <!-- Right arrow -->
+            <button class="pagination-btn"
+              [disabled]="rollUsageCurrentPage === rollUsageTotalPages"
+              (click)="rollUsageGoToPage(rollUsageCurrentPage + 1)">
+              <span class="material-icons">chevron_right</span>
+            </button>
+
+          </div>
+        </div>
+
+        <div class="pagination-right">
+          <div class="pagination-size-wrapper">
+            <span class="rows-label">Rows per page</span>
+            <div class="pagination-size-select">
+              <select class="pagination-size-trigger"
+                [(ngModel)]="rollUsagePageSize"
+                (ngModelChange)="rollUsageSetPageSize($event)">
+                <option *ngFor="let size of [10, 25, 50, 100]" [value]="size">{{ size }}</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="export-btn" (click)="onExportRollUsage()">
+            <span class="material-icons">download</span>
+            Export
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="edit-backdrop" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="edit-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="material-icons">edit</span>
+          Edit Recent Cycle
+        </div>
+        <button type="button" (click)="closeEditModal()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-field">
+          <label>ROLLED LENGTH</label>
+          <input type="number" placeholder="Enter length (km)" [(ngModel)]="editCycleData.rolledLength" />
+        </div>
+        <div class="form-field">
+          <label>MAINT COST (MINR)</label>
+          <input type="number" placeholder="Enter cost in MINR" [(ngModel)]="editCycleData.maintCost" />
+        </div>
+        <div class="form-field full-width">
+          <app-datetime-picker
+            label="Roll Change Time"
+            [value]="editCycleData.rollChangeTime"
+            (valueChange)="editCycleData.rollChangeTime = $event">
+          </app-datetime-picker>
+        </div>
+        <div class="form-field full-width">
+          <label>REMARKS</label>
+          <textarea rows="3" placeholder="Enter remarks or notes..." [(ngModel)]="editCycleData.remarks"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="cancel-btn" (click)="closeEditModal()">Cancel</button>
+        <button type="button" class="save-btn" (click)="saveEdit()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  <div class="success-toast" [class.visible]="showToast">
+    <span class="material-icons">check_circle</span>
+    <span>{{ toastMessage }}</span>
+  </div>
+
+  <!-- Defect Modal -->
+  <div class="defect-backdrop" *ngIf="showDefectModal"
+    (click)="openDefectDropdown = null; closeDefectModal()">
+    <div class="defect-modal" (click)="$event.stopPropagation()">
+      <div class="defect-header">
+        <div class="defect-title">Log Defect</div>
+        <button type="button" class="defect-close" (click)="closeDefectModal()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+      <div class="defect-subtitle">Select defect status for roll {{ selectedRollId }}</div>
+
+      <div class="defect-grid">
+
+        <!-- Spall -->
+        <div class="defect-field">
+          <label>SPALL</label>
+          <div class="custom-select" [class.open]="openDefectDropdown === 'spall'">
+            <div class="defect-select-trigger" (click)="toggleDefectDropdown('spall', $event)">
+              <span>{{ defectForm.spall }}</span>
+              <span class="material-icons defect-arrow">expand_more</span>
+            </div>
+            <div class="defect-options-panel" *ngIf="openDefectDropdown === 'spall'">
+              <div class="defect-option-item" *ngFor="let opt of ['No', 'Yes']"
+                [class.selected]="defectForm.spall === opt"
+                (click)="selectDefectOption('spall', opt, $event)">
+                <span>{{ opt }}</span>
+                <span class="material-icons" *ngIf="defectForm.spall === opt">check</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Crack -->
+        <div class="defect-field">
+          <label>CRACK</label>
+          <div class="custom-select" [class.open]="openDefectDropdown === 'crack'">
+            <div class="defect-select-trigger" (click)="toggleDefectDropdown('crack', $event)">
+              <span>{{ defectForm.crack }}</span>
+              <span class="material-icons defect-arrow">expand_more</span>
+            </div>
+            <div class="defect-options-panel" *ngIf="openDefectDropdown === 'crack'">
+              <div class="defect-option-item" *ngFor="let opt of ['No', 'Yes']"
+                [class.selected]="defectForm.crack === opt"
+                (click)="selectDefectOption('crack', opt, $event)">
+                <span>{{ opt }}</span>
+                <span class="material-icons" *ngIf="defectForm.crack === opt">check</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Uniform Circulation -->
+        <div class="defect-field">
+          <label>UNIFORM CIRCULATION</label>
+          <div class="custom-select" [class.open]="openDefectDropdown === 'uniformCirculation'">
+            <div class="defect-select-trigger" (click)="toggleDefectDropdown('uniformCirculation', $event)">
+              <span>{{ defectForm.uniformCirculation }}</span>
+              <span class="material-icons defect-arrow">expand_more</span>
+            </div>
+            <div class="defect-options-panel" *ngIf="openDefectDropdown === 'uniformCirculation'">
+              <div class="defect-option-item" *ngFor="let opt of ['Good', 'Fair', 'Poor']"
+                [class.selected]="defectForm.uniformCirculation === opt"
+                (click)="selectDefectOption('uniformCirculation', opt, $event)">
+                <span>{{ opt }}</span>
+                <span class="material-icons" *ngIf="defectForm.uniformCirculation === opt">check</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fit For Use -->
+        <div class="defect-field">
+          <label>FIT FOR USE</label>
+          <div class="custom-select" [class.open]="openDefectDropdown === 'fitForUse'">
+            <div class="defect-select-trigger" (click)="toggleDefectDropdown('fitForUse', $event)">
+              <span>{{ defectForm.fitForUse }}</span>
+              <span class="material-icons defect-arrow">expand_more</span>
+            </div>
+            <div class="defect-options-panel" *ngIf="openDefectDropdown === 'fitForUse'">
+              <div class="defect-option-item" *ngFor="let opt of ['No', 'Yes']"
+                [class.selected]="defectForm.fitForUse === opt"
+                (click)="selectDefectOption('fitForUse', opt, $event)">
+                <span>{{ opt }}</span>
+                <span class="material-icons" *ngIf="defectForm.fitForUse === opt">check</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="defect-footer">
+        <button type="button" class="defect-cancel" (click)="closeDefectModal()">Cancel</button>
+        <button type="button" class="defect-save" (click)="saveDefect()">Save Defect</button>
+      </div>
+    </div>
+  </div>
+
+</div>
